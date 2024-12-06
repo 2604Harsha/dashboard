@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'header.html' %}
+    <style>
+        /* Styles remain unchanged */
+        .col-md-8 {
+            margin-left: 260px;
+        }
+
+        input[type="date"],
+        input[type="month"] {
+            width: 220px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .payslip-container {
+            
+            max-width: 700px;
+            margin: 20px ;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            position: relative;
+            overflow: hidden;
+            page-break-inside: avoid;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header .company-info {
+            text-align: left;
+        }
+
+        .header .company-info h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .header .company-info p {
+            margin: 2px 0;
+            color: #777;
+        }
+
+        .employee-summary,
+        .earnings-deductions,
+        .total-net-payable {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .employee-summary h6,
+        .earnings-deductions h6,
+        .total-net-payable h6 {
+            margin-top: 0;
+        }
+
+        .employee-summary table,
+        .earnings-deductions table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .employee-summary td,
+        .earnings-deductions td,
+        .total-net-payable td {
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .net-pay {
+            text-align: center;
+            background-color: #cbfadd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .net-pay h1 {
+            margin: 0;
+            color: #00796b;
+        }
+
+        .earnings-deductions {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .earnings-deductions .earnings,
+        .earnings-deductions .deductions {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        @media(min-width: 600px) {
+
+            .earnings-deductions .earnings,
+            .earnings-deductions .deductions {
+                width: 48%;
+                margin-bottom: 0;
+            }
+        }
+
+        .total-net-payable {
+            text-align: left;
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .download-button {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .download-button button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .download-button button:hover {
+            background-color: #fff;
+            color: #007bff;
+        }
+
+        .emp-table-container {
+            position: absolute;
+            right: 20px;
+            top: 7%;
+            /* width: 18%;*/
+            max-width: 400px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        .emp-table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .emp-table-container th,
+        .emp-table-container td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .emp-table-container th {
+            background-color: #f2f2f2;
+        }
+
+        .emp-table-container tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .employee-table-container {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 37%;
+            max-width: 400px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        .employee-table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .employee-table-container th,
+        .employee-table-container td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .employee-table-container th {
+            background-color: #f2f2f2;
+        }
+
+        .employee-table-container tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .options-link {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .options-link:hover {
+            text-decoration: underline;
+        }
+
+        .parent-container {
+            position: relative;
+            height: 10vh;
+            text-align: center;
+        }
+
+        .col-md-6 {
+            display: inline-block;
+            vertical-align: middle;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @media (max-width: 1350px) {
+
+            .min-height-300 {
+                min-height: 200px !important;
+
+            }
+        }
+
+        #working-days {
+            width: 80px;
+            /* Width as per your requirements */
+            padding: 4px 8px;
+            /* Reduced padding to lower height */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            /* Smaller font size for a compact look */
+            color: #333;
+            text-align: center;
+            margin-left: 39px;
+        }
+
+        #working-days:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        #working-days::placeholder {
+            color: #888;
+            opacity: 0.8;
+        }
+
+        #non-working-days {
+            width: 80px;
+            /* Width as per your requirements */
+            padding: 4px 8px;
+            /* Reduced padding to lower height */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            /* Smaller font size for a compact look */
+            color: #333;
+            text-align: center;
+            margin-left: 12px;
+        }
+
+        #non-working-days:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        #non-working-days::placeholder {
+            color: #888;
+            opacity: 0.8;
+        }
+
+        .wDays {
+            margin-top: 10px;
+        }
+
+        .payment-options {
+            position: absolute;
+            top: 55%;
+            right: 20px;
+        }
+
+        .generate-id-btn:hover {
+            background-color: #45a049;
+            /* Darker green on hover */
+        }
+
+        .generate-id-btn {
+            bottom: 20px;
+            /* Adjust the distance from the bottom */
+            right: 20px;
+            /* Adjust the distance from the right */
+            padding: 10px 10px;
+            background-color: #4CAF50;
+            /* Green background */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        #payslipIdDisplay {
+            max-width: 135px;
+            top: 20px;
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100 w-100">
+    <div class="payslip-container" id="payslip">
+        <form method="POST">
+            <div class="header">
+                <div class="company-info">
+                    <h6>BAtalks Pvt Ltd</h6>
+                    <p>500081 Madhapur</p>
+                </div>
+                <div>
+                    <img style="height: 70px;" src="/static/assets/img/logo.jpeg" width="208" height="55" alt="logo">
+                </div>
+                <div class="payslip-info">
+                    <h6>Payslip For the Month</h6>
+                    <h6>
+                        <input class="form-control" type="month" name="pay_period" id="pay_period"
+                            onchange="updatePayPeriod(this.value)">
+                    </h6>
+                </div>
+            </div>
+            <div class="employee-summary">
+                <h6>EMPLOYEE SUMMARY</h6>
+                <table>
+                    <tr>
+                        <td>Employee Name</td>
+                        <td>:</td>
+                        <td id="emp-name"></td>
+                        <input type="hidden" name="emp_name" id="emp-name-hidden">
+                        <td rowspan="5" class="net-pay">
+                            <h3 id="net-pay">₹0.00</h3>
+                            <p>Employee Net Pay</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Employee ID</td>
+                        <td>:</td>
+                        <td id="emp-id"></td>
+                        <input type="hidden" name="emp_id" id="emp-id-hidden">
+                    </tr>
+                    <!-- <tr>
+                        <td>Date of Joining</td>
+                        <td>:</td>
+                        <td id="emp-join"></td>
+                    </tr> -->
+                    <tr>
+                        <td>Pay Period</td>
+                        <td>:</td>
+                        <!-- Below code where you want to show the selected month -->
+                        <td>
+                            <input class="form-control" type="month" name="pay_period_display" id="pay_period_display"
+                                readonly>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Pay Date</td>
+                        <td>:</td>
+                        <td><input class="form-control" type="date" name="pay_date" id="pay_date" required></td>
+                    </tr>
+                    <tr>
+                        <td>UAN</td>
+                        <td>:</td>
+                        <td id="uan"></td>
+                    </tr>
+                    <tr>
+                        <td>PAN</td>
+                        <td>:</td>
+                        <td id="pan"></td>
+                    </tr>
+                    <tr>
+                        <td>Bank Name</td>
+                        <td>:</td>
+                        <td id="bank-name"></td>
+                    </tr>
+                    <tr>
+                        <td>Branch</td>
+                        <td>:</td>
+                        <td id="branch"></td>
+                    </tr>
+                    <tr>
+                        <td>Bank A/C No</td>
+                        <td>:</td>
+                        <td id="account-no"></td>
+                    </tr>
+                    <tr>
+                        <td>Payment Mode</td>
+                        <td>:</td>
+                        <td id="payment-mode">
+                            <select name="payment_mode" id="mode" class="form-select">
+                                <option value="Bank">Bank</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="earnings-deductions">
+                <div class="earnings">
+                    <h6>EARNINGS</h6>
+                    <table>
+                        <tr>
+                            <td>Basic Pay</td>
+                            <td><input class="form-control" type="number" name="bp" id="basic-pay"
+                                    oninput="calculateNetPay()"></td>
+                        </tr>
+                        <tr>
+                            <td>House Rent Allowance (HRA)</td>
+                            <td><input class="form-control" type="number" name="hra" id="hra"
+                                    oninput="calculateNetPay()"></td>
+                        </tr>
+                        <tr>
+                            <td>Medical Allowance</td>
+                            <td><input class="form-control" type="number" name="ma" id="medical-allowance"
+                                    oninput="calculateNetPay()"></td>
+                        </tr>
+                        <tr>
+                            <td>Conveyance Allowance</td>
+                            <td><input class="form-control" type="number" name="ca" id="conveyance-allowance"
+                                    oninput="calculateNetPay()"></td>
+                        </tr>
+                        <tr>
+                            <td>Other Allowances</td>
+                            <td><input class="form-control" type="number" name="oa" id="other-allowances"
+                                    oninput="calculateNetPay()"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <h6>Gross Earnings</h6>
+                            </td>
+                            <td>
+                                <h6 id="gross-earnings">₹0.00</h6>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="deductions">
+                    <h6>DEDUCTIONS</h6>
+                    <table>
+                        <tr>
+                            <td>Professional Tax</td>
+                            <td><input class="form-control" type="number" name="pt" id="professional-tax"
+                                    oninput="calculateNetPay()"></td>
+                        </tr>
+                        <tr>
+                            <td>Provident Fund (PF)</td>
+                            <td><input class="form-control" type="number" name="pf" id="provident-fund"
+                                    oninput="calculateNetPay()"></td>
+                        </tr>
+                        <tr>
+                            <td>Leave Deductions</td>
+                            <td><input class="form-control" type="number" name="ld" id="leave-deduction"
+                                    oninput="calculateNetPay()" required></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <h6>Total Deductions</h6>
+                            </td>
+                            <td>
+                                <h6 id="total-deductions">₹0.00</h6>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="wDays">
+                        <label>Number of Working Days: </label>
+                        <input class="" type="number" name="working_days" id="working-days" min="1" max="30"
+                            oninput="calculateNetPay()" placeholder="1-30" required>
+                        <label>Number of Non-Working Days: </label>
+                        <input class="" type="number" name="non_working_days" id="non-working-days" min="1" max="30"
+                            oninput="calculateNetPay()" placeholder="1-30" required>
+                    </div>
+                </div>
+            </div>
+            <div class="total-net-payable">
+                <h6>TOTAL NET PAYABLE</h6>
+                <table>
+                    <tr>
+                        <td>Gross Earnings</td>
+                        <td id="total-earnings">₹0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Total Deductions</td>
+                        <td id="total-deductions2">₹0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Net Payable</td>
+                        <td id="net-payable">₹0.00</td>
+                    </tr>
+                </table>
+                <button id="generateIdBtn" class="generate-id-btn" type="button">Generate Payslip ID</button>
+                <p id="payslipIdDisplay">Payslip ID: </p>
+
+                <!-- Hidden field to store the generated payslip ID -->
+                <input type="hidden" id="unqID" name="unqID">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary btn-sm ms-auto" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+
+
+
+    <div class="emp-table-container mt-5">
+        <h6>Employee Information</h6>
+        <input type="text" class="form-control" id="searchInput" placeholder="Search for employees..."
+            onkeydown="filterEmployees()">
+        <select id="employeeSelect" onchange="fillEmployeeDetails(this.value)" class="form-select mt-2">
+            <option value="">Select an Employee</option>
+            {% for user in users %}
+            <option value='{
+                "empid": "{{ user[0] }}",
+                "username": "{{ user[1] }}",
+                "uan": "{{ user[2] }}",
+                "pan": "{{ user[3] }}",
+                "bname": "{{ user[4] }}",
+                "branch": "{{ user[5] }}",
+                "account_number": "{{ user[6] }}"
+            }'>{{ user[1] }} (ID: {{ user[0] }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="payment-options">
+        <button type="button" onclick="prefillEarnings()" class="btn btn-primary">Pay for 15k</button>
+        <button type="button" onclick="manualPay()" class="btn btn-primary">Manual Pay</button>
+    </div>
+    <script>
+        document.getElementById("generateIdBtn").addEventListener("click", function () {
+            const payslipId = generateUniqueId();
+            document.getElementById("payslipIdDisplay").innerText = "Payslip ID: " + payslipId;
+            document.getElementById("unqID").value = payslipId;  // Set the hidden input with the generated ID
+        
+            // Log to console for verification
+            console.log('Generated Payslip ID:', payslipId);
+        });
+        
+        function generateUniqueId() {
+            let id = '';
+            for (let i = 0; i < 10; i++) {
+                id += Math.floor(Math.random() * 10);  // Generate a random digit
+            }
+            return id;
+        }
+        
+    </script>
+    
+    <script>
+        // Prefill earnings-deductions fields for "Pay for 15k" option
+        function prefillEarnings() {
+            document.getElementById("basic-pay").value = 10000;
+            document.getElementById("hra").value = 2500;
+            document.getElementById("medical-allowance").value = 500;
+            document.getElementById("conveyance-allowance").value = 1000;
+            document.getElementById("other-allowances").value = 1000;
+
+            document.getElementById("professional-tax").value = 0;
+            document.getElementById("provident-fund").value = 0;
+            document.getElementById("leave-deduction").value = '';
+
+            calculateNetPay(); // Update net pay
+        }
+
+        // Clear earnings-deductions fields for "Manual Pay" option
+        function manualPay() {
+            document.getElementById("basic-pay").value = '';
+            document.getElementById("hra").value = '';
+            document.getElementById("medical-allowance").value = '';
+            document.getElementById("conveyance-allowance").value = '';
+            document.getElementById("other-allowances").value = '';
+
+            document.getElementById("professional-tax").value = '';
+            document.getElementById("provident-fund").value = '';
+            document.getElementById("leave-deduction").value = '';
+            calculateNetPay(); // Update net pay
+        }
+    </script>
+
+    <script>
+        function fillEmployeeDetails(selectedValue) {
+            if (selectedValue) {
+                const employeeDetails = JSON.parse(selectedValue);
+                
+                // Populate the fields
+                document.getElementById('emp-id').innerText = employeeDetails.empid;
+                document.getElementById('emp-name').innerText = employeeDetails.username;
+                document.getElementById('emp-id-hidden').value = employeeDetails.empid;
+                document.getElementById('emp-name-hidden').value = employeeDetails.username;
+        
+                // Fill UAN, PAN, Bank details
+                document.getElementById('uan').innerText = employeeDetails.uan;
+                document.getElementById('pan').innerText = employeeDetails.pan;
+                document.getElementById('bank-name').innerText = employeeDetails.bname;
+                document.getElementById('branch').innerText = employeeDetails.branch;
+                document.getElementById('account-no').innerText = employeeDetails.account_number;
+            }
+        }
+        
+
+        function filterEmployees() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const select = document.getElementById('employeeSelect');
+            const options = select.options;
+
+            for (let i = 1; i < options.length; i++) {
+                const txtValue = options[i].textContent || options[i].innerText;
+                options[i].style.display = txtValue.toLowerCase().includes(filter) ? "" : "none";
+            }
+
+            // Reset the selection if no options are visible
+            select.value = ""; // Deselects the current option if it does not match
+        }
+
+        function updatePayPeriod(selectedValue) {
+            document.getElementById('pay_period_display').value = selectedValue;
+        }
+        function calculateNetPay() {
+            const bp = parseFloat(document.getElementById('basic-pay').value) || 0;
+            const hra = parseFloat(document.getElementById('hra').value) || 0;
+            const ma = parseFloat(document.getElementById('medical-allowance').value) || 0;
+            const ca = parseFloat(document.getElementById('conveyance-allowance').value) || 0;
+            const oa = parseFloat(document.getElementById('other-allowances').value) || 0;
+            const pt = parseFloat(document.getElementById('professional-tax').value) || 0;
+            const pf = parseFloat(document.getElementById('provident-fund').value) || 0;
+            const ld = parseFloat(document.getElementById('leave-deduction').value) || 0;
+
+
+            const grossEarnings = bp + hra + ma + ca + oa;
+            const totalDeductions = pt + pf + ld;
+            const netPayable = grossEarnings - totalDeductions;
+
+            document.getElementById('gross-earnings').innerText = `₹${grossEarnings.toFixed(2)}`;
+            document.getElementById('total-earnings').innerText = `₹${grossEarnings.toFixed(2)}`;
+            document.getElementById('total-deductions').innerText = `₹${totalDeductions.toFixed(2)}`;
+            document.getElementById('total-deductions2').innerText = `₹${totalDeductions.toFixed(2)}`;
+            document.getElementById('net-payable').innerText = `₹${netPayable.toFixed(2)}`;
+            document.getElementById('net-pay').innerText = `₹${netPayable.toFixed(2)}`;
+
+        }
+    </script>
+
+
+</body>
+
+</html>

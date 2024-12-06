@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="/static/assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="/static/assets/img/favicon.png">
+    <title>
+        In House page For BA talks Pvt Ltd
+    </title>
+    {%include 'header.html'%}
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <!-- Nucleo Icons -->
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- CSS Files -->
+    <link id="pagestyle" href="/static/assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Ensures responsive width for select options */
+        select.form-select {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .table-responsive h6 {
+            margin-left: 25rem;
+        }
+
+        .card-header {
+            display: inline-flex;
+            justify-content: space-between;
+        }
+
+        .card-header a {
+
+            color: #fff;
+            border-radius: 5px;
+
+        }
+
+        @media (max-width: 576px) {
+            select.form-select {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+        .btn{
+            background-color: #512888;
+            color:white
+          }
+    </style>
+</head>
+
+<body class="g-sidenav-show   bg-gray-100">
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
+
+    <main class="main-content position-relative border-radius-lg ">
+        <div class="container-fluid py-4">
+            <div class="row ">
+                <div class="col-12">
+                    <div class="card mb-4">
+
+                        <div class="card-header pb-0">
+                            <h3>Work List of {{ session['username']|capitalize }} and Emp.Id is {{session['empid']}}
+                            </h3>
+                            {% if user_role == 'Admin' or user_role == 'Manager' or user_role == 'CEO' or user_role ==
+                            'HR' %}
+                            <a href="/workreport" class="btn p-2 ">Allocate Work</a>
+                            {% else %}
+                            {% endif %}
+                        </div>
+
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('work') }}">
+                                <div class="row mb-3 d-flex">
+
+                                    <div class="col-6 col-md-3 d-flex align-items-center mb-3 mb-md-0">
+                                        <!-- Username Filter Dropdown -->
+                                        <select id="usernameFilter" name="usernameFilter" class="form-select"
+                                            onchange="filterTable()" {% if disable_filter %}disabled{% endif %}>
+                                            <option value="">Users</option>
+                                            {% for username in usernames %}
+                                            <option value="{{ username }}" {% if selected_username==username
+                                                %}selected{% endif %}>
+                                                {{ username }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-6 col-md-6 d-flex align-items-center mb-3 mb-md-0">
+                                        <!-- Date Filter Input -->
+                                        <input type="date" id="dateFilter" name="dateFilter" class="form-control"
+                                            value="{{ selected_date }}"
+                                            style="width: 200px; margin-left: 10px; display: inline-block;"
+                                            onchange="filterTable()" {% if disable_filter %}disabled{% endif %} />
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="col-12">
+                                <div class="card mb-4">
+                                    <div class="col-12 ">
+
+                                    </div>
+
+                                    <div class="card-body px-0 pt-0 pb-2">
+                                        <div class="table-responsive p-0">
+                                            {% if no_data %}
+                                            <h6>No Data Found</h6>
+                                            {% else %}
+                                            <table class="table align-items-center mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th
+                                                            class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 th">
+                                                            USER NAME</th>
+                                                        <th
+                                                            class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 th">
+                                                            DATE</th>
+                                                        <th
+                                                            class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7 th">
+                                                            TIMINGS</th>
+                                                        <th
+                                                            class="text-center text-uppercase text-secondary  text-large font-weight-bolder opacity-7 th">
+                                                            WORKDONE</th>
+                                                        <th
+                                                            class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7 th">
+                                                            REPORTING TIME</th>
+                                                        <th
+                                                            class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7 th">
+                                                            TIME ZONE</th>
+                                                        <th
+                                                            class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7 th">
+                                                            STATUS</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="workreportBody">
+                                                    {% for pro in project %}
+                                                    <tr>
+                                                        <td></td>
+                                                        <td class="justify-content-center">{{ pro[-1] }}</td>
+                                                        <!-- pro[-1] is the username from the workreport -->
+                                                        <td class="justify-content-center">{{ pro[2] }}</td>
+                                                        <td class="justify-content-center">{{ pro[3] }}</td>
+                                                        <td class="justify-content-center workdone-column"
+                                                            style="word-wrap:break-word;overflow-wrap:break-word;white-space: normal;">
+                                                            <span id="workdone-{{ pro[4] }}">{{ pro[4] }}</span>
+                                                            <span id="pause-reason-{{ pro[4] }}"
+                                                                style="display:block; color:grey;">
+                                                                <em class="pause-reason" data-status="paused"
+                                                                    data-reason="{{ pro[7] }}">
+                                                                    Reason for pausing: {{ pro[7] }}
+                                                                </em>
+                                                            </span>
+                                                            <!-- Placeholder for Pause Reason -->
+                                                            <span id="check-reason-{{ pro[4] }}"
+                                                                style="display:block; color:grey;">
+                                                                <em class="check-reason" data-status="done"
+                                                                    data-reason="{{ pro[8] }}">
+                                                                    Reason for checking: {{ pro[8] }}
+                                                                </em>
+                                                            </span>
+                                                            <!-- Placeholder for Check Reason -->
+                                                        </td>
+                                                        <td class="justify-content-center">{{ pro[5] }}</td>
+                                                        <td>
+                                                            <span class="timer-icons">
+                                                                <!-- Conditionally render timer icons only if the username matches the logged-in user -->
+                                                                {% if pro[-1] == username %}
+                                                                {% if pro[6] == 'yet to start' %}
+                                                                <i class="fa-solid fa-play play-button"
+                                                                    onclick="handlePlayButtonClick('{{ pro[4] }}', this);"></i>
+                                                                <i class="fa-solid fa-pause pause-button"
+                                                                    onclick="pauseTimer('{{ pro[4] }}', this);"
+                                                                    style="display: none;"></i>
+                                                                <i class="fa-solid fa-check check-button"
+                                                                    onclick="checkWorkButton('{{ pro[4] }}', this);"
+                                                                    style="display: none;"></i>
+                                                                {% elif pro[6] == 'running' %}
+                                                                <i class="fa-solid fa-play play-button"
+                                                                    onclick="handlePlayButtonClick('{{ pro[4] }}', this);"
+                                                                    style="display: none;"></i>
+                                                                <i class="fa-solid fa-pause pause-button"
+                                                                    onclick="pauseTimer('{{ pro[4] }}', this);"></i>
+                                                                <i class="fa-solid fa-check check-button"
+                                                                    onclick="checkWorkButton('{{ pro[4] }}', this);"></i>
+                                                                {% elif pro[6] == 'paused' %}
+                                                                <i class="fa-solid fa-play play-button"
+                                                                    onclick="handlePlayButtonClick('{{ pro[4] }}', this);"></i>
+                                                                <i class="fa-solid fa-pause pause-button"
+                                                                    onclick="pauseTimer('{{ pro[4] }}', this);"
+                                                                    style="display: none;"></i>
+                                                                <i class="fa-solid fa-check check-button"
+                                                                    onclick="checkWorkButton('{{ pro[4] }}', this);"></i>
+                                                                {% elif pro[6] == 'done' %}
+                                                                <i class="fa-solid fa-play play-button"
+                                                                    onclick="handlePlayButtonClick('{{ pro[4] }}', this);"
+                                                                    style="display: none;"></i>
+                                                                <i class="fa-solid fa-pause pause-button"
+                                                                    onclick="pauseTimer('{{ pro[4] }}', this);"
+                                                                    style="display: none;"></i>
+                                                                <i class="fa-solid fa-check check-button"
+                                                                    onclick="checkWorkButton('{{ pro[4] }}', this);"
+                                                                    style="display: none;"></i>
+                                                                {% endif %}
+                                                                {% endif %}
+                                                            </span>
+                                                        </td>
+                                                        <td class="justify-content-center" id="status-{{ pro[4] }}">{{
+                                                            pro[6] }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                            {% endif %}
+                                            <!-- Modal Structure for Pause Action -->
+                                            <div id="pauseModal" class="modal">
+                                                <div class="modal-content">
+                                                    <h4>Pause Work?</h4>
+                                                    <label class="form-label" for="checkReason">Please provide a reason
+                                                        for
+                                                        pausing</label>
+                                                    <input style="margin: 5px;" class="form-control" type="text"
+                                                        id="pauseReason" placeholder="Enter pause reason">
+                                                    <div style="padding: 5px;">
+                                                        <button id="cbtn" class="btn btn-secondary"
+                                                            onclick="closeModal()">Cancel</button>
+                                                        <button id="cbtn" class="btn btn-primary"
+                                                            onclick="confirmPause()">Confirm</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Modal Structure for Check Action -->
+                                            <div id="checkModal" class="modal">
+                                                <div class="modal-content">
+                                                    <h4>Confirm Check Work</h4>
+                                                    <label class="form-label" for="checkReason">Reason for
+                                                        checking:</label>
+                                                    <input class="form-control" type="text" id="checkReason"
+                                                        placeholder="Enter reason">
+                                                    <div style="padding: 5px; margin:5px">
+                                                        <button id="cbtn" class="btn btn-secondary"
+                                                            onclick="closeCheckModal()">Cancel</button>
+                                                        <button id="cbtn" class="btn btn-primary"
+                                                            onclick="confirmCheck()">Confirm</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="download-button text-center no-print">
+            <button onclick="downloadWorkReportAsPDF() " class="btn btn-info">Download Work-Report as PDF</button>
+        </div> -->
+        </div>
+    </main>
+
+    <!--   Core JS Files   -->
+    <script src="static/assets/js/core/popper.min.js"></script>
+    <script src="static/assets/js/core/bootstrap.min.js"></script>
+    <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
+
+    <script>
+        // Scrollbar initialization for Windows platform
+        var win = navigator.platform.indexOf('Win') > -1;
+        if (win && document.querySelector('#sidenav-scrollbar')) {
+            var options = {
+                damping: '0.5'
+            }
+            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+        }
+
+        // Function to download the work report as a PDF
+        function downloadWorkReportAsPDF() {
+            const element = document.getElementById('workreport');
+            html2pdf(element, {
+                margin: 10,
+                filename: 'workreport.pdf',
+                image: { type: 'jpeg', quality: 0.99 },
+                html2canvas: { scale: 3.54 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            });
+        }
+
+        // Filter function to auto-submit form on selection
+        function filterTable() {
+            document.forms[0].submit();  // Submit the form to filter data
+        }
+    </script>
+
+    <!-- Github buttons -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <!-- Argon Dashboard -->
+    <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script>
+
+    <!-- html2pdf library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+    <script>
+        let activePlayButton = null; // Variable to track the currently active play button
+        let currentPauseButton = null; // To track which pause button was clicked
+        let currentWorkDone = null; // To track which work is being paused
+        let currentCheckButton = null; // To track which check button was clicked
+        let currentWorkDoneForCheck = null; // To track which work is being checked
+
+        // Function to update the marquee content and toggle buttons
+        function updateMarquee(workDone, playButton) {
+            const marquee = document.querySelector('.marquee');
+            marquee.textContent = `Current Work Done: ${workDone}`;
+
+            // Show pause and check buttons, and hide the play button
+            const timerIcons = playButton.parentElement;
+            const pauseButton = timerIcons.querySelector('.pause-button');
+            const checkButton = timerIcons.querySelector('.check-button');
+
+            playButton.style.display = 'none'; // Hide the play button
+            pauseButton.style.display = 'inline'; // Show the pause button
+            checkButton.style.display = 'inline'; // Show the check button
+
+            // Update the active play button reference
+            activePlayButton = playButton; // Set the currently active play button
+            // Send play action to the back-end
+            sendTimerData('play', workDone);
+
+            // Update the status in the corresponding table cell
+            const statusCell = document.getElementById(`status-${workDone}`);
+            if (statusCell) {
+                statusCell.textContent = 'running'; // Change text content
+            }
+            // populateTimers();
+        }
+
+        // Function to handle the play button click
+        function handlePlayButtonClick(workDone, playButton) {
+            // Check if there's already an active play button
+            if (activePlayButton && activePlayButton !== playButton) {
+                // Show an alert to the user
+                const confirmSwitch = confirm("Another timer is already running. Do you want to switch?");
+                if (!confirmSwitch) {
+                    return; // Exit if the user does not confirm
+                }
+                // If confirmed, stop the current timer
+                const timerIcons = activePlayButton.parentElement;
+                const pauseButton = timerIcons.querySelector('.pause-button');
+                const checkButton = timerIcons.querySelector('.check-button');
+
+                pauseButton.style.display = 'none'; // Hide the pause button
+                checkButton.style.display = 'none'; // Hide the check button
+                activePlayButton.style.display = 'inline'; // Show the play button again
+            }
+
+            // Proceed to update the marquee with the new timer
+            updateMarquee(workDone, playButton);
+        }
+
+        // Show modal when pause button is clicked
+        function pauseTimer(workDone, pauseButton) {
+            console.log("Pause button clicked for work:", workDone, pauseButton); // Debugging log
+
+            // Set the current pause button and work done identifier
+            currentPauseButton = pauseButton;
+            currentWorkDone = workDone;
+
+            // Show the pause modal
+            document.getElementById('pauseModal').style.display = 'flex'; // Show modal
+            console.log("Modal opened, currentPauseButton set to:", currentPauseButton);
+            // populateTimers();
+        }
+
+        // Close the pause modal
+        function closeModal() {
+            document.getElementById('pauseModal').style.display = 'none'; // Hide modal
+            // Don't reset currentPauseButton or currentWorkDone here
+        }
+
+        // Confirm pause action
+        function confirmPause() {
+            const pauseReason = document.getElementById('pauseReason').value;
+            if (!pauseReason) {
+                alert("Please provide a reason for pausing.");
+                return; // Exit if no reason is provided
+            }
+
+            console.log("Confirming pause, currentPauseButton:", currentPauseButton);
+
+            // Ensure that currentPauseButton is not null
+            if (!currentPauseButton) {
+                console.error("Pause button not set");
+                return;
+            }
+
+            // Hide the modal after confirmation
+            closeModal();
+
+            // Proceed with pause action
+            const marquee = document.querySelector('.marquee');
+            marquee.textContent = `Work Done Paused: ${currentWorkDone}`;
+
+            const timerIcons = currentPauseButton.parentElement;
+            const playButton = timerIcons.querySelector('.play-button');
+            const checkButton = timerIcons.querySelector('.check-button');
+
+            if (playButton) playButton.style.display = 'inline'; // Show the play button
+            if (currentPauseButton) currentPauseButton.style.display = 'none'; // Hide the pause button
+            if (checkButton) checkButton.style.display = 'inline'; // Show the check button
+
+            console.log("Timer paused");
+
+            // Update the pause reason in the table
+            const pauseReasonSpan = document.getElementById(`pause-reason-${currentWorkDone}`);
+            if (pauseReasonSpan) {
+                pauseReasonSpan.style.display = 'block'; // Show the pause reason
+                pauseReasonSpan.querySelector('em').textContent = `Reason for pausing: ${pauseReason}`; // Set the pause reason text
+            }
+
+            // Send pause action to the back-end with the reason
+            sendTimerData('pause', currentWorkDone, pauseReason, '');
+
+            // Update status in the table
+            const statusCell = document.getElementById(`status-${currentWorkDone}`);
+            if (statusCell) {
+                statusCell.textContent = 'paused'; // Change text content
+            }
+            // populateTimers();
+        }
+
+        // Show modal when check button is clicked
+        function checkWorkButton(workDone, checkButton) {
+            console.log("Check button clicked for work:", workDone); // Debugging log
+
+            // Set the current check button and work done identifier
+            currentCheckButton = checkButton;
+            currentWorkDoneForCheck = workDone;
+
+            // Show the check modal
+            document.getElementById('checkModal').style.display = 'flex'; // Show modal
+            console.log("Modal opened for checking work:", currentWorkDoneForCheck);
+            // populateTimers();
+        }
+
+        // Close the check modal
+        function closeCheckModal() {
+            document.getElementById('checkModal').style.display = 'none'; // Hide modal
+            // Don't reset currentCheckButton or currentWorkDoneForCheck here
+        }
+
+        // Confirm check action
+        function confirmCheck() {
+            const checkReason = document.getElementById('checkReason').value;
+            if (!checkReason) {
+                alert("Please provide a reason for checking.");
+                return; // Exit if no reason is provided
+            }
+
+            console.log("Confirming check, currentCheckButton:", currentCheckButton);
+
+            // Ensure that currentCheckButton is not null
+            if (!currentCheckButton) {
+                console.error("Check button not set");
+                return;
+            }
+
+            // Hide the modal after confirmation
+            closeCheckModal();
+
+            // Proceed with check action
+            const marquee = document.querySelector('.marquee');
+            marquee.textContent = `Work Done Checked: ${currentWorkDoneForCheck}`;
+
+            const timerIcons = currentCheckButton.parentElement;
+            const playButton = timerIcons.querySelector('.play-button');
+            const pauseButton = timerIcons.querySelector('.pause-button');
+
+            // Show the play button and hide others
+            if (playButton) playButton.style.display = 'none'; // Show the play button
+            if (pauseButton) pauseButton.style.display = 'none'; // Hide the pause button
+            if (currentCheckButton) currentCheckButton.style.display = 'none'; // Hide the check button
+
+            console.log("Work checked");
+
+            // Update the check reason in the table (if applicable)
+            const checkReasonSpan = document.getElementById(`check-reason-${currentWorkDoneForCheck}`);
+            if (checkReasonSpan) {
+                checkReasonSpan.style.display = 'block'; // Show the check reason
+                checkReasonSpan.querySelector('em').textContent = `Reason for checking: ${checkReason}`; // Set the check reason text
+            }
+
+            // Send check action to the back-end with the reason
+            sendTimerData('check', currentWorkDoneForCheck, '', checkReason);
+
+            // Update status in the table
+            const statusCell = document.getElementById(`status-${currentWorkDoneForCheck}`);
+            if (statusCell) {
+                statusCell.textContent = 'done'; // Change text content
+            }
+            // populateTimers();
+        }
+
+
+        // Function to send timer data to the back-end
+        function sendTimerData(action, workDone, pauseReason = '', checkReason = '') {
+            const data = {
+                action: action,
+                work_done: workDone,
+                pause_reason: pauseReason, // Include pause reason in the data
+                check_reason: checkReason // Include check reason in the data
+            };
+
+            fetch('/workreportlist', { // Replace with your actual back-end endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    // Handle success response if needed
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // Handle error response if needed
+                });
+        }
+    </script>
+    <!-- <script>
+        // Function to update the display of em tags based on timer_status
+        function populateTimers() {
+            // Get all rows in the work report body
+            const rows = document.querySelectorAll('#workreportBody tr');
+
+            rows.forEach(row => {
+                // Get the timer status for the current row
+                const timerStatusCell = row.querySelector('[id^="status-"]');
+                const timerStatus = timerStatusCell.textContent.trim();
+
+                // Get pause and check reason elements
+                const pauseReasonEm = row.querySelector('.pause-reason');
+                const checkReasonEm = row.querySelector('.check-reason');
+
+                // Set display style based on timer status
+                if (timerStatus === 'paused') {
+                    pauseReasonEm.style.display = 'block';
+                } else {
+                    pauseReasonEm.style.display = 'none';
+                }
+
+                if (timerStatus === 'done') {
+                    checkReasonEm.style.display = 'block';
+                } else {
+                    checkReasonEm.style.display = 'none';
+                }
+
+                
+            });
+        }
+
+        
+    </script>
+
+ -->
+
+</body>
+
+</html>

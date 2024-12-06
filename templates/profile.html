@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="/static/assests/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="/static/assests/img/favicon.png">
+  <title>
+    In House page For BAtalks Pvt Ltd
+  </title>
+  {%include 'header.html'%}
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/static/assests/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+  <style>
+    div.blk {
+      margin-left: 260px;
+
+    }
+
+    #editBtn {
+      color: #fff;
+      border-radius: 5px;
+      justify-content: center;
+      padding: 1px;
+    }
+
+    #subBtn {
+      color: #fff;
+      border-radius: 5px;
+      justify-content: center;
+      padding: 1px;
+
+    }
+
+    .display {
+      display: flex;
+      /* Enable flexbox */
+      justify-content: space-between;
+      /* Space between items */
+      align-items: center;
+      /* Center items vertically */
+
+    }
+
+    .display a {
+      color: red;
+      text-decoration: underline;
+    }
+
+    #password-change-form {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #password-change-form input {
+      max-width: 300px;
+    }
+
+    .button {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 1350px) {
+
+      .min-height-300 {
+        min-height: 200px !important;
+
+      }
+    }
+  </style>
+
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+
+  <div class="main-content position-relative max-height-vh-100 h-100">
+    <div class="card shadow-lg mx-4 card-profile-bottom">
+      <div class="card-body p-3">
+        <div class="row gx-4">
+          <div class="col-auto">
+            <div class="avatar avatar-xl position-relative">
+              <img src="../static/assets/img/empty-profile.jpg" alt="profile_image"
+                                class="w-100 border-radius-lg shadow-sm">
+            </div>
+          </div>
+          <div class="col-auto my-auto">
+            <div class="h-100">
+              <h5 class="mb-1">
+                {{profile[5]|upper}} {{profile[6]|upper}}
+              </h5>
+              <p class="mb-0 font-weight-bold text-sm">
+                {{profile[9]|upper}}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid py-4">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-body">
+              <div class="display">
+                <p class="text-uppercase text-sm">Employee Information</p>
+                <a href="javascript:void(0)" onclick="togglePasswordChangeForm()">Change Password</a>
+              </div>
+              <!-- Hidden Change Password Form -->
+              <div id="password-change-form">
+                <form action="/change-password" method="post">
+                  <div class="mb-3">
+                    <label for="old-password">Current Password</label>
+                    <input id="old-password" name="old_password" type="password" class="form-control"
+                      placeholder="Enter current password" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="new-password">New Password</label>
+                    <input id="new-password" name="new_password" type="text" class="form-control"
+                      placeholder="Enter new password" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="confirm-password">Confirm New Password</label>
+                    <input id="confirm-password" name="confirm_password" type="password" class="form-control"
+                      placeholder="Confirm new password" required>
+                  </div>
+                  <span id="password-error" class="alert text-danger" style="display: none; max-width:500px "></span>
+                  <!-- Placeholder for error message -->
+
+                  <div class="text-center button">
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                    <a href="javascript:void(0)" class="btn btn-secondary"
+                      onclick="togglePasswordChangeForm()">Close</a>
+                  </div>
+                </form>
+              </div>
+              <!--Hidden modal for changning password closes here-->
+
+              <form id="profileForm" method="POST" action="/update-profile">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">Employee
+                        id</label>
+                      <input class="form-control" type="text" name="username" value="{{profile[1]}}" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">Email
+                        address</label>
+                      <input class="form-control" type="email" name="email_address" value="{{profile[4]}}" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">First
+                        name</label>
+                      <input class="form-control" type="text" name="first_name" value="{{profile[5]}}" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">Last name</label>
+                      <input class="form-control" type="text" name="last_name" value="{{ profile[6] }}" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">Designation</label>
+                      <input class="form-control" type="text" name="designation" value="{{profile[9]}}" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">Joining
+                        Date</label>
+                      <input class="form-control" type="date" name="joining_date" value="{{profile[10]}}" disabled>
+                    </div>
+                  </div>
+                </div>
+                <hr class="horizontal dark">
+                <p class="text-uppercase text-sm">Contact Information</p>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">Address</label>
+                      <input class="form-control" type="text" name="address" value="{{profile[11]}}" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">City</label>
+                      <input class="form-control" type="text" name="city" value="{{profile[12]}}" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">Country</label>
+                      <input class="form-control" type="text" name="country" value="{{profile[13]}}" disabled>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="example-text-input" class="form-control-label">Postal
+                        code</label>
+                      <input class="form-control" type="text" name="postal_code" value="{{profile[14]}}" disabled>
+                    </div>
+                  </div>
+                  <!-- <div class="col-md-4">
+                    <button type="button" class="bg-primary p-2" id="editBtn" onclick="enableEdit()">Edit</button>
+                    <button type="submit" class="bg-primary p-2" id="subBtn" style="display: none;">Submit</button>
+                  </div> -->
+                </div>
+              </form>
+
+              <hr class="horizontal dark">
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--   Core JS Files   -->
+  <script src="/static/assests/js/core/popper.min.js"></script>
+  <script src="/static/assests/js/core/bootstrap.min.js"></script>
+  <script src="/static/assests/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="/static/assests/js/plugins/smooth-scrollbar.min.js"></script>
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+  </script>
+  <script>
+
+
+    // Toggle Password Change Form
+    function togglePasswordChangeForm() {
+      const form = document.getElementById('password-change-form');
+
+      // Toggle visibility
+      if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block'; // Show the form
+      } else {
+        form.style.display = 'none'; // Hide the form
+      }
+    }
+
+
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Handle form submission
+      const form = document.querySelector('form[action="/change-password"]');
+
+      form.addEventListener('submit', function (event) {
+        // Prevent the default form submission
+        event.preventDefault();
+
+        // Get the input values
+        const oldPassword = document.getElementById('old-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        // Clear any previous error messages
+        const passwordErrorDiv = document.getElementById('password-error');
+        passwordErrorDiv.style.display = 'none';
+        passwordErrorDiv.innerText = '';
+
+        // Validate the new passwords match
+        if (newPassword !== confirmPassword) {
+          passwordErrorDiv.innerText = 'New password and confirm password do not match.';
+          passwordErrorDiv.style.display = 'block'; // Show error message
+          return; // Stop execution
+        }
+
+        // Optionally, here you can also perform a check for the current password
+        // (e.g., through an AJAX request), but in this example, we'll simulate it
+        // Assume a function to validate the old password
+        validateOldPassword(oldPassword)
+          .then(isValid => {
+            if (!isValid) {
+              passwordErrorDiv.innerText = 'Current password is incorrect.';
+              passwordErrorDiv.style.display = 'block'; // Show error message
+            } else {
+              // If everything is valid, submit the form
+              form.submit();
+            }
+          });
+      });
+
+      // Function to validate the old password via AJAX
+      function validateOldPassword(password) {
+        return fetch('/validate-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ old_password: password }) // Send the old password
+        })
+          .then(response => response.json()) // Parse JSON response
+          .then(data => data.is_valid); // Return the validity
+      }
+    });
+
+    function enableEdit() {
+      // Get all input fields within the form
+      const inputs = document.querySelectorAll('.form-control');
+      const editButton = document.getElementById('editBtn');
+      const submitButton = document.getElementById('subBtn');
+
+      // Toggle disabled state
+      inputs.forEach(input => {
+        input.disabled = !input.disabled; // Toggle disabled state
+      });
+
+      // Change button visibility
+      if (editButton.style.display === "none") {
+        editButton.style.display = "inline-block";
+        submitButton.style.display = "none";
+      } else {
+        editButton.style.display = "none";
+        submitButton.style.display = "inline-block";
+      }
+    }
+
+
+  </script>
+  <!-- Github buttons -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="/static/assests/js/argon-dashboard.min.js?v=2.1.0"></script>
+</body>
+
+</html>

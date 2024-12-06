@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="static/assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="static/assets/img/favicon.png">
+  <style>
+    form small{
+      display: flex;                /* Enable flexbox */
+      justify-content: flex-end;    /* Align items to the right */
+    }
+    form .forgot{
+      color: red;
+      justify-content: right;
+    }
+    @media (max-width: 1350px) {
+           
+      .min-height-300{
+        min-height:200px !important;
+  
+      }
+  }
+  .baimg{
+    width: 168px;
+    border-radius: 5px;
+  }
+  @media (max-width: 768px) {
+    .baimg {
+        width: 100px;  /* Smaller logo for smaller screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .baimg {
+        width: 80px;  /* Even smaller logo for mobile */
+    }
+}
+  </style>
+  <title>
+    In House page For BA talks Pvt Ltd
+  </title>
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="static/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="static/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="static/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="static/assets/css/argon-dashboard.css?v=2.0.4" rel="stylesheet" />
+  
+
+</head>
+
+<body class="">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100 shadow-none my-3 navbar-transparent mt-4">
+    <div class="container">
+      <div class="row">
+        <div class="col-md">
+          <a class="navbar-brand font-weight-bolder ms-lg-0 ms-3 text-white" href="/">
+            <img class=" baimg" src="../static/assets/img/logo.jpeg" alt="" srcset="">
+          </a>
+        </div>
+      </div>
+      <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon mt-2">
+          <span class="navbar-toggler-bar bar1"></span>
+          <span class="navbar-toggler-bar bar2"></span>
+          <span class="navbar-toggler-bar bar3"></span>
+        </span>
+      </button>
+      <div class="collapse navbar-collapse" id="navigation">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center me-2 active" aria-current="page" href="#" data-bs-toggle="modal" data-bs-target="#infoModal" onclick="showAlert()">
+              Know A bit
+            </a>
+          </li>
+        </ul>
+        
+        <ul class="navbar-nav d-lg-block d-none">
+          <li class="nav-item">
+            <a href="https://www.batalks.com/" class="btn btn-sm mb-0 me-1 bg-gradient-light" target="_blank">BAtalks</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+  <main class="main-content  mt-0">
+    <div class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg"
+      style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signup-cover.jpg'); background-position: top;">
+      <span class="mask bg-gradient-dark opacity-6"></span>
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-5 text-center mx-auto">
+            <h1 class="text-white mb-2 mt-5">Welcome!</h1>
+            <p class="text-lead text-white">The more effortless the administration looks, the more effort the
+              administrator actually put into the process.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row mt-lg-n10 mt-md-n11 mt-n10 justify-content-center">
+        <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
+          <div class="card z-index-0">
+            <div class="card-header text-center pt-4">
+              <h5>Login with</h5>
+            </div>
+
+            <div class="card-body">
+              {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+              {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                {{ message }}
+              </div>
+              {% endfor %}
+              {% endif %}
+              {% endwith %}
+
+              <form action="/login" method="post" role="form">
+                <div class="mb-3">
+                  <input id="username" name="username" type="text" class="form-control" placeholder="User Id"
+                    aria-label="Name" title="Only alphanumeric characters are allowed" oninput="validateName(this)">
+                  <span id="nameError" class="text-danger"></span> <!-- Error message container -->
+                </div>
+                <div class="mb-3 password">
+                  <input id="password" name="password" type="password" class="form-control" placeholder="Password"
+                    aria-label="Password" oninput="validatePassword(this)">
+                  <span id="passwordError" style="color: red;"></span> <!-- Error message span -->
+                </div>
+                <!-- <div class="form-check form-check-info text-start">
+                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked>
+                  <label class="form-check-label" for="flexCheckDefault">
+                    I agree the <a href="javascript:;" class="text-dark font-weight-bolder">Terms and Conditions</a>
+                  </label>
+                </div>
+                <small><a href="#" class="forgot">forgot password?</a></small> -->
+                <div class="text-center">
+                  <button id="login" type="submit" class="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Login</button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!-- -------- START FOOTER 3 w/ COMPANY DESCRIPTION WITH LINKS & SOCIAL ICONS & COPYRIGHT ------- -->
+
+  <!-- -------- END FOOTER 3 w/ COMPANY DESCRIPTION WITH LINKS & SOCIAL ICONS & COPYRIGHT ------- -->
+  <!--   Core JS Files   -->
+  <script src="static/assets/js/core/popper.min.js"></script>
+  <script src="static/assets/js/core/bootstrap.min.js"></script>
+  <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+  <script>
+    /*function validateUsername(input) {
+        // Regular expression to allow only alphanumeric characters
+        const regex = /[^a-zA-Z0-9]/g;
+    
+        // Replace any non-alphanumeric characters with an empty string
+        input.value = input.value.replace(regex, '');
+    }*/
+    </script>
+    <script>
+      function showAlert() {
+        alert("You clicked on 'Know A Bit'!");
+      }
+    </script>
+    <script>
+      function validateName(input) {
+            const name = input.value.trim();
+            const nameError = document.getElementById('nameError'); // Reference to error message span
+          
+            // Check if input contains only numeric values
+            if (/^\d+$/.test(name)) {
+              nameError.innerText = 'Username cannot contain only numbers.'; // Show specific error for numbers only
+            } 
+            // Check if input contains special characters (but allow spaces and alphabets)
+            else if (/[^a-zA-Z0-9\s]/.test(name)) {
+              nameError.innerText = 'Enter valid input: username cannot contain special characters.'; // Show specific error for special characters
+            } 
+            // If the input is valid (contains alphabets or mix of alphabets and numbers)
+            else {
+              nameError.innerText = ''; // Clear error message for valid input
+            }
+          }
+
+          //function validatePassword(input) {
+          //  const password = input.value.trim();
+          //  const passwordError = document.getElementById('passwordError'); // Reference to error message span
+    
+          // Check if password contains only numbers
+          //  if (/^\d+$/.test(password)) {
+          //    passwordError.innerText = 'Enter valid input: Password cannot contain only numbers.'; // Show error for numbers only
+          //  }
+          // Check if password contains only letters (no digits or special characters)
+          //  else if (/^[a-zA-Z]+$/.test(password)) {
+          //    passwordError.innerText = 'Enter valid input: Password must contain both letters and numbers.'; // Show error if no digits
+          //  }
+          // Check if password contains only special characters (no letters or numbers)
+          //  else if (/^[^\w\s]+$/.test(password)) {
+          //    passwordError.innerText = 'Enter valid input: Password cannot contain only special characters.'; // Show error for special characters only
+          //  } 
+          // If the password is valid (contains letters and numbers, no special characters only)
+          //  else {
+          //    passwordError.innerText = ''; // Clear error message for valid input
+          //  }
+          //}
+      </script>
+
+
+
+
+  <!-- Github buttons -->
+  <!-- <script async defer src="https://buttons.github.io/buttons.js"></script> -->
+  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+  <!-- <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script> -->
+</body>
+
+</html>

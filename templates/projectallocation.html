@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <title>
+    In House page For BA talks Pvt Ltd
+  </title>
+  {%include 'header.html'%}
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- CSS Files -->
+  <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+  <style>
+    .table thead th{
+        font-size: 12px;
+    }
+    .btn{
+      background-color: #512888;
+      color:white
+    }
+    .required {
+            color: red;
+            font-weight: bold;
+            padding: 5px;
+    }
+  </style>
+</head>
+
+<body class="g-sidenav-show   bg-gray-100">
+  <div class="min-height-300 bg-dark position-absolute w-100"></div>
+  
+  <main class="main-content position-relative border-radius-lg ">
+    <div class="container-fluid py-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="col-10 ">
+                <div class="card-header pb-0 d-flex">
+                    
+                        <h3>Project Allocation</h3>
+                    
+                </div>
+            </div>
+            
+            <div class="card-body px-0 pt-0 pb-2">
+              <form method="POST" class="container">
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="project" class="form-control-label text-sm">Project<span class="required">*</span></label>
+                            <select name="project_title" id="project" class="form-control" required>
+                                <option id="clr" value="select project">Select project</option>
+                                {% for row in project %}
+                                <option id="clr" value="{{ row[1] }}">{{ row[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+            
+                    <div class="col-12 col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="username" class="form-control-label text-sm">Allocated to<span class="required">*</span></label>
+                            <select name="username" id="username" class="form-control" required>
+                                <option id="clr" value="select Employee">Select Employee</option>
+                                {% for user in users %}
+                                <option id="clr" value="{{ user[1] }}">{{ user[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+            
+                    <div class="col-12 col-md-6 mb-3">
+                      <div class="form-group">
+                        <label for="start_date" class="form-control-label fontsz">Start Date<span class="required">*</span></label>
+                        <input class="form-control" type="date" name="start_date" id="start_date" required oninput="validateYear(this)">
+                    </div>
+                    </div>
+            
+                    <!-- <div class="col-12 col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="work_time" class="form-control-label text-sm">Time</label>
+                            <input class="form-control" type="number" name="work_time" id="work_time">
+                        </div>
+                    </div> -->
+            
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="work_description" class="form-control-label text-sm">Description<span class="required">*</span></label>
+                            <textarea class="form-control" name="work_description" rows="5" placeholder="Work description" required></textarea>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn  btn-sm w-100 w-md-auto" type="submit">Save Data</button>
+                    </div>
+                </div>
+            </form>
+            
+            
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      
+      
+    </div>
+  </main>
+  
+  <!--   Core JS Files   -->
+  <script src="../assets/js/core/popper.min.js"></script>
+  <script src="../assets/js/core/bootstrap.min.js"></script>
+  <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+  </script>
+  <script>
+    function validateYear(dateInput) {
+        const dateValue = dateInput.value;
+
+        // Check if the date format is valid (YYYY-MM-DD)
+        const dateParts = dateValue.split("-");
+        if (dateParts[0] && dateParts[0].length > 4) {
+            // Limit the year part to 4 digits
+            dateParts[0] = dateParts[0].substring(0, 4);
+            dateInput.value = dateParts.join("-");
+        }
+    }
+</script>
+   
+  <!-- Github buttons -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="../assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+</body>
+
+</html>

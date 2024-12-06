@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <title>
+        In House page For BA talks Pvt Ltd
+    </title>
+    {% include 'header.html'%}
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <!-- Nucleo Icons -->
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- CSS Files -->
+    <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+        .btn{
+            background-color: #512888;
+            color:white
+          }
+    
+    </style>
+</head>
+
+<body class="g-sidenav-show   bg-gray-100">
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
+
+    <main class="main-content position-relative border-radius-lg ">
+        <div class="container-fluid py-4">
+            <div class="row ">
+                <div class="col-12">
+                    <div class="card mb-4">
+                    
+                            
+                            <div class="card-header pb-0 d-flex justify-content-between">
+                                <h6>WorkReport List of {{ session['username']|capitalize }} and Emp.Id is {{session['empid']}}</h6>
+                                <a href="/workreport" class="btn btn-primary btn-sm">Work-Report</a>
+                            </div>                            
+                        
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <form method="POST" action="{{ url_for('workreportlist') }}" class="mb-3 px-3">
+                                <div class="row g-2 align-items-center">
+                                    <!-- Username Filter Dropdown -->
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <select id="usernameFilter" name="usernameFilter" class="form-select" 
+                                            onchange="filterTable()" {% if disable_filter %}disabled{% endif %}>
+                                            <option value="">Users</option>
+                                            {% for username in usernames %}
+                                            <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
+                                                {{ username }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                            
+                                    <!-- Date Filter Input -->
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <input type="date" id="dateFilter" name="dateFilter" class="form-control"
+                                            value="{{ selected_date }}" onchange="filterTable()" {% if disable_filter %}disabled{% endif %}>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4 m-3">
+                    <div class="card-header pb-0">
+                    
+                    </div>
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="table-responsive p-0">
+                            {% if no_data %}
+                            <h6 class="text-center">No Data Found</h6>
+                            {% else %}
+                            <table class="table align-items-center justify-content-center mb-0 ">
+                                <thead>
+                                    <tr>
+                                       
+                                        <th
+                                            class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ">
+                                            USERNAME</th>
+                                        <th
+                                            class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ">
+                                            DATE</th>
+                                        <th
+                                            class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ">
+                                            TIMINGS</th>
+                                        <th
+                                            class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ">
+                                            WORK DONE</th>
+                                        <th
+                                            class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ">
+                                            REPORTING TIME</th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody id="workreportBody"> <!-- Give an ID for easy access in JavaScript -->
+                                    {% for pro in project %}
+                                    <tr>
+                                        
+                                        <td class="justify-content-center " style="padding-left: 26px;">{{ pro[-1] }}</td>
+                                        <td class="justify-content-center ">{{ pro[2] }}</td>
+                                        <td class="justify-content-center ">{{ pro[3] }}</td>
+                                        <td class="justify-content-center workdone-column "
+                                            style="word-wrap:break-word;overflow-wrap:break-word;white-space: normal;">
+                                            {{ pro[4] }}</td> <!-- Apply the class here -->
+                                        <td class="justify-content-center ">{{ pro[5] }}</td>
+                                        <td></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!--   Core JS Files   -->
+    <script src="static/assets/js/core/popper.min.js"></script>
+    <script src="static/assets/js/core/bootstrap.min.js"></script>
+    <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script>
+        var win = navigator.platform.indexOf('Win') > -1;
+        if (win && document.querySelector('#sidenav-scrollbar')) {
+            var options = {
+                damping: '0.5'
+            }
+            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+        }
+    </script>
+    <!-- Github buttons -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+    <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script>
+
+    <!-- <script>
+        function filterTable() {
+            const filter = document.getElementById('usernameFilter').value.toLowerCase();
+            const tableBody = document.getElementById('workreportBody');
+            const rows = tableBody.getElementsByTagName('tr');
+    
+            for (let i = 0; i < rows.length; i++) {
+                const usernameCell = rows[i].getElementsByTagName('td')[1]; // Username is in the second column
+                if (usernameCell) {
+                    const usernameText = usernameCell.textContent || usernameCell.innerText;
+                    rows[i].style.display = usernameText.toLowerCase().includes(filter) || filter === '' ? '' : 'none';
+                }
+            }
+        }
+    </script> -->
+    <script>
+        // This function will submit the form when the filter is changed
+        function filterTable() {
+            document.forms[0].submit();  // Assuming this is the only form on the page
+        }
+    </script>
+</body>
+
+</html>

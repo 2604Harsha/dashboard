@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <title>
+    In House page For BA talks Pvt Ltd
+  </title>
+  {% include 'header.html'%}
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- CSS Files -->
+  <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+  <style>
+    .btn{
+      background-color: #512888;
+      color:white;
+    }
+    .fontsz {
+      font-size: 16px;
+  }
+  </style>
+</head>
+
+<body class="g-sidenav-show   bg-gray-100">
+  <div class="min-height-300 bg-dark position-absolute w-100"></div>  
+  <main class="main-content position-relative border-radius-lg ">
+    <div class="container-fluid py-4">
+      <div class="row justify-content-center">
+        <div class="col-10 ">
+          <div class="card mb-4">
+            <div class="col-12 ">
+              <form id="new-todo-form" action="/add_todo" method="post" class="m-4">
+                <div class="row">
+                    <div class="col-md-6">
+                      <h3>Create To Do</h3>
+                        <div class="form-group">
+                            <label for="example-text-input"
+                                class="form-control-label fontsz">Content</label>
+                            <input class="form-control" type="text" name="content" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="example-text-input" class="form-control-label fontsz">Pick a
+                                category</label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="example-text-input"
+                                class="form-control-label fontsz">Business</label>
+                            <input type="radio" name="category" value="business" required>
+                            <label for="example-text-input"
+                                class="form-control-label fontsz">Personal</label>
+                            <input type="radio" name="category" value="personal" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6">
+                        <button class="btn  btn-sm ms-auto fontsz " type="submit  " >Add todo</button>
+
+                    </div>
+            </form>
+            </div>
+            <div class="card-header pb-0">
+              <h6>TO Do List</h6>
+            </div>
+            <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                    <tr>
+                      <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 fontsz">SL.No</th>
+                      <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ps-2 fontsz">Content</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7 fontsz">Category</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7 fontsz">Completed</th>
+                      <th class="text-secondary opacity-7"></th>
+                    </tr>
+                  </thead>
+                  <tbody class="todo-list">
+                    {% for todo in todos %}
+                    <tr class="todo-item {% if todo[3] %}completed{% endif %}" id="todo-{{ todo[0] }}">
+                        <form id="edit-todo-form-{{ todo[0] }}" action="/todos" method="post">
+                            <input class="form-input" type="hidden" name="action" value="edit">
+                            <input class="form-input" type="hidden" name="todo_id" value="{{ todo[0] }}">
+                            <td>{{ loop.index }}</td>
+                            <td class="justify-content-center">
+                                <input class="form-control" type="text" name="content" value="{{ todo[1] }}" {% if todo[3] %}readonly{% endif %} />
+                            </td>
+                            <td class="justify-content-center fontsz">
+                                <select class="form-select" name="category" {% if todo[3] %}disabled{% endif %}>
+                                    <option value="business" {% if todo[2]=='business' %} selected {% endif %}>Business</option>
+                                    <option value="personal" {% if todo[2]=='personal' %} selected {% endif %}>Personal</option>
+                                </select>
+                            </td>
+                            <td class="justify-content-center">
+                                <div class="todo-actions">
+                                    {% if not todo[3] %}
+                                    <button type="button" class="save-button btn" onclick="saveTodo(`{{ todo[0] }}`)">Save</button>
+                                    <button type="button" class="delete-button btn" onclick="deleteTodo(`{{ todo[0] }}`)">Delete</button>
+                                    <button type="button" class="complete-button btn" onclick="markAsComplete(`{{ todo[0] }}`)">✓</button>
+                                    {% else %}
+                                    ✓
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!--   Core JS Files   -->
+  <script src="../assets/js/core/popper.min.js"></script>
+  <script src="../assets/js/core/bootstrap.min.js"></script>
+  <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+  </script>
+  <!-- Github buttons -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="../assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+  <script>
+    // JavaScript functions for handling actions
+    function saveTodo(todoId) {
+        document.getElementById(`edit-todo-form-${todoId}`).submit();
+    }
+    
+    function deleteTodo(todoId) {
+        fetch(`/todos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action: 'delete', todo_id: todoId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`todo-${todoId}`).remove();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+    
+    function markAsComplete(todoId) {
+        fetch(`/todos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action: 'toggle_complete', todo_id: todoId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const todoItem = document.getElementById(`todo-${todoId}`);
+                todoItem.classList.toggle('completed');
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+    </script>
+</body>
+
+</html>

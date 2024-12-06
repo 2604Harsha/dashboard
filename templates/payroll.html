@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'header.html' %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .col-md-8 {
+            margin-left: 260px;
+        }
+
+        /* Adjust the width of the date inputs */
+        input[type="date"] {
+            width: 220px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .payslip-container {
+            width: 90%;
+            max-width: 800px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            position: relative;
+            overflow: hidden;
+            page-break-inside: avoid;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom:4px;
+            flex-wrap: wrap;
+        }
+
+        .header .company-info {
+            text-align: left;
+        }
+
+        .header .company-info h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .header .company-info p {
+            margin: 2px 0;
+            color: #777;
+        }
+
+        .employee-summary,
+        .earnings-deductions,
+        .total-net-payable {
+            border: 1px solid #ccc;
+            margin-bottom: 4px;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .employee-summary h6,
+        .earnings-deductions h6,
+        .total-net-payable h6 {
+            margin-top: 0;
+        }
+
+        .employee-summary table,
+        .earnings-deductions table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .employee-summary td,
+        .earnings-deductions td,
+        .total-net-payable td {
+            padding: 3px;
+
+            border: 1px solid #ccc;
+
+
+        }
+
+        .net-pay {
+            text-align: center;
+            background-color: #cbfadd;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .net-pay h1 {
+            margin: 0;
+            color: #00796b;
+        }
+
+        .earnings-deductions {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .earnings-deductions .earnings,
+        .earnings-deductions .deductions {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        @media(min-width: 600px) {
+
+            .earnings-deductions .earnings,
+            .earnings-deductions .deductions {
+                width: 48%;
+                margin-bottom: 0;
+            }
+        }
+
+        .total-net-payable {
+            text-align: left;
+            background-color: #e8f5e9;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .note {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            margin-top: 8px;
+
+        }
+
+        .download-button {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            margin-top: 20px;
+
+        }
+
+        .download-button button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            /* background-color: #007bff; */
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .download-button button:hover {
+            background-color: #fff;
+            color: #007bff;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-20deg);
+            opacity: 0.2;
+            z-index: 1;
+            width: 57%;
+            height: 40%;
+            background: url('/static/assets/img/logo.jpeg') center center no-repeat;
+            background-size: 100%;
+            /* Adjust size for better visibility */
+        }
+
+        @media (max-width: 1350px) {
+
+            .min-height-300 {
+                min-height: 200px !important;
+
+            }
+        }
+
+        .payslip-container {
+            width: 190mm;
+            /* Leave some space for margins */
+            margin-left: 10px;
+            padding: 10px;
+            /* Adjust padding as necessary */
+            height: 1065px;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                /* Remove body margins */
+            }
+
+            .header,
+            .footer {
+                display: none;
+                /* Hide headers/footers if needed */
+            }
+
+            .payslip-info {
+                display: none;
+            }
+        }
+
+        #lname {
+            font-weight: bold;
+            color: #344767;
+        }
+
+        #pay_period_display {
+            background: transparent;
+            color: #67748e;
+        }
+
+        .emp-table-container {
+            position: absolute;
+            right: 20px;
+            top: 10%;
+            width: 18%;
+            max-width: 400px;
+            padding: 20px;
+            border: 1px solid #ccc; 
+            border-radius: 10px;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        .emp-table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .emp-table-container th,
+        .emp-table-container td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .emp-table-container th {
+            background-color: #f2f2f2;
+        }
+
+        .emp-table-container tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .generate-id-btn {
+            position: fixed;
+            bottom: 20px;
+            /* Adjust the distance from the bottom */
+            right: 20px;
+            /* Adjust the distance from the right */
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            /* Green background */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .generate-id-btn:hover {
+            background-color: #45a049;
+            /* Darker green on hover */
+        }
+        .btn{
+            background-color: #512888;
+            color:white
+          }
+    </style>
+    
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="d-flex">
+        <div class="payslip-container " id="payslip">
+            <div class="watermark"></div>
+            <div class="header">
+                <div class="company-info">
+                    <h6>BAtalks Pvt Ltd</h6>
+                    <p>500081 Madhapur</p>
+                </div>
+                <div>
+                    <img style="height: 70px;" src="/static/assets/img/logo.jpeg" width="208" height="55" alt="logo">
+                </div>
+                <div class="payslip-info d-flex">
+                    <div>
+                        <p id="lname">Payslip for Month </p>
+                        <span>
+                            <input class="" type="month" name="pay_period" id="pay_period" style="border: none;"
+                                onchange="updatePayslip(); updatePayPeriod(this.value);">
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+            <div class="employee-summary">
+                <h6>EMPLOYEE SUMMARY {{ username }}</h6>
+                <table>
+                    <tr>
+                        <td>Employee Name</td>
+                        <td id="emp-name">{{ user[5] }} {{ user[6] }}</td>
+                        <td rowspan="5" class="net-pay">
+                            <h3> ₹ <span id="net-payable">{{ payslip[15] }}</span> </h3>
+                            <p>Employee Net Pay</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Employee ID</td>
+                        <td id="emp-id">{{ user[1] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Date of Joining</td>
+                        <td id="emp-join">{{user[10]}}</td>
+                    </tr>
+                    <tr>
+                        <td>Designation</td>
+                        <td id="emp-des">{{user[9]}}</td>
+                    </tr>
+                    <tr>
+                        <td>Pay Period</td>
+                        <td>
+                            <input name="pay_period_display" id="pay_period_display" readonly style="border: none; ">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Pay Date</td>
+                        <td id="pay_date">{{ payslip[4] }}</td>
+                    </tr>
+                    <tr>
+                        <td>UAN</td>
+                        <td id="uan">{{ user[15] }}</td>
+                    </tr>
+                    <tr>
+                        <td>PF Number</td>
+                        <td id="pf_num">{{ user[21] }}</td>
+                    </tr>
+                    <tr>
+                        <td>PAN</td>
+                        <td id="pan">{{ user[16] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Bank Name</td>
+                        <td id="bank-name">{{ user[17] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Branch</td>
+                        <td id="branch">{{ user[18] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Account Number</td>
+                        <td id="account-no">{{ user[19] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Payment Mode</td>
+                        <td id="payment_mode">{{payslip[16]}}</td>
+
+                    </tr>
+                </table>
+            </div>
+            <div class="earnings-deductions">
+                <div class="earnings">
+                    <h6>EARNINGS</h6>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Particulars</th>
+                                <th>AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Basic Pay</td>
+                                <td style="text-align: center;">₹ <span id="basic-pay">{{ payslip[5] }}</span></td>
+                            </tr>
+                            <tr>
+                                <td>House Rent Allowance (HRA)</td>
+                                <td style="text-align: center;">₹ <span id="hra">{{ payslip[6] }}</span></td>
+                            </tr>
+                            <tr>
+                                <td>Medical Allowance</td>
+                                <td style="text-align: center;">₹ <span id="medical-allowance">{{ payslip[7] }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Conveyance Allowance</td>
+                                <td style="text-align: center;">₹ <span id="conveyance-allowance">{{ payslip[8]
+                                        }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Other Allowance</td>
+                                <td style="text-align: center;">₹ <span id="other-allowances">{{ payslip[9] }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <h6>Gross Earnings</h6>
+                                </td>
+                                <td>
+                                    <h6 style="text-align: center;">₹ <span id="gross-earnings">{{ payslip[10] }}</span>
+                                    </h6>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="deductions">
+                    <h6>DEDUCTIONS</h6>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Particulars</th>
+                                <th>AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Professional Tax</td>
+                                <td style="text-align: center;">₹ <span id="professional-tax">{{ payslip[11] }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Provident Fund</td>
+                                <td style="text-align: center;">₹ <span id="provident-fund">{{ payslip[12] }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Leave Deductions</td>
+                                <td style="text-align: center;">₹ <span id="leave-deduction">{{ payslip[13] }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <h6>Total Deductions</h6>
+                                </td>
+                                <td>
+                                    <h6 style="text-align: center;">₹ <span id="net-deductions">{{ payslip[14] }}</span>
+                                    </h6>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="wDays">
+                        <span>Number of Working Days: </span>
+                        <span id="working_days">{{ payslip[17] }} Days</span><br />
+                        <span>Number of Non-Working Days: </span>
+                        <span id="non_working_days">{{ payslip[18] }} Days</span>
+                    </div>
+                </div>
+            </div>
+            <div class="total-net-payable">
+                <h6>TOTAL NET PAYABLE</h6>
+                <table>
+                    <tr>
+                        <td>Total Earnings</td>
+                        <td id="total-earnings">{{ payslip[10] }}</td> <!-- Dynamic total earnings -->
+
+                    </tr>
+                    <tr>
+                        <td>Total Deductions</td>
+                        <td id="total-deductions">{{ payslip[14] }}</td> <!-- Dynamic total deductions -->
+
+                    </tr>
+                    <tr>
+                        <td>Net Payable</td>
+                        <td id="net-pay">{{ payslip[15] }}</td> <!-- Dynamic net payable -->
+
+                    </tr>
+                </table>
+            </div>
+            <div class="note">
+                <p style="padding: 0; margin-bottom:0px;font-size: 11px;">-- This is a system generated payslip, hence the signature is not required. --</p>
+                <p id="unique_number" style="font-size: 11px; margin-bottom: 0px;">Unique Payslip Number: {{payslip[19]}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="emp-table-container payslip-info d-flex justify-content-between align-items-center">
+        <div class="lname">
+            <p id="lname">Employee Name</p>
+            <span>
+                <select name="selected_username" id="selected_username" class="searchable-select" required onchange="updatePayslip();" style="border:none">
+                    <option value="">Select Username</option>
+                    {% for username in usernames %}
+                    <option value="{{ username }}" {% if user and user[0]==username %}selected{% endif %}>{{ username }}</option>
+                    {% endfor %}
+                </select>
+            </span>
+        </div>
+    </div>
+    
+
+
+
+
+
+    <div class="download-button">
+        <button onclick="downloadPayslipAsPDF()" class="btn">Download Payslip as PDF</button>
+            
+    </div>
+
+    <script src="static/assets/js/core/popper.min.js"></script>
+    <script src="static/assets/js/core/bootstrap.min.js"></script>
+    <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+   
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+
+    <script>
+        document.getElementById("generateIdBtn").addEventListener("click", function () {
+            const payslipId = generateUniqueId();
+            document.getElementById("payslipIdDisplay").innerText = "Payslip ID: " + payslipId;
+        });
+
+        function generateUniqueId() {
+            let id = '';
+            for (let i = 0; i < 10; i++) {
+                id += Math.floor(Math.random() * 10);  // Generate a random digit
+            }
+            return id;
+        }
+
+
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#selected_username').select2({
+                placeholder: "Select Username",
+                allowClear: true,
+                width: 'resolve' // to adjust the width automatically
+            });
+        });
+        </script>
+        
+
+    <script>
+        function downloadPayslipAsPDF() {
+            const element = document.getElementById('payslip');
+            html2pdf(element, {
+                margin: 5, // Reduced margin
+                filename: 'payslip.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 }, // Adjust scale as needed
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            });
+        }
+
+
+
+
+
+
+        function updatePayPeriod(selectedValue) {
+            const date = new Date(selectedValue); // Adding "-01" to make it a valid date
+
+            // Define options for month formatting
+            const options = { year: 'numeric', month: 'long' };
+
+            // Format the date as 'Month, Year' (e.g., "July, 2024")
+            const formattedDate = date.toLocaleDateString('en-US', options);
+            selectedValue = date.toLocaleDateString('en-US', options);
+
+
+            document.getElementById('pay_period_display').value = formattedDate;
+            console.log(formattedDate);
+        }
+
+        function updatePayslip() {
+            const payPeriod = document.getElementById('pay_period').value;
+            const selectedUsername = document.getElementById('selected_username').value;
+
+            if (!payPeriod || !selectedUsername) {
+                console.error('Both pay period and username must be selected.');
+                return; // Exit if either is not set
+            }
+
+            fetch(`/payroll?pay_period=${payPeriod}&selected_username=${selectedUsername}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text(); // Fetch as text to use Jinja-rendered HTML
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Extract user information
+                    const user = {
+                        username: doc.getElementById('emp-name').innerText,
+                        empid: doc.getElementById('emp-id').innerText,
+                        joining_date: doc.getElementById('emp-join').innerHTML,
+                        designation: doc.getElementById('emp-des').innerHTML,
+                        uan: doc.getElementById('uan').innerText,
+                        pf_num: doc.getElementById('pf_num').innerText,
+                        pan: doc.getElementById('pan').innerText,
+                        bank_name: doc.getElementById('bank-name').innerText,
+                        branch: doc.getElementById('branch').innerText,
+                        account_number: doc.getElementById('account-no').innerText,
+                    };
+
+                    // Extract payslip information
+                    const payslip = {
+                        pay_date: doc.getElementById('pay_date').innerText.replace('', ''),
+                        basic_pay: doc.getElementById('basic-pay').innerText.replace('₹ ', ''),
+                        hra: doc.getElementById('hra').innerText.replace('₹ ', ''),
+                        medical_allowance: doc.getElementById('medical-allowance').innerText.replace('₹ ', ''),
+                        conveyance_allowance: doc.getElementById('conveyance-allowance').innerText.replace('₹ ', ''),
+                        other_allowances: doc.getElementById('other-allowances').innerText.replace('₹ ', ''),
+                        grossEarnings: doc.getElementById('gross-earnings').innerText.replace('₹ ', ''),
+                        totalEarnings: doc.getElementById('total-earnings').innerText.replace('₹ ', ''),
+                        professional_tax: doc.getElementById('professional-tax').innerText.replace('₹ ', ''),
+                        provident_fund: doc.getElementById('provident-fund').innerText.replace('₹ ', ''),
+                        leave_deduction: doc.getElementById('leave-deduction').innerText.replace('₹ ', ''),
+                        netDeductions: doc.getElementById('net-deductions').innerText.replace('₹ ', ''),
+                        totalDeductions: doc.getElementById('total-deductions').innerText.replace('₹ ', ''),
+                        netPayable: doc.getElementById('net-payable').innerText.replace('₹ ', ''),
+                        netPay: doc.getElementById('net-pay').innerText.replace('₹ ', ''),
+                        payment_mode: doc.getElementById('payment_mode').innerText.replace('', ''),
+                        working_days: doc.getElementById('working_days').innerText.replace('', ''),
+                        non_working_days: doc.getElementById('non_working_days').innerText.replace('', ''),
+                        unique_number: doc.getElementById('unique_number').innerText.replace('', ''), // Ensure this ID matches
+                    };
+
+                    updatePayslipUI({ user, payslip });
+                })
+                .catch(error => {
+                    console.error('Error fetching payslip data:', error);
+                    resetPayslipUI(); // Reset UI on error
+                });
+        }
+        function updatePayslipUI(data) {
+            if (data && data.payslip) {
+                document.getElementById('emp-name').innerText = data.user.username || 'N/A';
+                document.getElementById('emp-id').innerText = data.user.empid || 'N/A';
+                document.getElementById('emp-join').innerHTML = data.user.joining_date || 'N/A';
+                document.getElementById('emp-des').innerHTML = data.user.designation || 'N/A';
+                document.getElementById('pay_date').innerText = ` ${data.payslip.pay_date || 0}`;
+                document.getElementById('uan').innerText = data.user.uan || 'N/A';
+                document.getElementById('pf_num').innerText = data.user.pf_num || 'N/A';
+                document.getElementById('pan').innerText = data.user.pan || 'N/A';
+                document.getElementById('bank-name').innerText = data.user.bank_name || 'N/A';
+                document.getElementById('branch').innerText = data.user.branch || 'N/A';
+                document.getElementById('account-no').innerText = data.user.account_number || 'N/A';
+                document.getElementById('payment_mode').innerText = ` ${data.payslip.payment_mode || 'N/A'}`;
+                document.getElementById('basic-pay').innerText = ` ${data.payslip.basic_pay || 0}`;
+                document.getElementById('hra').innerText = ` ${data.payslip.hra || 0}`;
+                document.getElementById('medical-allowance').innerText = ` ${data.payslip.medical_allowance || 0}`;
+                document.getElementById('conveyance-allowance').innerText = ` ${data.payslip.conveyance_allowance || 0}`;
+                document.getElementById('other-allowances').innerText = ` ${data.payslip.other_allowances || 0}`;
+                document.getElementById('gross-earnings').innerText = ` ${data.payslip.grossEarnings || 0}`;
+                document.getElementById('total-earnings').innerText = `₹ ${data.payslip.totalEarnings || 0}`;
+                document.getElementById('professional-tax').innerText = ` ${data.payslip.professional_tax || 0}`;
+                document.getElementById('provident-fund').innerText = ` ${data.payslip.provident_fund || 0}`;
+                document.getElementById('leave-deduction').innerText = `${data.payslip.leave_deduction}`;
+                document.getElementById('net-deductions').innerText = ` ${data.payslip.netDeductions || 0}`;
+                document.getElementById('total-deductions').innerText = `₹ ${data.payslip.totalDeductions || 0}`;
+                document.getElementById('net-payable').innerText = ` ${data.payslip.netPay || 0}`;
+                document.getElementById('net-pay').innerText = `₹ ${data.payslip.netPayable || 0}`;
+                document.getElementById('working_days').innerText = `${data.payslip.working_days || `N/A`}`;
+                document.getElementById('non_working_days').innerText = `${data.payslip.non_working_days || `N/A`}`;
+                // Update unique number display
+                document.getElementById("unique_number").innerText = `${data.payslip.unique_number || 'N/A'}`;
+
+                console.log(`Unique ID: ${data.payslip.unique_number}`);
+            } else {
+                resetPayslipUI();
+            }
+        }
+        // Function to generate the unique number based on the pay period
+        function generateUniqueNumber(payPeriod) {
+            const timestamp = Date.now();  // Get the current timestamp in milliseconds
+            const formattedDate = new Date(payPeriod + '-01');  // Parse the pay period (e.g., '2024-07')
+            const monthYear = formattedDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            // Combine the formatted month/year with the timestamp to create a unique number
+            return `${monthYear.replace(' ', '_')}_${timestamp}`;
+        }
+
+
+    </script>
+
+
+    <script>
+        // Function to convert number to words
+        function numberToWords(num) {
+            const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+            const teens = ["Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+            const thousands = ["", "Thousand", "Million", "Billion"];
+
+            if (num === 0) return "Zero";
+
+            let words = "";
+
+            function toWords(n, index) {
+                if (n === 0) return "";
+                let str = "";
+                if (n < 10) str = ones[n];
+                else if (n < 20) str = teens[n - 10];
+                else if (n < 100) str = tens[Math.floor(n / 10)] + " " + ones[n % 10];
+                else str = ones[Math.floor(n / 100)] + " Hundred " + toWords(n % 100, 0);
+                return str + " " + thousands[index] + " ";
+            }
+
+            let i = 0;
+            while (num > 0) {
+                words = toWords(num % 1000, i) + words;
+                num = Math.floor(num / 1000);
+                i++;
+            }
+
+            return words.trim();
+        }
+
+        // Fetch the amounts and set words on page load
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get amount values
+            const totalEarnings = parseInt(document.getElementById("total-earnings").textContent) || 0;
+            const totalDeductions = parseInt(document.getElementById("total-deductions").textContent) || 0;
+            const netPay = parseInt(document.getElementById("net-pay").textContent) || 0;
+
+            // Convert amounts to words
+            const totalEarningsWords = numberToWords(totalEarnings);
+            const totalDeductionsWords = numberToWords(totalDeductions);
+            const netPayWords = numberToWords(netPay);
+
+            // Insert the words beside the amount values
+            document.getElementById("total-earnings-words").textContent = totalEarningsWords;
+            document.getElementById("total-deductions-words").textContent = totalDeductionsWords;
+            document.getElementById("net-pay-words").textContent = netPayWords;
+        });
+    </script>
+
+
+
+
+
+
+
+
+</body>
+
+</html>

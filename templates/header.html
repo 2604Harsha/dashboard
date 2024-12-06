@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="/static/assets//img/apple-icon.png">
+    <link rel="icon" type="image/png" href="/static/assets//img/favicon.png">
+    <title>
+        In House page For BA talks Pvt Ltd
+    </title>
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <!-- Nucleo Icons -->
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- CSS Files -->
+    <link id="pagestyle" href="/static/assets//css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+
+        /* Add hover effect */
+        .nav-link:hover {
+            background-color: #e0cdf8 ;  /* Highlight background */
+            border-radius: 0.375rem; /* Optional: rounded corners */
+        }
+    
+        /* Change the icon color when hovered */
+        .nav-link:hover .ni {
+            color: #5e72e4;  /* Change to your desired highlight color */
+        }
+    
+        /* Optional: change text color when hovered */
+        .nav-link:hover .nav-link-text {
+            color: rgb(7, 6, 6);  /* Same highlight color for text */
+        
+        }
+        .weltitle{
+        font-size: 30px;
+        }
+        .mymenu{
+            font-size: 20px;
+        }
+        @media (max-width:700px){
+            .weltitle{
+                font-size:15px;
+            }
+            .logout_img{
+                height:45px;
+            }
+
+        }
+        .nav-link-text:hover{
+            color:white;
+        }
+        .logout_img{
+                height:45px;
+            }
+            
+
+    </style>
+</head>
+
+<body class="g-sidenav-show   bg-gray-100">
+    <div class="min-height-300 bg-dark position-absolute w-100" style="margin: 0px;"></div>
+    <aside
+        class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4 "
+        id="sidenav-main">
+        <div class="sidenav-header">
+            <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
+                aria-hidden="true" id="iconSidenav"></i>
+            <a class="navbar-brand m-0 text-center" href="/dashboard">
+               
+                <span class="ms-1 font-weight-bolder mymenu">My Menu</span>
+            </a>
+        </div>
+        <hr class="horizontal dark mt-0">
+        <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+            {% if user_role == 'Admin' or user_role == 'Manager' or user_role == 'CEO' or user_role == 'HR' %}
+            <!-- Admin and Manager specific items -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Dashboard</span>
+                    </a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link " href="/todo">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">To-do</span>
+                    </a>
+                </li> -->
+                <li class="nav-item">
+                    <a class="nav-link " href="/createproject">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-credit-card text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Create Project</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/projectlist">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-app text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Project List</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/projectallocation">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Project Allocation</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link " href="/leavemanager">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Leave Disposition</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/emplist">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Employee List</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/payrollallocation">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-money-coins text-dark text-sm opacity-10"></i> <!-- Payroll allocation icon alternative -->
+                        </div>
+                        <span class="nav-link-text ms-1">Payroll Allocation</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/payroll">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Payroll </span>
+                    </a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link " href="/allocatework">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Allocate Work</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/work">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Work-List</span>
+                    </a>
+                </li> -->
+                <li class="nav-item">
+                    <a class="nav-link " href="/workreport">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i> <!-- Work report icon alternative -->
+                        </div>
+                        <span class="nav-link-text ms-1">Work Report</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/workreportlist">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i> <!-- Work report list icon alternative -->
+                        </div>
+                        <span class="nav-link-text ms-1">WorkReport List</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/adduser">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Add User</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/emp_agreement">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Employee Agreement</span>
+                    </a>
+                </li>
+                                
+            </ul>            
+            {% else %}
+            <!-- Employee specific items -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Dashboard</span>
+                    </a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link " href="/todo">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">To-do</span>
+                    </a>
+                </li> -->
+                <li class="nav-item">
+                    <a class="nav-link " href="/projectallocated">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Project Allocated</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/projectlist">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-app text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Project List</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/leaverequest">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-calendar-grid-58 text-dark text-sm opacity-10"></i> <!-- Calendar icon for leave request -->
+                        </div>
+                        <span class="nav-link-text ms-1">Leave Request</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/workreport">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i> <!-- Document icon for work report -->
+                        </div>
+                        <span class="nav-link-text ms-1">Work Report</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/workreportlist">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">WorkReport List</span>
+                    </a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link " href="/work">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">My Work</span>
+                    </a>
+                </li> -->
+                
+            </ul>
+            {% endif %}
+        </div>
+        <div class="sidenav-footer mx-3 ">
+            <div class="card card-plain shadow-none" id="sidenavCard">
+                <img class="w-100 mx-auto " src="/static/assets//img/logo.jpeg" alt="sidebar_illustration">
+                <div class="card-body text-center p-3 w-100 pt-0">
+
+                </div>
+            </div>
+
+        </div>
+    </aside>
+    <main class="main-content position-relative border-radius-lg ">
+        <!-- Navbar -->
+        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl " id="navbarBlur"
+            data-scroll="false">
+            <div class="container-fluid py-1 px-3">
+                <nav aria-label="breadcrumb">
+                    <h6 class="font-weight-bolder text-white mb-0 weltitle"  id="wel_title">Welcome, {{
+                        session['username']|capitalize }}!</h6>
+                    <p style="color: aliceblue;">Date: <span id="current_date"></span></p>
+                </nav>
+                <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+                    <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+                        <div class="input-group">
+                            <!-- <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span> -->
+                            <!-- <input type="text" class="form-control" placeholder="Type here..."> -->
+                        </div>
+                    </div>
+                    <ul class="navbar-nav  justify-content-end">
+                        <li class="nav-item d-flex align-items-center">
+                            <a href="/profile" class=" text-white font-weight-bold px-0 ">
+                                <i class="fa fa-user fa-2x me-sm-1"></i>
+                                <span class="d-sm-inline d-none">Profile</span>
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center ">
+                            <a href="/logout" class="text-white font-weight-bold px-0 ">
+                                <img src="/static/assets//img/logout.png" alt="" srcset="" class="logout_img">
+                                <span class="d-sm-inline d-none">log out</span>
+                            </a>
+                        </li>
+                        <li class="nav-item d-xl-none d-flex align-items-center">
+                            <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">
+                                <div class="sidenav-toggler-inner">
+                                    <i class="sidenav-toggler-line bg-white"></i>
+                                    <i class="sidenav-toggler-line bg-white"></i>
+                                    <i class="sidenav-toggler-line bg-white"></i>
+                                </div>
+                            </a>
+                        </li>
+                        <!-- <li class="nav-item px-3 d-flex align-items-center"> -->
+                        <a href="javascript:;" class="nav-link text-white p-0">
+                            <!-- <i class="fa fa-cog fixed-plugin-button-nav cursor-pointer"></i> -->
+                        </a>
+                        </li>
+                        <!-- <li class="nav-item dropdown pe-2 d-flex align-items-center"> -->
+                        <a href="javascript:;" class="nav-link text-white p-0" id="dropdownMenuButton"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <!-- <i class="fa fa-bell cursor-pointer"></i> -->
+                        </a>
+                        
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- End Navbar -->
+        
+        <!--   Core JS Files   -->
+        <script src="/static/assets//js/core/popper.min.js"></script>
+        <script src="/static/assets//js/core/bootstrap.min.js"></script>
+        <script src="/static/assets//js/plugins/perfect-scrollbar.min.js"></script>
+        <script src="/static/assets//js/plugins/smooth-scrollbar.min.js"></script>
+        <script src="/static/assets//js/plugins/chartjs.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Get all the nav links
+                const navLinks = document.querySelectorAll('.nav-link');
+                
+                // Loop through each link and add event listener
+                navLinks.forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        // Remove the active class from all links
+                        navLinks.forEach(function (link) {
+                            link.classList.remove('active');
+                        });
+                        
+                        // Add the active class to the clicked link
+                        this.classList.add('active');
+                    });
+                });
+        
+                // Optional: Highlight the current page on load (for example, if you're refreshing)
+                const currentPath = window.location.pathname;  // Get the current URL path
+                navLinks.forEach(function (link) {
+                    if (link.getAttribute('href') === currentPath) {
+                        link.classList.add('active'); // Highlight the current page link
+                    }
+                });
+            });
+        </script>
+        
+        <script>
+            // Get the current date
+            const currentDate = new Date();
+    
+            // Extract day, month, and year
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const year = currentDate.getFullYear();
+    
+            // Format the date as DD/MM/YYYY
+            const formattedDate = `${day}-${month}-${year}`;
+    
+            // Display the formatted date in the <span> with id="current_date"
+            document.getElementById("current_date").textContent = formattedDate;
+        </script>
+        <script>
+            var ctx1 = document.getElementById("chart-line").getContext("2d");
+
+            var gradientStroke1 = ctx1.createLinearGradient(0, 230, 0, 50);
+
+            gradientStroke1.addColorStop(1, 'rgba(94, 114, 228, 0.2)');
+            gradientStroke1.addColorStop(0.2, 'rgba(94, 114, 228, 0.0)');
+            gradientStroke1.addColorStop(0, 'rgba(94, 114, 228, 0)');
+            new Chart(ctx1, {
+                type: "line",
+                data: {
+                    labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    datasets: [{
+                        label: "Mobile apps",
+                        tension: 0.4,
+                        borderWidth: 0,
+                        pointRadius: 0,
+                        borderColor: "#5e72e4",
+                        backgroundColor: gradientStroke1,
+                        borderWidth: 3,
+                        fill: true,
+                        data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+                        maxBarThickness: 6
+
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false,
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                drawBorder: false,
+                                display: true,
+                                drawOnChartArea: true,
+                                drawTicks: false,
+                                borderDash: [5, 5]
+                            },
+                            ticks: {
+                                display: true,
+                                padding: 10,
+                                color: '#fbfbfb',
+                                font: {
+                                    size: 11,
+                                    family: "Open Sans",
+                                    style: 'normal',
+                                    lineHeight: 2
+                                },
+                            }
+                        },
+                        x: {
+                            grid: {
+                                drawBorder: false,
+                                display: false,
+                                drawOnChartArea: false,
+                                drawTicks: false,
+                                borderDash: [5, 5]
+                            },
+                            ticks: {
+                                display: true,
+                                color: '#ccc',
+                                padding: 20,
+                                font: {
+                                    size: 11,
+                                    family: "Open Sans",
+                                    style: 'normal',
+                                    lineHeight: 2
+                                },
+                            }
+                        },
+                    },
+                },
+            });
+        </script>
+        <script>
+            var win = navigator.platform.indexOf('Win') > -1;
+            if (win && document.querySelector('#sidenav-scrollbar')) {
+                var options = {
+                    damping: '0.5'
+                }
+                Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+            }
+        </script>
+        <!-- Github buttons -->
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+        <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+        <script src="/static/assets//js/argon-dashboard.min.js?v=2.1.0"></script>
+</body>
+
+</html>

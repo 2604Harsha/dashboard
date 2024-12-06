@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <title>
+        In House page For BA talks Pvt Ltd
+    </title>
+    {% include 'header.html'%}
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <!-- Nucleo Icons -->
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <!-- CSS Files -->
+    <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+        
+
+        /* Ensures responsive width for select options */
+        select.form-select {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .required {
+            color: red;
+            font-weight: bold;
+        }
+
+
+        @media (max-width: 576px) {
+            select.form-select {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show   bg-gray-100">
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
+
+    <main class="main-content position-relative border-radius-lg ">
+        <div class="container-fluid py-4">
+            <div class="row ">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-header pb-0 d-flex">
+
+                            <h3>Employee user information</h3>
+
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <div class="row">
+                                    <!-- Username Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="username" class="form-control-label fontsz">Username<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="username" id="username"
+                                            oninput="validateUsername(this)" placeholder="Enter Username" required>
+                                    </div>
+
+                                    <!-- Password Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="password" class="form-control-label fontsz">Password<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="password"
+                                            placeholder="Enter Password" required>
+                                    </div>
+
+                                    <!-- Email Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email_address" class="form-control-label fontsz">Email
+                                            address<span class="required">*</span></label>
+                                        <input class="form-control" type="email" name="email_address"
+                                            placeholder="Enter Email" required>
+                                    </div>
+
+                                    <!-- First Name Field -->
+                                    <div class="col-md-6 mb-3">
+
+                                        <label for="first_name" class="form-control-label fontsz">First name<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="first_name" id="first_name"
+                                            placeholder="First Name" pattern="[A-Za-z]+" required
+                                            oninput="this.value = this.value.replace(/[^A-Za-z]/g, '')">
+                                    </div>
+                                    
+
+                                    <!-- Last Name Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="last_name" class="form-control-label fontsz">Last name<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="last_name" id="last_name"
+                                            pattern="[A-Za-z]+" required placeholder="Last Name"
+                                            oninput="this.value = this.value.replace(/[^A-Za-z]/g, '')">
+                                    </div>
+
+                                    <!-- Phone Number Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone_number" class="form-control-label fontsz">Phone Number<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="phone_number" id="phone_number"
+                                            placeholder="Phone Number" maxlength="10" required
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    </div>
+
+                                    <!-- Date of Birth Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="date_of_birth" class="form-control-label fontsz">Date of
+                                            Birth<span class="required">*</span></label>
+                                        <input class="form-control" type="date" name="date_of_birth"
+                                            placeholder="Date Of Birth" required>
+                                    </div>
+
+                                    <!-- Designation Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="designation" class="form-control-label fontsz">Designation<span class="required">*</span></label>
+                                        <select class="form-control" name="designation" id="designation" required>
+                                            <option value="" disabled selected>Select Designation</option>
+                                            <option value="Jr Developer">Jr. Developer</option>
+                                            <option value="Jr Designer">Jr. Designer</option>
+                                            <option value="Jr Tester">Jr. Tester</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="Manager">Manager</option>
+                                            <option value="CEO">CEO</option>
+                                            <option value="Research Associate">Research Associate</option>
+                                            <option value="HR">HR</option>
+                                            <option value="Domain Expert">Domain Expert</option>
+                                            <option value="Project Manager">Project Manager</option>
+                                            <option value="Trainer">Trainer</option>
+                                            <option value="Trainee">Trainee</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Joining Date Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="joining_date" class="form-control-label fontsz">Joining Date<span class="required">*</span></label>
+                                        <input class="form-control" type="date" name="joining_date" required>
+                                    </div>
+
+                                    <!-- User Role Field -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="user_role" class="form-control-label fontsz">User Role<span class="required">*</span></label>
+                                        <select class="form-control" name="user_role" id="user_role" required>
+                                            <option value="" disabled selected>Select User Role</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="Manager">Manager</option>
+                                            <option value="Employee">Employee</option>
+                                            <option value="HR">HR</option>
+                                            <option value="Trainer">Trainer</option>
+                                            <option value="Trainee">Trainee</option>
+                                            <option value="CEO">CEO</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Contact Information Section -->
+                                <hr class="horizontal dark">
+                                <p class="text-uppercase text-sm">Contact Information</p>
+
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="address" class="form-control-label fontsz">Address<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="address" required>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="city" class="form-control-label fontsz">City<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="city" required>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="country" class="form-control-label fontsz">Country<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="country" required>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="postal_code" class="form-control-label fontsz">Postal Code<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="postal_code" required>
+                                    </div>
+
+                                    <!-- Additional Fields for UAN, PAN, Bank Details -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="uan" class="form-control-label fontsz">UAN<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="uan" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="pf" class="form-control-label fontsz">PF Number<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="pf_num" required>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="pan" class="form-control-label fontsz">PAN<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="pan" required>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="bname" class="form-control-label fontsz">Bank Name<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="bname" required>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="branch" class="form-control-label fontsz">Branch<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="branch" required>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="account_number" class="form-control-label fontsz">Account
+                                            Number<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="account_number" required>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button class="btn btn-sm fontsz" type="submit"
+                                        style="background-color: rgba(81, 40, 136, 1); color: #fff;">Save Data</button>
+                                </div>
+                            </form>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOT REALATED TO DASHBOARD -->
+
+
+        </div>
+    </main>
+    <!--   Core JS Files   -->
+    <script src="static/assets/js/core/popper.min.js"></script>
+    <script src="static/assets/js/core/bootstrap.min.js"></script>
+    <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script>
+        var win = navigator.platform.indexOf('Win') > -1;
+        if (win && document.querySelector('#sidenav-scrollbar')) {
+            var options = {
+                damping: '0.5'
+            }
+            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+        }
+    </script>
+    <!-- Github buttons -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+    <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script>
+
+    <script>
+        function validateUsername(input) {
+            // Allow only alphanumeric characters
+            input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+        }
+    </script>
+</body>
+
+</html>
