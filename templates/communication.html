@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'header.html' %}
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .work {
+            content: center;
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white;
+        }
+
+        .btn:hover {
+            background-color: white;
+        }
+
+        .required {
+            color: red;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .selected-items {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #512888;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .selected-items ul {
+            list-style-type: none;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selected-items li {
+            background-color: #e7d4fa;
+            color: #512888;
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .remove-btn {
+            background-color: transparent;
+            border: none;
+            color: #512888;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .remove-btn:hover {
+            color: #ff0000;
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <p>Communication</p>
+                        <form id="communicationForm" method="POST" action="{{ url_for('communication') }}">
+                            <input type="hidden" name="selectedUsernames" id="selectedUsernames" value="">
+                            <input type="hidden" name="selectedProjects" id="selectedProjects" value="">
+
+                            <div class="work container">
+                                <div class="row">
+                                    <!-- Project Selection -->
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label for="project" class="form-control-label text-sm">Project</label>
+                                            <select id="project"  class="form-control" onchange="updateSelectedItems(event, 'project')">
+                                                <option value="" disabled selected>Select project</option>
+                                                {% for project in projects %}
+                                                    <option value="{{ project }}">{{ project }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- User Selection -->
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <label for="usernameFilter" class="form-control-label text-sm">Users</label>
+                                        <select id="usernameFilter" name="usernameFilter" class="form-select" onchange="updateSelectedItems(event, 'user')" {% if disable_filter %}disabled{% endif %}>
+                                            <option value="" disabled selected>Select users</option>
+                                            <option>All</option>
+                                            {% for username in usernames %}
+                                                <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
+                                                    {{ username }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Message -->
+                                <div class="col-12 mb-3">
+                                    <label>Message<span class="required">*</span></label><br />
+                                    <textarea class="form-control" name="message" rows="5" cols="30" placeholder="Message description" style="max-width: 300px;" required></textarea>
+                                </div>
+
+                                <!-- Display Selected Items -->
+                                <div class="col-12 selected-items" id="selectedItemsBlock">
+                                    <h5>Selected:</h5>
+                                    <ul id="selectedItemsList">
+                                        <!-- Selected items (projects and users) will be displayed here -->
+                                    </ul>
+                                    <span id="selectedItemsError" style="color: red; display: none;">Please select at least one project or user.</span>
+                                </div>
+
+                                <!-- Save Button -->
+                                <div class="col-12 col-md-auto">
+                                    <button type="submit" class="btn btn-sm fontsz w-100 w-md-auto mt-2" onclick="validateForm(event)">Send</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let selectedItems = [];
+
+        function updateSelectedItems(event, type) {
+            const selectedOption = event.target.value;
+            if (selectedOption && !selectedItems.some(item => item.value === selectedOption)) {
+                selectedItems.push({ type, value: selectedOption });
+                renderSelectedItems();
+            }
+
+            if (selectedItems.length > 0) {
+                document.getElementById('selectedItemsError').style.display = 'none';
+            }
+        }
+
+        function renderSelectedItems() {
+            const selectedItemsList = document.getElementById('selectedItemsList');
+            const selectedUsernamesInput = document.getElementById('selectedUsernames');
+            const selectedProjectsInput = document.getElementById('selectedProjects');
+
+            selectedItemsList.innerHTML = '';
+
+            const selectedUserValues = [];
+            const selectedProjectValues = [];
+
+            selectedItems.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `${item.type === 'project' ? 'Project' : 'User'}: ${item.value}`;
+
+                if (item.type === 'project') {
+                    selectedProjectValues.push(item.value);
+                } else {
+                    selectedUserValues.push(item.value);
+                }
+
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '✖';
+                removeBtn.className = 'remove-btn';
+                removeBtn.onclick = () => removeItem(item.value);
+
+                li.appendChild(removeBtn);
+                selectedItemsList.appendChild(li);
+            });
+
+            selectedUsernamesInput.value = JSON.stringify(selectedUserValues);
+            selectedProjectsInput.value = JSON.stringify(selectedProjectValues);
+        }
+
+        function removeItem(value) {
+            selectedItems = selectedItems.filter(item => item.value !== value);
+            renderSelectedItems();
+        }
+
+        function validateForm(event) {
+            if (selectedItems.length === 0) {
+                document.getElementById('selectedItemsError').style.display = 'block';
+                event.preventDefault();
+            }
+        }
+    </script>
+</body>
+
+</html>

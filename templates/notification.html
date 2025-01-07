@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'header.html' %}
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .notifications {
+            margin-top: 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .notification {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-height: 150px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .notification.expanded {
+            max-height: none;
+        }
+
+        .notification p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .notification .timestamp {
+            font-size: 12px;
+            color: gray;
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: white;
+            color: #512888;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: red;
+        }
+
+        .expand-btn {
+            color: #512888;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .expand-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Notifications</h4>
+                        <!-- Notification List -->
+                        <div class="notifications" id="notificationList">
+                            {% if notifications %}
+                            {% for id, notification, timestamp in notifications %}
+                                <div class="notification" id="notification-{{ id }}">
+                                    <p>{{ notification }}</p>
+                                    <span class="timestamp">{{ timestamp }}</span>
+                                    <span class="close-btn" onclick="clearNotification('{{ id }}')">X</span>
+                                </div>
+                            {% endfor %}
+                            {% else %}
+                                <p>No notifications available.</p>
+                            {% endif %}
+                        </div>
+                        <button class="btn" onclick="clearNotifications()">Clear All</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            function clearNotification(notificationId) {
+            fetch('/delete_notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ notification_id: notificationId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var notification = document.getElementById('notification-' + notificationId);
+                    notification.style.display = 'none'; // Hide the notification
+                } else {
+                    console.error('Failed to delete notification:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function clearNotifications() {
+            fetch('/clear_notifications', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var notificationList = document.getElementById('notificationList');
+                    notificationList.innerHTML = ''; // Clear all notifications
+                } else {
+                    console.error('Failed to clear notifications:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        function fetchNotifications() {
+    fetch('/fetch_notifications')
+        .then(response => response.json())
+        .then(data => {
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = ''; // Clear the list
+
+            if (data.notifications && data.notifications.length > 0) {
+                data.notifications.forEach(notification => {
+                    const notificationElement = document.createElement('div');
+                    notificationElement.className = 'notification';
+                    notificationElement.id = 'notification-' + notification.id;
+
+                    notificationElement.innerHTML = `
+                        <p>${notification.notification}</p>
+                        <span class="timestamp">${notification.timestamp}</span>
+                        <span class="close-btn" onclick="clearNotification('${notification.id}')">X</span>
+                    `;
+
+                    notificationList.appendChild(notificationElement);
+                });
+            } else {
+                notificationList.innerHTML = '<p>No notifications available.</p>';
+            }
+        })
+        .catch(error => console.error('Error fetching notifications:', error));
+}
+
+// Call fetchNotifications every 10 seconds
+setInterval(fetchNotifications, 5000);
+
+// Fetch notifications immediately when the page loads
+fetchNotifications();
+
+    </script>
+</body>
+
+</html>

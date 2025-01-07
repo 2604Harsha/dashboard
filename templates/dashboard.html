@@ -12,6 +12,7 @@
   {% include 'header.html'%}
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <!-- Nucleo Icons -->
   <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
   <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -23,6 +24,40 @@
     .card1 {
       height: 120px;
     }
+    /* Gradient backgrounds */
+.bg-gradient-blue {
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+}
+
+.bg-gradient-red {
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+}
+
+.bg-gradient-orange {
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #f44336, #e57373);
+}
+
+.bg-gradient-green {
+    background: linear-gradient(135deg, #66bb6a, #43a047);
+}
+
+.bg-gradient-teal {
+    background: linear-gradient(135deg, #26c6da, #00bcd4);
+}
+
+.bg-gradient-purple {
+    background: linear-gradient(135deg, #9c27b0, #ab47bc);
+}
+
+.bg-gradient-yellow {
+    background: linear-gradient(135deg, #ffeb3b, #ff9800);
+}
+
+
   </style>
 </head>
 
@@ -34,190 +69,371 @@
     <!-- Admin and Manager specific items -->
     <div class="row">
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-        <a href="/workreportlist">
-          <div class="card">
-            <div class="card-body p-3 card1">
-              <div class="row">
-                <div class="col-8">
-                  <div class="numbers ">
-                    <p class="text-sm mb-0 text-uppercase font-weight-bolder">
-                      WorkReport List</p>
+          <a href="/workreportlist">
+              <div class="card">
+                  <div class="card-body p-3 card1">
+                      <div class="row">
+                          <div class="col-8">
+                              <div class="numbers">
+                                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">Work Report List</p>
+                              </div>
+                          </div>
+                          <div class="col-4 text-end">
+                              <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle">
+                                  <i class="ni ni-bullet-list-67 text-lg opacity-10" aria-hidden="true"></i>
+                              </div>
+                          </div>
+                      </div>
                   </div>
-                </div>
-                <div class="col-4 text-end">
-                  <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                    <i class="ni ni-briefcase-24 text-lg opacity-10" aria-hidden="true"></i>
-                  </div>
-                </div>
               </div>
-            </div>
-        </a>
+          </a>
       </div>
-    </div>
-    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-      <a href="/leavemanager">
-        <div class="card">
-          <div class="card-body p-3 card1">
-            <div class="row">
-              <div class="col-8">
-                <div class="numbers">
-                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">
-                    Leave Disposition
-                  </p>
-
-                </div>
+  
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <a href="/projectreportlist">
+              <div class="card">
+                  <div class="card-body p-3 card1">
+                      <div class="row">
+                          <div class="col-8">
+                              <div class="numbers">
+                                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">Project Report List</p>
+                              </div>
+                          </div>
+                          <div class="col-4 text-end">
+                              <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
+                                  <i class="fas fa-tasks text-lg opacity-10" aria-hidden="true"></i>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
               </div>
-              <div class="col-4 text-end">
-                <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                  <i class="ni ni-calendar-grid-58 text-lg opacity-10" aria-hidden="true"></i>
-
-                </div>
+          </a>
+      </div>
+  
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <a href="/leavemanager">
+              <div class="card">
+                  <div class="card-body p-3 card1">
+                      <div class="row">
+                          <div class="col-8">
+                              <div class="numbers">
+                                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">Leave Disposition</p>
+                              </div>
+                          </div>
+                          <div class="col-4 text-end">
+                              <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                                  <i class="ni ni-calendar-grid-58 text-lg opacity-10" aria-hidden="true"></i>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
               </div>
-            </div>
-          </div>
-      </a>
-    </div>
+          </a>
+      </div>
+  
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <a href="/redflag">
+              <div class="card">
+                  <div class="card-body p-3 card1">
+                      <div class="row">
+                          <div class="col-8">
+                              <div class="numbers">
+                                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">Red-Flags</p>
+                              </div>
+                          </div>
+                          <div class="col-4 text-end">
+                              <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                                  <i class="fas fa-exclamation-triangle text-lg opacity-10" aria-hidden="true"></i>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </a>
+      </div>
+  
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4" style="margin-top: 20px;">
+          <a href="/createproject">
+              <div class="card">
+                  <div class="card-body p-3 card1">
+                      <div class="row">
+                          <div class="col-8">
+                              <div class="numbers">
+                                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">CREATE PROJECT</p>
+                              </div>
+                          </div>
+                          <div class="col-4 text-end">
+                              <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                                  <i class="fas fa-folder-plus text-lg opacity-10" aria-hidden="true"></i>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </a>
+      </div>
+  
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4" style="margin-top: 20px;">
+          <a href="/projectallocation">
+              <div class="card">
+                  <div class="card-body p-3 card1">
+                      <div class="row">
+                          <div class="col-8">
+                              <div class="numbers">
+                                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">PROJECT ALLOCATION</p>
+                              </div>
+                          </div>
+                          <div class="col-4 text-end">
+                              <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle">
+                                  <i class="ni ni-briefcase-24 text-lg opacity-10" aria-hidden="true"></i>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </a>
+      </div>
+  
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4" style="margin-top: 20px;">
+          <a href="/communication">
+              <div class="card">
+                  <div class="card-body p-3 card1">
+                      <div class="row">
+                          <div class="col-8">
+                              <div class="numbers">
+                                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">COMMUNICATION</p>
+                              </div>
+                          </div>
+                          <div class="col-4 text-end">
+                              <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                                  <i class="ni ni-chat-round text-lg opacity-10" aria-hidden="true"></i>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </a>
+      </div>
+  
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4" style="margin-top: 20px;">
+          <a href="/profile">
+              <div class="card">
+                  <div class="card-body p-3 card1">
+                      <div class="row">
+                          <div class="col-8">
+                              <div class="numbers">
+                                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">My Profile</p>
+                              </div>
+                          </div>
+                          <div class="col-4 text-end">
+                              <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                                  <i class="ni ni-single-02 text-lg opacity-10" aria-hidden="true"></i>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </a>
+      </div>
   </div>
-  <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-    <a href="/createproject">
-      <div class="card">
-        <div class="card-body p-3 card1">
-          <div class="row">
-            <div class="col-8">
-              <div class="numbers">
-                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
-                  CREATE PROJECT
-                </p>
-
-              </div>
-            </div>
-            <div class="col-4 text-end">
-              <div class="icon icon-shape bg-gradient-success shadow-danger text-center rounded-circle">
-                <i class="ni ni-folder-17 text-lg opacity-10" aria-hidden="true"></i>
-
-              </div>
-            </div>
-          </div>
-        </div>
-    </a>
-  </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-    <a href="/profile">
-      <div class="card">
-        <div class="card-body p-3 card1">
-          <div class="row">
-            <div class="col-8">
-              <div class="numbers">
-                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
-                  My Profile
-                </p>
-              </div>
-            </div>
-            <div class="col-4 text-end">
-              <div class="icon icon-shape bg-gradient-warning shadow-danger text-center rounded-circle">
-                <i class="ni ni-single-02 text-lg opacity-10" aria-hidden="true"></i>
-
-              </div>
-            </div>
-          </div>
-        </div>
-    </a>
-  </div>
+  
   {% else %}
   <!-- Employee specific items -->
   <div class="row">
+    <!-- Work Report -->
     <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-      <a href="/workreport">
-        <div class="card">
-          <div class="card-body p-3 card1">
-            <div class="row">
-              <div class="col-8">
-                <div class="numbers ">
-                  <p class="text-sm mb-0 text-uppercase font-weight-bolder">
-                    Work Report</p>
+        <a href="/workreport">
+            <div class="card">
+                <div class="card-body p-3 card1">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
+                                    Work Report
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-blue shadow-primary text-center rounded-circle">
+                                <i class="fas fa-clipboard-list text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="col-4 text-end">
-                <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                  <i class="ni ni-briefcase-24 text-lg opacity-10" aria-hidden="true"></i>
-                </div>
-              </div>
             </div>
-          </div>
-      </a>
+        </a>
     </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-    <a href="/leaverequest">
-      <div class="card">
-        <div class="card-body p-3 card1">
-          <div class="row">
-            <div class="col-8">
-              <div class="numbers">
-                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
-                  Leave Request
-                </p>
+    
+    <!-- Project Report -->
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <a href="/projectreport">
+            <div class="card">
+                <div class="card-body p-3 card1">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
+                                    Project Report
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-red shadow-danger text-center rounded-circle">
+                                <i class="fas fa-file-alt text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
 
-              </div>
+    <!-- Leave Request -->
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <a href="/leaverequest">
+            <div class="card">
+                <div class="card-body p-3 card1">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
+                                    Leave Request
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-orange shadow-warning text-center rounded-circle">
+                                <i class="fas fa-calendar-check text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-4 text-end">
-              <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                <i class="ni ni-calendar-grid-58 text-lg opacity-10" aria-hidden="true"></i>
+        </a>
+    </div>
 
-              </div>
+    <!-- Red Flags -->
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <a href="/redflag">
+            <div class="card">
+                <div class="card-body p-3 card1">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
+                                    Red Flags
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                                <i class="fas fa-exclamation-triangle text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-    </a>
-  </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-    <a href="/projectallocated">
-      <div class="card">
-        <div class="card-body p-3 card1">
-          <div class="row">
-            <div class="col-8">
-              <div class="numbers">
-                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
-                  PROJECT ALLOCATED
-                </p>
+        </a>
+    </div>
 
-              </div>
+    <!-- Create Project -->
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4" style="margin-top: 20px;">
+        <a href="/projectlist">
+            <div class="card">
+                <div class="card-body p-3 card1">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
+                                    Project List
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-green shadow-success text-center rounded-circle">
+                                <i class="ni ni-folder-17 text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-4 text-end">
-              <div class="icon icon-shape bg-gradient-success shadow-danger text-center rounded-circle">
-                <i class="ni ni-folder-17 text-lg opacity-10" aria-hidden="true"></i>
+        </a>
+    </div>
 
-              </div>
+    <!-- Project Allocated -->
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4" style="margin-top: 20px;">
+        <a href="/projectallocated">
+            <div class="card">
+                <div class="card-body p-3 card1">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
+                                    Project Allocated
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-teal shadow-info text-center rounded-circle">
+                                <i class="fas fa-tasks text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-    </a>
-  </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-    <a href="/profile">
-      <div class="card">
-        <div class="card-body p-3 card1">
-          <div class="row">
-            <div class="col-8">
-              <div class="numbers">
-                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
-                  My Profile
-                </p>
-              </div>
-            </div>
-            <div class="col-4 text-end">
-              <div class="icon icon-shape bg-gradient-warning shadow-danger text-center rounded-circle">
-                <i class="ni ni-single-02 text-lg opacity-10" aria-hidden="true"></i>
+        </a>
+    </div>
 
-              </div>
+    <!-- Complaint -->
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4" style="margin-top: 20px;">
+        <a href="/complaint">
+            <div class="card">
+                <div class="card-body p-3 card1">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
+                                    Complaint
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-purple shadow-danger text-center rounded-circle">
+                                <i class="fas fa-comment-dots text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-    </a>
-  </div>
+        </a>
+    </div>
+
+    <!-- My Profile -->
+    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4" style="margin-top: 20px;">
+        <a href="/profile">
+            <div class="card">
+                <div class="card-body p-3 card1">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bolder">
+                                    My Profile
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-yellow shadow-warning text-center rounded-circle">
+                                <i class="fas fa-user text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+  
 
   {% endif %}
 

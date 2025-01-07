@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <title>
+        In House page For BA talks Pvt Ltd
+    </title>
+    {% include 'header.html'%}
+
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        #main-container {
+            display: flex;
+            width: 100%;
+            height: 100%; /* Full-screen height */
+        }
+
+        #user-list {
+            width: 25%;
+            background-color: #e9ecef;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+        }
+
+        #user-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #user-list ul li {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #user-list ul li:hover, #user-list ul li.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        #chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Ensure the chat container takes full height */
+            background-color: #fff;
+        }
+
+        #chat-header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px;
+            font-size: 1.2em;
+        }
+
+        #placeholder-image {
+    max-width: 50%; /* Set the width to 50% of the container */
+    max-height: 300px; /* Limit the height */
+    opacity: 0.8; /* Slight transparency for better aesthetics */
+    display: block; /* Makes the image a block element */
+    margin-left: auto; /* Auto margin on the left to center */
+    margin-right: auto; /* Auto margin on the right to center */
+}
+        
+
+        #message-form {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+            align-items: center;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        #upload-button {
+            padding: 10px;
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: 0.3s;
+        }
+
+        #upload-button:hover {
+            background-color: #5a6268;
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <body class="g-sidenav-show   bg-gray-100">
+        <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    
+        <div class="container-fluid py-4">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                           <div id="main-container">
+                                <div id="user-list">
+                                    <ul>
+                                        {% for u in profile %}
+                                        <li data-username="{{ u[2] }}">{{ u[2] }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div id="chat-container">
+                                <div id="chat-header">Select a user to start chatting</div>
+
+                                <div id="messages">
+                                    <img id="placeholder-image" src="/static/assets/img/logo.jpeg" alt="placeholder">
+                                </div>
+                                <!-- Message Input Form -->
+                                 <form id="message-form" class="hidden">
+                                    <input id="message-input" autocomplete="off" placeholder="Type a message..." />
+                                    <button id="upload-button" type="button">📎</button>
+                                    <input id="file-input" type="file" />
+                                    <button id="send-button" type="submit">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script>
+        const userList = document.getElementById('user-list');
+        const messages = document.getElementById('messages');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const fileInput = document.getElementById('file-input');
+        const uploadButton = document.getElementById('upload-button');
+        const chatHeader = document.getElementById('chat-header');
+        const sender = "{{ session['username'] }}";
+        let selectedUser = null;
+
+        // Initially hide the chat header and message form
+        chatHeader.style.display = 'none';
+
+        // Handle user selection
+        userList.addEventListener('click', function(e) {
+            if (e.target.tagName === 'LI') {
+                document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedUser = e.target.dataset.username;
+                messages.innerHTML = ''; // Clear previous messages
+                chatHeader.textContent = `${selectedUser}`; // Update the header with the username
+
+                // Show the message form
+                chatHeader.style.display = 'block';
+                messageForm.classList.remove('hidden');
+            }
+        });
+
+        // Handle file upload button click
+        uploadButton.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (file && selectedUser) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('sender', sender);
+                formData.append('receiver', selectedUser);
+
+                // Send file to the server
+                fetch('/send_attachment', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (file.type.startsWith('uploads/')) {
+                            addMessage(`<img src="${data.file_url}" alt="Image attachment">`);
+                        } else {
+                            addMessage(`📎 <a href="${data.file_url}" download="${file.name}">${file.name}</a>`);
+                        }
+                    }
+                })
+                .catch(err => console.error('Error uploading file:', err));
+            }
+        });
+
+        // Add message to the chat
+        function addMessage(content) {
+            const div = document.createElement('div');
+            div.innerHTML = content;
+            div.style.margin = '10px 0';
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        messageForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (messageInput.value.trim() && selectedUser) {
+        const message = messageInput.value;
+        const sender = "{{ session['username'] }}";  // Replace with the actual sender username
+        const receiver = selectedUser;
+
+        fetch('/send_message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `sender=${sender}&receiver=${receiver}&message=${message}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                addMessage(`You: ${message}`);
+                messageInput.value = '';
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    }
+});
+userList.addEventListener('click', function(e) {
+    if (e.target.tagName === 'LI') {
+        document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
+        e.target.classList.add('active');
+        selectedUser = e.target.dataset.username;
+        messages.innerHTML = ''; // Clear previous messages
+        chatHeader.textContent = `${selectedUser}`; // Update the header with the username
+
+        // Show the message form
+        chatHeader.style.display = 'block';
+        messageForm.classList.remove('hidden');
+
+        // Fetch existing messages from the database
+        fetchMessages(sender, selectedUser);
+    }
+});
+
+// Function to fetch messages
+function fetchMessages(sender, receiver) {
+    fetch('/get_messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `sender=${sender}&receiver=${receiver}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.messages) {
+            data.messages.forEach(msg => {
+                // Check if the message contains a file URL or is a text message
+                const fileUrl = msg.message;
+                const fileName = fileUrl.split('/').pop(); // Extract the filename from the URL
+
+                if (fileUrl && fileUrl.startsWith('http')) {
+                    // If it's a file URL, display the file name as a clickable link
+                    addMessage(`${msg.sender}:📎 <a href="${fileUrl}" download="${fileName}">${fileName}</a>`);
+                } else {
+                    // If it's a regular text message, display it without the symbol
+                    addMessage(`${msg.sender}: ${msg.message}`);
+                }
+            });
+        }
+    })
+    .catch(err => console.error('Error fetching messages:', err));
+}
+
+
+    </script>
+     <script async defer src="https://buttons.github.io/buttons.js"></script>
+     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+     <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script>
+ 
+</body>
+</html>

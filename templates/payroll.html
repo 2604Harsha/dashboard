@@ -546,6 +546,7 @@
         
 
     <script>
+        // downloading the PDF
         function downloadPayslipAsPDF() {
             const element = document.getElementById('payslip');
             html2pdf(element, {
@@ -556,11 +557,6 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             });
         }
-
-
-
-
-
 
         function updatePayPeriod(selectedValue) {
             const date = new Date(selectedValue); // Adding "-01" to make it a valid date

@@ -54,17 +54,17 @@
             <div class="card-body px-0 pt-0 pb-2">
               <form method="POST" class="container">
                 <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
-                        <div class="form-group">
-                            <label for="project" class="form-control-label text-sm">Project<span class="required">*</span></label>
-                            <select name="project_title" id="project" class="form-control" required>
-                                <option id="clr" value="select project">Select project</option>
-                                {% for row in project %}
-                                <option id="clr" value="{{ row[1] }}">{{ row[1] }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                  <div class="col-12 col-md-6 mb-3">
+                    <div class="form-group">
+                      <label for="project" class="form-control-label text-sm">Project<span class="required">*</span></label>
+                      <select name="project_title" id="project" class="form-control" required onchange="updateMeetLink()">
+                        <option value="" data-meet-link="">Select project</option>
+                        {% for row in project %}
+                        <option value="{{ row[1] }}" data-meet-link="{{ row[5] }}">{{ row[1] }}</option>
+                        {% endfor %}
+                      </select>
                     </div>
+                  </div>
             
                     <div class="col-12 col-md-6 mb-3">
                         <div class="form-group">
@@ -72,7 +72,7 @@
                             <select name="username" id="username" class="form-control" required>
                                 <option id="clr" value="select Employee">Select Employee</option>
                                 {% for user in users %}
-                                <option id="clr" value="{{ user[1] }}">{{ user[1] }}</option>
+                                <option id="clr" value="{{ user[1] }}">{{ user[2] }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -91,7 +91,6 @@
                             <input class="form-control" type="number" name="work_time" id="work_time">
                         </div>
                     </div> -->
-            
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="work_description" class="form-control-label text-sm">Description<span class="required">*</span></label>
@@ -142,12 +141,24 @@
             dateInput.value = dateParts.join("-");
         }
     }
+    
 </script>
    
   <!-- Github buttons -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+  <script>
+    function updateMeetLink() {
+      const projectDropdown = document.getElementById('project');
+      const meetLinkField = document.getElementById('meet_link');
+      const selectedOption = projectDropdown.options[projectDropdown.selectedIndex];
+      const meetLink = selectedOption.getAttribute('data-meet-link');
+      
+      // Update the meet link input field
+      meetLinkField.value = meetLink || '';
+    }
+  </script>
 </body>
 
 </html>

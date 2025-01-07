@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% include 'header.html' %}
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Adjust the width of the date inputs */
+        input[type="date"] {
+            width: 220px;
+            /* You can adjust this value as needed */
+        }
+
+        .work {
+            content: center;
+        }
+
+        .work button {
+            border-radius: 5px;
+            border: 7px;
+            color: gainsboro;
+        }
+
+        #timings-int {
+            margin-top: 10px;
+            max-width: 300px;
+        }
+
+        #timings {
+            margin-top: 10px;
+            max-width: 300px;
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white;
+        }
+
+        .btn:hover {
+            background-color: white;
+        }
+
+        .required {
+            color: red;
+            font-weight: bold;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <p>Complaint</p>
+                        <form method="POST">
+                            <div class="work container">
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <label>Complaint<span class="required">*</span></label><br />
+                                        <textarea class="form-control" name="complaint" rows="5" cols="30" style="max-width: 450px;" required></textarea>
+                                    </div>
+
+                                    <!-- Save Button -->
+                                    <div class="col-12 col-md-auto">
+                                        <button type="submit" class="btn btn-sm fontsz w-100 w-md-auto mt-2">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        In House page For BA talks Pvt Ltd
+    </title>
+    {% include 'header.html' %}
+
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        input[type="date"] {
+            width: 220px;
+        }
+
+        .work {
+            content: center;
+        }
+
+        .work button {
+            border-radius: 5px;
+            border: 7px;
+            color: gainsboro;
+        }
+
+        #timings-int {
+            margin-top: 10px;
+            max-width: 300px
+        }
+
+        #timings {
+            margin-top: 10px;
+            max-width: 300px
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white
+        }
+
+        .btn:hover {
+            background-color: white;
+        }
+
+        .required {
+            color: red;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .list-item {
+            margin-left: 20px;
+        }
+    </style>
+
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Site Map</h3>
+
+                        <form method="POST" action="{{ url_for('sitemap') }}">
+                            <div class="form-group">
+                                <label for="sitemap-id">Site Map ID</label>
+                                <input type="text" id="sitemap-id" class="form-control" readonly value="{{ sitemap_id }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="project">Project</label>
+                                <input type="text" id="project" name="project" class="form-control" placeholder="Enter project name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="module">Module</label>
+                                <input type="text" id="module" name="module" class="form-control" placeholder="Enter module name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="module-list">Module List</label>
+                                <textarea id="module-list" name="module-list" class="form-control" placeholder="Enter Module List"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="page-name">Page Name</label>
+                                <input type="text" id="page-name" name="page-name" class="form-control" placeholder="Enter page name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="page-url">Page URL</label>
+                                <input type="url" id="page-url" name="page-url" class="form-control" placeholder="Enter page URL">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="page-description">Page Description</label>
+                                <textarea id="page-description" name="page-description" class="form-control" placeholder="Enter page description"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn">Submit</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const moduleListInput = document.getElementById('module-list');
+        const moduleListUl = document.getElementById('module-list-ul');
+        
+        moduleListInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && moduleListInput.value.trim() !== '') {
+                const li = document.createElement('li');
+                li.classList.add('list-item');
+                li.textContent = moduleListInput.value;
+                moduleListUl.appendChild(li);
+                moduleListInput.value = '';
+                e.preventDefault();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

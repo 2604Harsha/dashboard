@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <title>
+    In House page For BA talks Pvt Ltd
+  </title>
+  {% include 'header.html' %}
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- CSS Files -->
+  <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+</head>
+<body class="g-sidenav-show bg-gray-100">
+  <div class="min-height-300 bg-dark position-absolute w-100"></div>
+  <main class="main-content position-relative border-radius-lg ">
+    <div class="container-fluid py-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="col-12">
+              <form id="new-todo-form" action="/add_todo" method="post" class="m-4">
+              </form>
+            </div>
+            <div class="card-header pb-0">
+              <h3>Raise Ticket</h3>
+            </div>
+            <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                    <tr>
+                      <th class="text-secondary opacity-7"></th>
+                      <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">SL.No</th>
+                      <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ps-2">Sitemap Id</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Project</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Module</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Module List</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Page Name</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Pageurl</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Page Description</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for sm in sitemap %}
+                    <tr>
+                      <td></td>
+                      <td class="justify-content-center">{{ loop.index }}</td>
+                      <td class="justify-content-center">{{ sm[1] }}</td>
+                      <td class="justify-content-center">{{ sm[2] }}</td>
+                      <td class="justify-content-center">{{ sm[3] }}</td>
+                      <td class="justify-content-center">{{ sm[4] }}</td>
+                      <td class="justify-content-center">{{ sm[5] }}</td>
+                      <td class="justify-content-center">{{ sm[6] }}</td>
+                      <td class="justify-content-center">{{ sm[7] }}</td>
+                      <td class="justify-content-center">
+                        <button type="button" class="btn btn-primary raise-ticket-btn" style="background-color: #512888; color: white;" data-bs-toggle="modal" data-bs-target="#ticketModal" data-sitemapid="{{ sm[1] }}">
+                          Raise Ticket
+                        </button>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td class="justify-content-center" colspan="10">No users found.</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="ticketModalLabel">Raise New Ticket</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/submit_ticket" method="post">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="sitemapId" class="form-label">Sitemap ID</label>
+                  <input type="text" class="form-control" id="sitemapId" name="sitemapId" required readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="ticketId" class="form-label">Ticket ID</label>
+                  <input type="text" class="form-control" id="ticketId" name="ticketId" required readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="ticketDescription" class="form-label">Ticket Description</label>
+                  <textarea class="form-control" id="ticketDescription" name="ticketDescription" required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="severity" class="form-label">Severity</label>
+                  <select class="form-control" id="severity" name="severity" required>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="ticketType" class="form-label">Ticket Type</label>
+                  <select class="form-control" id="ticketType" name="ticketType" required>
+                    <option value="ui">UI</option>
+                    <option value="form">Form</option>
+                    <option value="database">Database</option>
+                    <option value="backend">Backend</option>
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" style="background-color:red; color: white;" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" style="background-color: #512888; color: white;">Submit Ticket</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../assets/js/core/popper.min.js"></script>
+  <script src="../assets/js/core/bootstrap.min.js"></script>
+  <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+
+    // Handle the "Raise Ticket" button click event
+    document.querySelectorAll('.raise-ticket-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const sitemapId = this.getAttribute('data-sitemapid');
+        const ticketId = 'TKT-' + new Date().getTime();  // Generate a unique ticket ID based on timestamp
+        
+        document.getElementById('sitemapId').value = sitemapId;
+        document.getElementById('ticketId').value = ticketId;
+      });
+    });
+  </script>
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="../assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+</body>
+</html>

@@ -51,6 +51,11 @@
         text-align: center;
         box-sizing: border-box;
     }
+    .btn2 {
+            background-color: #512888;
+            color: white;
+        }
+
 
     .modal-footer {
         display: flex;
@@ -120,6 +125,7 @@
     
 </style>
 
+
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
@@ -127,7 +133,59 @@
         style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg'); background-position-y: 50%;">
         <span class="mask bg-primary opacity-6"></span>
     </div> -->
-    <div class="card  mx-4 card-profile-bottom mcard" style="margin-top:8rem">
+    <div class="row">
+        <div class="col-12">
+            <div class="card  mx-4">
+                <div class="card-header pb-0 d-flex justify-content-between" style="display: flex; align-items: center; gap: 10px;">
+                    <div class="btn-container" style="display: flex; margin-left:753px;">
+                        <button class="btn btn-secondary btn-sm btn2" onclick="holidaylist(this)">
+                            Holidays List
+                        </button>
+                    </div>
+                    <div class="btn-container" style="display: flex;">
+                        <button class="btn btn-secondary btn-sm btn2" onclick="holiday(this)">
+                            Holiday Allocation
+                        </button>
+                    </div>
+                    <div class="btn-container" style="display: flex; align-items: center; margin-left: auto;">
+                        <!-- Print Button -->
+                        <button class="btn btn-secondary btn-sm btn2" onclick="generatePDF()">
+                            Print
+                        </button>
+                    </div>
+                </div>                
+                <div class="card-body px-0 pt-0 pb-2">
+                    <form method="POST" action="{{ url_for('leavemanager') }}" class="mb-3 px-3" id="filterForm">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <select id="usernameFilter" name="usernameFilter" class="form-select" 
+                                    onchange="document.getElementById('filterForm').submit()" {% if disable_filter %}disabled{% endif %}>
+                                    <option value="">Users</option>
+                                    {% for username in usernames %}
+                                    <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
+                                        {{ username }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <input type="date" id="fromDateFilter" name="fromDateFilter" class="form-control"
+                                    value="{{ selected_from_date }}" 
+                                    onchange="document.getElementById('filterForm').submit()" {% if disable_filter %}disabled{% endif %}>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <input type="date" id="toDateFilter" name="toDateFilter" class="form-control"
+                                    value="{{ selected_to_date }}" 
+                                    onchange="document.getElementById('filterForm').submit()" {% if disable_filter %}disabled{% endif %}>
+                            </div>                            
+                            </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card  mx-4 card-profile-bottom mcard" style="margin-top:2.5rem">
         <div class="container-fluid py-4">
             <div class="row">
                 <div class="col-12">
@@ -179,8 +237,13 @@
                                             <!-- Setting data- attributes for JavaScript to access employee details -->
                                             <td class="justify-content-center" data-username="{{ employee[1] }}">{{
                                                 employee[1] }}</td>
-                                            <td class="justify-content-center" data-leavetype="{{ employee[2] }}">{{
-                                                employee[2] }}</td>
+                                            <td class="justify-content-center" data-leavetype="{{ employee[2] }}">
+                                                <span class="leave-type-display">{{ employee[2] }}</span>
+                                            
+                                                    <select class="leave-type-edit form-control" style="display: none;">
+                                                        <!-- Options dynamically populated via JavaScript -->
+                                                    </select></td>
+
                                             <td class="justify-content-center" data-startdate="{{ employee[3] }}">{{
                                                 employee[3] }}</td>
                                             <td class="justify-content-center">{{ employee[4] }}</td>
@@ -196,6 +259,19 @@
                                                     onclick="updateStatus(this, 'Approved')" style="margin-right: 8px;">Approve</button>
                                                 <button class="leave-button btn btn-danger"
                                                     onclick="openRejectModal(this)" style="width: 95px;">Reject</button>
+                                                {% elif employee[6] == 'Rejected' %}
+                                                    <!-- Show Edit button if leave is rejected -->
+                                                    <span class="status-display" id="f-color" style="color: {% if employee[6] == 'Approved' %}green{% elif employee[6] == 'Rejected' %}red{% else %}black{% endif %};">
+                                                        {{ employee[6] }}
+                                                    </span>
+                                                    <select class="status-edit form-control" style="display: none;">
+                                                        <!-- Options dynamically populated via JavaScript -->
+                                                    </select>
+                                                    
+                                                    <!-- <td>
+                                                        <button class="btn btn-success edit-btn" onclick="enableEdit(this)" >Edit</button>
+                                                        <button class="btn btn-primary save-btn" onclick="saveEdits(this)" style="display: none;">Save</button>
+                                                    </td>                                                                                             -->
                                                 {% else %}
                                                 <!-- Show the status if leave is already processed -->
                                                 <span class="leave-status" id="f-color" data-status="{{ employee[6] }}"
@@ -222,6 +298,51 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Holiday model -->
+                                <div id="holiday" class="modal" style="display: none;">
+                                    <div class="modal-content">
+                                        <h2>Holiday</h2>
+                                        <input type="date" id="DateFilter" name="DateFilter" class="form-control">
+                                        <label for="holidayReason">Reason for holiday:</label>
+                                        <input type="text" id="holidayReason" name="holidayReason" placeholder="Enter reason">
+                                
+                                        <!-- Modal footer -->
+                                        <div class="modal-footer d-flex approvebtn">
+                                            <button class="btn btn-danger" onclick="closeholiday()">Cancel</button>
+                                            <button class="btn btn-success" onclick="confirmholiday()">Confirm</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Holiday list -->
+                                <div id="holidaylist" class="modal" style="display: none;">
+                                    <div class="modal-content" style="max-width: 500px; max-height: 400px; overflow: hidden; padding: 20px;">
+                                        <h4 style="margin-bottom: 20px;">Holidays</h4>
+                                        <div class="notifications" id="notificationList" style="max-height: 250px; overflow-y: auto;">
+                                            <p>Loading...</p>
+                                        </div>
+                                        <button class="btn btn-danger" style="margin-top: 20px;" onclick="closeholidaylist()">Cancel</button>
+                                    </div>
+                                </div>
+                                <div class="modal" id="editLeaveModal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Leave Type</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <label for="leaveTypeDropdown">Leave Type:</label>
+                                                <select id="leaveTypeDropdown" class="form-select"></select>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-primary" onclick="saveLeaveType()">Save</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
                             </div>
                         </div>
                     </div>
@@ -250,9 +371,198 @@
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 
 
     <!-- JavaScript -->
+    <script type="text/javascript">
+        window.onload = function() {
+            var today = new Date();  // Get today's date
+            var futureDate = new Date();  // Create a new date object for the future date
+            futureDate.setDate(today.getDate() + 1);  // Add 1 day to today's date
+            
+            // Format dates to YYYY-MM-DD
+            var todayFormatted = today.toISOString().split('T')[0];
+            var futureDateFormatted = futureDate.toISOString().split('T')[0];
+            
+            // Set the values of the input fields
+            document.getElementById('fromDateFilter').value = todayFormatted;  // Set 'fromDateFilter' to today
+            document.getElementById('toDateFilter').value = futureDateFormatted;  // Set 'toDateFilter' to future date
+        };
+    </script>
+    <script>
+        function enableEdit(button) {
+            const row = button.closest('tr');
+        
+            // Leave Type
+            const leaveTypeDisplay = row.querySelector('.leave-type-display');
+            const leaveTypeEdit = row.querySelector('.leave-type-edit');
+            leaveTypeDisplay.style.display = 'none';
+            leaveTypeEdit.style.display = 'block';
+            leaveTypeEdit.innerHTML = `
+                <option value="sick">Sick</option>
+                <option value="casual">Casual Leave</option>
+                <option value="Normal Leave">Normal Leave</option>
+            `;
+            leaveTypeEdit.value = leaveTypeDisplay.textContent.trim();
+        
+            // Status
+            const statusDisplay = row.querySelector('.status-display');
+            const statusEdit = row.querySelector('.status-edit');
+            statusDisplay.style.display = 'none';
+            statusEdit.style.display = 'block';
+            statusEdit.innerHTML = `
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Pending">Pending</option>
+            `;
+            statusEdit.value = statusDisplay.textContent.trim();
+        
+            // Toggle buttons
+            button.style.display = 'none';
+            row.querySelector('.save-btn').style.display = 'inline-block';
+        }
+        function saveEdits(button) {
+    const row = button.closest('tr');
+
+    // Retrieve updated values from the form inputs
+    const updatedLeaveType = row.querySelector('.leave-type-edit').value;
+    const updatedStatus = row.querySelector('.status-edit').value;
+    const leaveId = row.dataset.leaveId;  // Assuming each row has a unique leave ID as a data attribute
+
+    // Prepare the data to send
+    const data = {
+        id: leaveId,
+        leaveType: updatedLeaveType,
+        status: updatedStatus
+    };
+
+    // Send the data to the server using fetch
+    fetch('/update-leave-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        // Update the UI to reflect the changes
+        row.querySelector('.leave-type-display').textContent = updatedLeaveType;
+        row.querySelector('.status-display').textContent = updatedStatus;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+
+    // Reset the UI to show the updated values
+    row.querySelector('.leave-type-display').style.display = 'block';
+    row.querySelector('.leave-type-edit').style.display = 'none';
+    row.querySelector('.status-display').style.display = 'block';
+    row.querySelector('.status-edit').style.display = 'none';
+    button.style.display = 'none';
+    row.querySelector('.edit-btn').style.display = 'inline-block';
+}
+
+        </script>
+    <script>
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf; // Ensure jsPDF is loaded correctly
+            const doc = new jsPDF();
+            
+            // Setting smaller margins
+            const margin = 10; // Reduced margin size
+    
+            // Adding Title
+            doc.setFontSize(16);
+            doc.text("Leave List Report", 105, 20, { align: "center" }); // Center-aligned title
+            doc.setFontSize(12);
+    
+            // Table Headers
+            const headers = ["USERNAME", "TYPE", "START DATE", "END DATE", "REASON", "DAYS", "STATUS"];
+            const colWidths = [30, 21, 27, 27, 46, 20, 23]; // Fixed column widths
+            const padding = 1; // Padding for text
+            const lineHeight = 7; // Line height for wrapped text
+    
+            // Add headers with borders and center alignment
+            let x = margin;
+            let y = 30;
+            headers.forEach((header, index) => {
+                doc.rect(x, y - 4, colWidths[index], 10); // Draw header cell
+                doc.text(header, x + colWidths[index] / 2, y + 2, { align: "center" }); // Center header text
+                x += colWidths[index];
+            });
+    
+            // Fetch rows from the table dynamically, excluding unwanted <td> elements
+            y += 10; // Start below the headers
+            const rows = [];
+            const tableRows = document.querySelectorAll("tbody tr");
+    
+            // Ensure we're capturing all rows
+            tableRows.forEach((row) => {
+                const cells = Array.from(row.querySelectorAll("td"))
+                    .slice(2) // Skip the first two <td> elements
+                    .map((cell) => cell.textContent.trim()); // Extract cell content and trim whitespace
+                rows.push(cells);
+            });
+    
+            // Ensure that the rows array contains the full data
+            console.log(rows); // Debug: check the rows data
+    
+            // Add table rows to PDF
+            rows.forEach((row) => {
+                let maxHeight = 10; // Minimum row height
+    
+                // Calculate row height based on content
+                const cellHeights = [];
+                for (let j = 0; j < headers.length; j++) {
+                    const cellText = row[j];
+                    const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2); // Wrap text
+                    const cellHeight = textLines.length * lineHeight; // Height for the cell
+                    cellHeights.push(cellHeight);
+                }
+                maxHeight = Math.max(...cellHeights, maxHeight); // Set row height based on the tallest cell
+    
+                // Draw cells with adjusted height
+                x = margin;
+                for (let j = 0; j < headers.length; j++) {
+                    const cellText = row[j];
+                    const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2); // Wrap text
+    
+                    // Draw cell border
+                    doc.rect(x, y - 4, colWidths[j], maxHeight);
+    
+                    // Add text with line wrapping, slightly shifted down for padding
+                    doc.text(textLines, x + padding, y, { baseline: "top" });
+                    x += colWidths[j];
+                }
+    
+                y += maxHeight; // Move to the next row
+    
+                // Check if we're exceeding the page height and add a new page if necessary
+                if (y > 270) { // Check if the current y exceeds page height (you can adjust this value)
+                    doc.addPage(); // Add a new page
+                    y = 20; // Reset y for the new page
+                    // Redraw headers on the new page
+                    x = margin;
+                    headers.forEach((header, index) => {
+                        doc.rect(x, y - 4, colWidths[index], 10);
+                        doc.text(header, x + colWidths[index] / 2, y + 2, { align: "center" });
+                        x += colWidths[index];
+                    });
+                    y += 10; // Start below headers
+                }
+            });
+    
+            // Save the PDF with a fixed name or a dynamic file name
+            const fileName = `Leave_List_Report.pdf`;
+            doc.save(fileName);
+        }
+    </script>
+    
     <script>
         // Store the current reject button context for the modal
         let currentRejectButton;
@@ -262,13 +572,179 @@
             currentRejectButton = button; // Save the clicked button
             document.getElementById('rejectModal').style.display = 'block'; // Show the modal
         }
+        function holiday(button) {
+            currentRejectButton = button; // Save the clicked button
+            document.getElementById('holiday').style.display = 'block'; // Show the modal
+        }
+        function holidaylist(button) {
+    fetch('/get_holidays', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const holidays = data.holidays;
+                const notificationList = document.getElementById('notificationList');
+                notificationList.innerHTML = '';
+
+                if (holidays.length > 0) {
+                    holidays.forEach(holiday => {
+                        const notificationDiv = document.createElement('div');
+                        notificationDiv.classList.add('notification');
+                        notificationDiv.style.display = 'flex';
+                        notificationDiv.style.justifyContent = 'space-between';
+                        notificationDiv.style.alignItems = 'center';
+
+                        const p = document.createElement('p');
+                        // Format the holiday_date to date-month-year format
+                        const date = new Date(holiday.holiday_date);
+                        const formattedDate = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+                        p.textContent = formattedDate;
+                        p.style.margin = '5px 0 5px 50px'; // Adding margin-left of 10px
+                        notificationDiv.appendChild(p);
+
+                        // Create a span for the "X" without any button styling
+                        const removeSpan = document.createElement('span');
+                        removeSpan.textContent = '✖';
+                        removeSpan.style.cursor = 'pointer'; // Make it clickable
+                        removeSpan.style.fontWeight = 'bold'; // Optional: Make the "X" stand out
+                        removeSpan.style.marginRight = '50px'; // Adding margin-left to the "X"
+                        removeSpan.onclick = () => removeHoliday(holiday.holiday_date);
+                        notificationDiv.appendChild(removeSpan);
+
+                        notificationList.appendChild(notificationDiv);
+                    });
+                } else {
+                    const p = document.createElement('p');
+                    p.textContent = 'No Holidays available.';
+                    notificationList.appendChild(p);
+                }
+
+                document.getElementById('holidaylist').style.display = 'block';
+            } else {
+                alert('Failed to fetch holidays: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error fetching holidays: ' + error.message);
+        });
+}
+
+function removeHoliday(holidayDate) {
+    if (confirm(`Are you sure you want to remove the holiday on ${holidayDate}?`)) {
+        fetch('/remove_holiday', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ holiday_date: holidayDate }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Holiday removed successfully.');
+                    holidaylist(); // Refresh the list
+                } else {
+                    alert('Failed to remove holiday: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error removing holiday: ' + error.message);
+            });
+    }
+}
 
         // Function to close the Reject modal
         function closeRejectModal() {
             document.getElementById('rejectModal').style.display = 'none'; // Hide the modal
             document.getElementById('rejectReason').value = ''; // Clear the input field
         }
+        function closeholiday() {
+            document.getElementById('holiday').style.display = 'none'; // Hide the modal
+            document.getElementById('holidayReason').value = ''; // Clear the input field
+        }
+        function closeholidaylist() {
+            document.getElementById('holidaylist').style.display = 'none'; // Hide the modal
+        }
+        
+    function openHolidayList() {
+        // Fetch holidays from the backend
+        fetch("/get_holidays")
+            .then(response => response.json())
+            .then(data => {
+                const notificationList = document.getElementById("notificationList");
+                notificationList.innerHTML = ""; // Clear existing content
 
+                // Populate the modal with holidays
+                if (data.holidays && data.holidays.length > 0) {
+                    data.holidays.forEach(holiday => {
+                        const holidayDiv = document.createElement("div");
+                        holidayDiv.classList.add("notification");
+                        holidayDiv.innerHTML = `
+                            <p>${holiday.holiday_date}: ${holiday.reason}</p>
+                        `;
+                        notificationList.appendChild(holidayDiv);
+                    });
+                } else {
+                    notificationList.innerHTML = "<p>No Holidays available.</p>";
+                }
+
+                // Show the modal
+                document.getElementById("holidaylist").style.display = "block";
+            })
+            .catch(error => console.error("Error fetching holidays:", error));
+    }
+
+    function confirmholiday() {
+        const holidayDate = document.getElementById("DateFilter").value;
+        const holidayReason = document.getElementById("holidayReason").value;
+
+        if (!holidayDate || !holidayReason) {
+            alert("Please provide both the date and the reason for the holiday.");
+            return;
+        }
+
+        fetch("/add_holiday", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                holiday_date: holidayDate,
+                reason: holidayReason
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    function clearNotification(notificationId) {
+            fetch('/delete_notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ notification_id: notificationId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var notification = document.getElementById('notification-' + notificationId);
+                    notification.style.display = 'none'; // Hide the notification
+                } else {
+                    console.error('Failed to delete notification:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
         // Update the status dynamically based on the button click (Approve or Reject)
         // Update the status dynamically based on the button click (Approve or Reject)
         function updateStatus(button, status) {
@@ -404,47 +880,55 @@
 
     </script>
 
-    <script>
-        function calculateDaysDifference(startDate, endDate) {
-            // Create Date objects
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+<script>
+    function calculateDaysDifference(startDate, endDate) {
+        // Create Date objects
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-            // Calculate the difference in milliseconds
-            const differenceInMilliseconds = end - start;
+        // Initialize the total days counter
+        let differenceInDays = 0;
 
-            // Convert milliseconds to days
-            const millisecondsInADay = 1000 * 60 * 60 * 24; // 1000 ms/sec * 60 sec/min * 60 min/hr * 24 hr/day
-            const differenceInDays = Math.round(differenceInMilliseconds / millisecondsInADay);
-
-            return differenceInDays;
+        // Loop through the date range
+        let currentDate = new Date(start);
+        while (currentDate <= end) {
+            const dayOfWeek = currentDate.getDay(); // 0 for Sunday, 6 for Saturday
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Exclude weekends
+                differenceInDays++;
+            }
+            // Move to the next day
+            currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        function showDaysDifference() {
-            // Get all rows in the tbody
-            const rows = document.querySelectorAll('tbody tr');
+        return differenceInDays;
+    }
 
-            // Iterate through each row
-            rows.forEach(row => {
-                const startDateCell = row.querySelector('td:nth-child(5)'); // Start Date column
-                const endDateCell = row.querySelector('td:nth-child(6)');   // End Date column
-                const daysDifferenceCell = row.querySelector('td:nth-child(8)'); // Days Difference column
+    function showDaysDifference() {
+        // Get all rows in the tbody
+        const rows = document.querySelectorAll('tbody tr');
 
-                if (startDateCell && endDateCell && daysDifferenceCell) {
-                    const start = startDateCell.innerText.trim(); // Retrieve and trim the start date
-                    const end = endDateCell.innerText.trim();     // Retrieve and trim the end date
+        // Iterate through each row
+        rows.forEach(row => {
+            const startDateCell = row.querySelector('td:nth-child(5)'); // Start Date column
+            const endDateCell = row.querySelector('td:nth-child(6)');   // End Date column
+            const daysDifferenceCell = row.querySelector('td:nth-child(8)'); // Days Difference column
 
-                    const daysDifference = calculateDaysDifference(start, end);
+            if (startDateCell && endDateCell && daysDifferenceCell) {
+                const start = startDateCell.innerText.trim(); // Retrieve and trim the start date
+                const end = endDateCell.innerText.trim();     // Retrieve and trim the end date
 
-                    // Display the result in the days difference cell
-                    daysDifferenceCell.innerText = daysDifference + 1 + " days";
-                }
-            });
-        }
+                const daysDifference = calculateDaysDifference(start, end);
 
-        // Call the function when the page loads
-        window.onload = showDaysDifference;
-    </script>
+                // Display the result in the days difference cell
+                daysDifferenceCell.innerText = (daysDifference) + ((daysDifference) === 1 ? " day" : " days");
+            }
+        });
+    }
+
+    // Call the function when the page loads
+    window.onload = showDaysDifference;
+</script>
+
 
 </body>
 

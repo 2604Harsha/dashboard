@@ -4,11 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>
-        In House page For BA talks Pvt Ltd
-    </title>
     {% include 'header.html' %}
-    
     <style>
         body {
             overflow-x: hidden;
@@ -32,34 +28,32 @@
 
         #timings-int {
             margin-top: 10px;
-            max-width: 300px
+            max-width: 300px;
         }
 
         #timings {
             margin-top: 10px;
-            max-width: 300px
+            max-width: 300px;
         }
 
         .btn {
             background-color: #512888;
-            color: white
+            color: white;
         }
 
         .btn:hover {
             background-color: white;
-
         }
+
         .required {
             color: red;
             font-weight: bold;
             padding: 5px;
         }
     </style>
-
 </head>
 
-<body class="g-sidenav-show   bg-gray-100">
-    
+<body class="g-sidenav-show bg-gray-100">
     <div class="min-height-300 bg-primary position-absolute w-100"></div>
 
     <div class="container-fluid py-4">
@@ -67,76 +61,73 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
-                        <p>Work-Report </p>
+                        <p>Project-Report</p>
                         <form method="POST">
                             <div class="work container">
                                 <div class="row">
-                                    <!-- Date Field -->
                                     <div class="col-12 col-md-6 mb-3">
+                                        <div class="form-group">
+                                            {% if projects|length == 1 %}
+                                            <!-- Single project: Input is pre-filled and disabled -->
+                                            <label for="project" class="form-control-label text-sm">Project<span class="required">*</span></label>
+                                            <input type="text" name="project_title" id="project" value="{{ projects[0][0] }}" class="form-control" readonly>
+                                        {% else %}
+                                            <!-- Multiple projects: Dropdown to select project -->
+                                            <label for="project" class="form-control-label text-sm">Project<span class="required">*</span></label>
+                                            <select name="project_title" id="project" class="form-control" required>
+                                                <option value="" data-meet-link="" disabled selected>Select project</option>
+                                                {% for project in projects %}
+                                                    <option value="{{ project[0] }}">{{ project[0] }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        {% endif %}
+                                        
+                                        </div>
+                                      </div>
+                                    <!-- Date Field -->
+                                    <div class="col-12 col-md-7 mb-3">
                                         <label>Date<span class="required">*</span></label><br />
-                                        <input class="form-control" type="date" id="date" name="date" value="" required
-                                            readonly />
+                                        <input class="form-control" type="date" id="date" name="date" value="" required readonly />
                                     </div>
 
                                     <!-- Timings Select Field 1 -->
-                                     <div class="row">
+                                    <div class="row">
                                         <div class="col-12 col-md-6 mb-3">
                                             <label>Timings<span class="required">*</span></label><br />
                                             <select class="form-control" name="Timings" id="timings" required>
                                                 <option value="" disabled selected>Select Timings</option>
-                                                <option value="9am to 10am">9am to 10am</option>
-                                                <option value="10am to 11am">10am to 11am</option>
-                                                <option value="11am to 12pm">11am to 12pm</option>
-                                                <option value="12pm to 1pm">12pm to 1pm</option>
-                                                <option value="1pm to 2pm">1pm to 2pm</option>
-                                                <option value="2pm to 3pm">2pm to 3pm</option>
-                                                <option value="3pm to 4pm">3pm to 4pm</option>
-                                                <option value="4pm to 4:30pm">4pm to 4:30pm</option>
-                                                <option value="4:30pm to 5pm">4:30pm to 5pm</option>
-                                                <option value="5pm to 6pm">5pm to 6pm</option>
+                                                <option value="9am to 12pm">9am to 12pm</option>
+                                                <option value="12pm to 3pm">12pm to 3pm</option>
+                                                <option value="3pm to 6pm">3pm to 6pm</option>
                                             </select>
                                             <select class="form-control" name="Timings" id="timings-int" required>
                                                 <option value="" disabled selected>Select Timings</option>
-                                                <option value="9am to 10am">9am to 10am</option>
-                                                <option value="10am to 11am">10am to 11am</option>
-                                                <option value="11am to 12pm">11am to 12pm</option>
-                                                <option value="12pm to 12:30pm">12pm to 12:30pm</option>
-                                                <option value="12:30pm to 1:30pm">12:30pm to 1:30pm</option>
-                                                <option value="1:30pm to 2pm">1:30pm to 2pm</option>
-                                                <option value="2pm to 3pm">2pm to 3pm</option>
-                                                <option value="3pm to 4pm">3pm to 4pm</option>
-                                                <option value="4pm to 4:30pm">4pm to 4:30pm</option>
-                                                <option value="4:30pm to 5pm">4:30pm to 5pm</option>
-                                                <option value="5pm to 6pm">5pm to 6pm</option>
+                                                <option value="9am to 12pm">9am to 12pm</option>
+                                                <option value="12pm to 3pm">12pm to 3pm</option>
+                                                <option value="3pm to 6pm">3pm to 6pm</option>
                                             </select>
                                         </div>
-    
-
-                                     </div>
-                                  
+                                    </div>
 
                                     <!-- Work Done Field -->
                                     <div class="col-12 mb-3">
                                         <label>Work Done<span class="required">*</span></label><br />
-                                        <textarea class="form-control" name="workdone" rows="5" cols="30"
-                                            placeholder="Work description" style="max-width: 300px;" required></textarea>
+                                        <textarea class="form-control" name="workdone" rows="5" cols="30" placeholder="Work description" style="max-width: 300px;" required></textarea>
                                     </div>
 
                                     <!-- Save Button -->
                                     <div class="col-12 col-md-auto">
                                         <button type="submit" class="btn btn-sm fontsz w-100 w-md-auto mt-2">Save</button>
-
                                     </div>
                                 </div>
                             </div>
                         </form>
-
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <script>
         window.onload = function () {
             var today = new Date();
@@ -149,13 +140,12 @@
 
             // Set the current date as default in the date input field
             document.getElementById('date').value = formattedDate;
-        };        
-    </script>
-    <script>
+        };
+        
         document.addEventListener('DOMContentLoaded', function () {
             // Fetch user's designation from the backend
-            const designation = "{{ profile[9] }}";  // Assuming the 8th field (index 7) is designation
-
+            const designation = "{{ profile[9] }}";  // Assuming the 9th field (index 8) is designation
+            
             // Disable both dropdowns initially
             document.getElementById('timings').disabled = true;
             document.getElementById('timings-int').disabled = true;
@@ -163,11 +153,10 @@
             // Enable appropriate dropdown based on designation
             if (designation === 'Trainee') {
                 document.getElementById('timings-int').disabled = false;
-                document.getElementById('timings').style.display = 'none'
-
+                document.getElementById('timings').style.display = 'none';
             } else {
                 document.getElementById('timings').disabled = false;
-                document.getElementById('timings-int').style.display = 'none'
+                document.getElementById('timings-int').style.display = 'none';
             }
         });
     </script>

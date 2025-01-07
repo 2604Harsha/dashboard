@@ -5,6 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="/static/assets//img/apple-icon.png">
+    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="icon" type="image/png" href="/static/assets//img/favicon.png">
     <title>
         In House page For BA talks Pvt Ltd
@@ -18,6 +20,7 @@
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <!-- CSS Files -->
     <link id="pagestyle" href="/static/assets//css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <!-- <audio id="notificationSound" src="/static/assets/notification.wav" preload="auto"></audio> -->
     <style>
 
         /* Add hover effect */
@@ -30,11 +33,131 @@
         .nav-link:hover .ni {
             color: #5e72e4;  /* Change to your desired highlight color */
         }
-    
+        .notification-counter {
+        position: absolute;
+        top: 24px;
+        right: 210px;
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 1px;
+        font-size: 14px;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .chat-popup {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #512888;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h4 {
+            margin: 0;
+        }
+
+        .chat-header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .message.user {
+            background: #512888;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .message.bot {
+            background: #f1f1f1;
+            align-self: flex-start;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            gap: 10px;
+            border-top: 1px solid #ccc;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .chat-input button {
+            background-color: #512888;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
         /* Optional: change text color when hovered */
         .nav-link:hover .nav-link-text {
             color: rgb(7, 6, 6);  /* Same highlight color for text */
         
+        }
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #512888;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .floating-button:hover {
+            background-color: #0056b3;
         }
         .weltitle{
         font-size: 30px;
@@ -48,6 +171,15 @@
             }
             .logout_img{
                 height:45px;
+            }
+
+        }
+        @media (max-width:700px){
+            .weltitle{
+                font-size:15px;
+            }
+            .nav_img{
+                height:40px;
             }
 
         }
@@ -99,33 +231,14 @@
                     </a>
                 </li> -->
                 <li class="nav-item">
-                    <a class="nav-link " href="/createproject">
+                    <a class="nav-link " href="/projectmenu">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="ni ni-credit-card text-dark text-sm opacity-10"></i>
                         </div>
-                        <span class="nav-link-text ms-1">Create Project</span>
+                        <span class="nav-link-text ms-1">Project Data</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link " href="/projectlist">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-app text-dark text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">Project List</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link " href="/projectallocation">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">Project Allocation</span>
-                    </a>
-                </li>
-
                 <li class="nav-item">
                     <a class="nav-link " href="/leavemanager">
                         <div
@@ -181,43 +294,87 @@
                     </a>
                 </li> -->
                 <li class="nav-item">
-                    <a class="nav-link " href="/workreport">
+                    <a class="nav-link " href="/report">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i> <!-- Work report icon alternative -->
                         </div>
-                        <span class="nav-link-text ms-1">Work Report</span>
+                        <span class="nav-link-text ms-1">Reports</span>
                     </a>
                 </li>
+                
                 <li class="nav-item">
-                    <a class="nav-link " href="/workreportlist">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i> <!-- Work report list icon alternative -->
+                    <a class="nav-link " href="/communication">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-comments text-dark text-sm opacity-10"></i>
                         </div>
-                        <span class="nav-link-text ms-1">WorkReport List</span>
+                        <span class="nav-link-text ms-1">Communication</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link " href="/adduser">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-user-plus text-dark text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Add User</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="/emp_agreement">
+                    <a class="nav-link " href="/chatbox">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="ni ni-collection text-dark text-sm opacity-10"></i>
                         </div>
+                        <span class="nav-link-text ms-1">Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/raiseticket">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Raise Ticket</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/issues">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Sitemap</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/ticketlist">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Ticket List</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/resolvedticket">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Resolved Ticket</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/emp_agreement">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-file-contract text-dark text-sm opacity-10"></i>
+                        </div>
                         <span class="nav-link-text ms-1">Employee Agreement</span>
                     </a>
                 </li>
+                
                                 
-            </ul>            
+            </ul>           
             {% else %}
             <!-- Employee specific items -->
             <ul class="navbar-nav">
@@ -267,35 +424,62 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="/workreport">
+                    <a class="nav-link " href="/report">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i> <!-- Document icon for work report -->
                         </div>
-                        <span class="nav-link-text ms-1">Work Report</span>
+                        <span class="nav-link-text ms-1">Reports</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="/workreportlist">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                    <a class="nav-link" href="/complaint">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-chat-round text-dark text-sm opacity-10"></i>
                         </div>
-                        <span class="nav-link-text ms-1">WorkReport List</span>
+                        <span class="nav-link-text ms-1">Complaint</span>
                     </a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a class="nav-link " href="/work">
+                <li class="nav-item">
+                    <a class="nav-link " href="/chatbox">
                         <div
                             class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="ni ni-collection text-dark text-sm opacity-10"></i>
                         </div>
-                        <span class="nav-link-text ms-1">My Work</span>
+                        <span class="nav-link-text ms-1">Chat</span>
                     </a>
-                </li> -->
-                
+                </li>
+                {% if user_designation == 'Jr Tester' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/raiseticket">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Raise Ticket</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link " href="/issues">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Sitemap</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/resolvedticket">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Resolved Ticket</span>
+                    </a>
+                </li>
             </ul>
             {% endif %}
+            
         </div>
         <div class="sidenav-footer mx-3 ">
             <div class="card card-plain shadow-none" id="sidenavCard">
@@ -325,6 +509,19 @@
                         </div>
                     </div>
                     <ul class="navbar-nav  justify-content-end">
+                        <li class="nav-item d-flex align-items-center ">
+                            <a href="/redflag" class="text-white font-weight-bold px-0 ">
+                                <img src="/static/assets//img/redflag.png" alt="" srcset="" class="logout_img">
+                                
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center" style="margin-left: 10px;">
+                            <a href="/notification" class="text-white font-weight-bold px-0" id="notificationIcon">
+                                <img src="/static/assets/img/notification.png" alt="" style="padding-right: 20px;" height="30px">
+                                <span id="notificationCount" class="notification-counter" style="display: none;"></span>
+                                <!-- <audio id="notificationSound" src="/static/assets/notification.wav" preload="auto"></audio> -->
+                            </a>
+                        </li>
                         <li class="nav-item d-flex align-items-center">
                             <a href="/profile" class=" text-white font-weight-bold px-0 ">
                                 <i class="fa fa-user fa-2x me-sm-1"></i>
@@ -363,13 +560,108 @@
             </div>
         </nav>
         <!-- End Navbar -->
-        
+        <button class="floating-button" onclick="toggleChat()">💬</button>
+        <div class="chat-popup" id="chatPopup">
+            <div class="chat-header">
+                <h4 style="color: white;">Talk to CEO</h4>
+                <button onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Chat messages will appear here -->
+                <div class="message bot">
+                    Hello! 👋 is there any Problem?
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Type your message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
         <!--   Core JS Files   -->
         <script src="/static/assets//js/core/popper.min.js"></script>
         <script src="/static/assets//js/core/bootstrap.min.js"></script>
         <script src="/static/assets//js/plugins/perfect-scrollbar.min.js"></script>
         <script src="/static/assets//js/plugins/smooth-scrollbar.min.js"></script>
         <script src="/static/assets//js/plugins/chartjs.min.js"></script>
+        <script>
+            function toggleChat() {
+                const chatPopup = document.getElementById('chatPopup');
+                chatPopup.style.display = chatPopup.style.display === 'block' ? 'none' : 'block';
+            }
+        
+            function sendMessage() {
+                const userInput = document.getElementById('userInput');
+                const chatMessages = document.getElementById('chatMessages');
+                const userMessage = userInput.value.trim();
+        
+                if (userMessage) {
+                    // Add user message
+                    const userMsgDiv = document.createElement('div');
+                    userMsgDiv.className = 'message user';
+                    userMsgDiv.textContent = userMessage;
+                    chatMessages.appendChild(userMsgDiv);
+        
+                    // Clear input
+                    userInput.value = '';
+        
+                    // Add bot response (static for now)
+                    setTimeout(() => {
+                        const botMsgDiv = document.createElement('div');
+                        botMsgDiv.className = 'message bot';
+                        botMsgDiv.textContent = 'Thanks for reaching out! How can I assist you further?';
+                        chatMessages.appendChild(botMsgDiv);
+        
+                        // Scroll to the bottom
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }, 1000);
+                }
+            }
+        
+            // Trigger sendMessage on Enter key press
+            document.getElementById('userInput').addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent form submission if inside a form
+                    sendMessage();
+                }
+            });
+        </script>
+        
+        <script>
+            let lastNotificationCount = 0; // Track the last notification count
+
+function fetchNotificationCount() {
+    fetch('/get-notification-count')
+        .then(response => response.json())
+        .then(data => {
+            const notificationCount = data.notificationCount;
+            const counterElement = document.getElementById('notificationCount');
+            const notificationSound = document.getElementById('notificationSound');
+
+            if (notificationCount > 0) {
+                counterElement.style.display = 'inline-block'; // Show the counter
+                counterElement.textContent = notificationCount;
+
+                // Check if the count has increased
+                if (notificationCount > lastNotificationCount) {
+                    notificationSound.play(); // Play the sound
+                }
+            } else {
+                counterElement.style.display = 'none'; // Hide the counter
+            }
+
+            // Update the lastNotificationCount for future comparisons
+            lastNotificationCount = notificationCount;
+        })
+        .catch(error => console.error('Error fetching notification count:', error));
+}
+
+// Poll every 5 seconds (5000 ms)
+setInterval(fetchNotificationCount, 5000);
+
+// Initial fetch
+fetchNotificationCount();
+
+        </script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // Get all the nav links

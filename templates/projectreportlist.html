@@ -51,15 +51,18 @@
                     <div class="card mb-4">
                         <div class="card-header pb-0 d-flex justify-content-between">
                             <h6>
-                                {% if selected_user_details %}
-                                    WorkReport List of {{ selected_user_details[1]|capitalize }} and Emp.Id is {{ selected_user_details[0] }}
+                                {% if session['user_role'] in ['CEO', 'HR'] %}
+                                    {% if selected_project_title %}
+                                        Project Report of {{ selected_project_title }}
+                                    {% else %}
+                                        Project Report of All Projects
+                                    {% endif %}
                                 {% else %}
-                                    WorkReport List of {{ session['username']|capitalize }} and Emp.Id is {{ session['empid'] }}
+                                    Project Report of Your Projects
                                 {% endif %}
                             </h6>
-                            
                             <div class="btn-container" style="display: flex; align-items: center; gap: 10px;">
-                                <a href="/workreport" class="btn btn-secondary btn-sm">Work-Report</a>
+                                <a href="/projectreport" class="btn btn-secondary btn-sm">Project-Report</a>
                                 <button id="toggleButton" class="btn btn-secondary btn-sm" onclick="toggleUpdates()" 
                                     {% if session['user_role'] != 'CEO' %}style="display:none;"{% endif %}>
                                     {% if allow_updates %}
@@ -77,21 +80,27 @@
                             
                         </div>
                         <div class="card-body px-0 pt-0 pb-2">
-                            <form method="POST" action="{{ url_for('workreportlist') }}" class="mb-3 px-3">
+                            <form method="POST" action="{{ url_for('projectreportlist') }}" class="mb-3 px-3">
                                 <div class="row g-2 align-items-center">
                                     <div class="col-12 col-md-6 col-lg-4">
-                                        <select id="usernameFilter" name="usernameFilter" class="form-select"
-                                            onchange="filterByUsername()" {% if disable_filter %}disabled{% endif %}>
-                                            <option value="">Users</option>
-                                            {% for username in usernames %}
-                                            <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
-                                                {{ username }}
-                                            </option>
-                                            {% endfor %}
+                                        <select id="projectTitleFilter" name="projectTitleFilter" class="form-select" 
+                                            onchange="filterByUsername()" 
+                                            {% if session['user_role'] not in ['CEO', 'HR'] %}disabled{% endif %}>
+                                            {% if session['user_role'] in ['CEO', 'HR'] %}
+                                                <option value="" {% if not selected_project_title %}selected{% endif %}>All Projects</option>
+                                                {% for title in project_titles %}
+                                                    <option value="{{ title }}" {% if selected_project_title == title %}selected{% endif %}>
+                                                        {{ title }}
+                                                    </option>
+                                                {% endfor %}
+                                            {% else %}
+                                                <option value="">Your Projects</option>
+                                            {% endif %}
                                         </select>
+
                                     </div>
 
-                                    {% if session['user_role'] in ['CEO', 'HR'] %}
+                                    {% if session['user_role'] in ['CEO', 'HR'] %}                                    
                                     <div class="col-12 col-md-6 col-lg-4">
                                         <input type="date" id="fromDateFilter" name="fromDateFilter" class="form-control"
                                             value="{{ selected_from_date }}" onchange="filterByFromDate()" {% if disable_filter %}disabled{% endif %}>
@@ -123,7 +132,9 @@
                                 {% else %}
                                 <table class="table align-items-center justify-content-center mb-0" id="workReportTable">
                                     <thead>
-                                        <tr>
+                                        <tr><th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                            Project
+                                        </th>
                                             <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
                                                 USERNAME
                                             </th>
@@ -143,12 +154,13 @@
                                     </thead>
                                     <tbody id="workreportBody">
                                         {% for pro in project %}
-                                        <tr>
-                                            <td>{{ pro[-1] }}</td>
+                                        <tr>                                            
                                             <td>{{ pro[2] }}</td>
+                                            <td>{{ pro[-1] }}</td>
                                             <td>{{ pro[3] }}</td>
                                             <td>{{ pro[4] }}</td>
                                             <td>{{ pro[5] }}</td>
+                                            <td>{{ pro[6] }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -204,87 +216,80 @@ document.addEventListener('keydown', function (event) {
     </script>
     <script>
         function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-        // Adding Title
-        doc.setFontSize(16);
-        doc.text("Work Report", 105, 20, { align: "center" }); // Center-aligned title
-        doc.setFontSize(12);
+            // Adding Title
+            doc.setFontSize(16);
+            doc.text("Project Report", 105, 20, { align: "center" }); // Center-aligned title
+            doc.setFontSize(12);
 
-        const table = document.getElementById("workReportTable");
-        const rows = table.getElementsByTagName("tr");
+            const table = document.getElementById("workReportTable");
+            const rows = table.getElementsByTagName("tr");
 
-        // Adding Table Headers
-        const headers = ["USERNAME", "DATE", "TIMINGS", "WORK DONE"];
-        const colWidths = [28, 30, 38, 90]; // Fixed column widths
-        const padding = 4; // Padding for text
-        const lineHeight = 7; // Line height for wrapped text
+            // Adding Table Headers
+            const headers = ["Project","USERNAME", "DATE", "TIMINGS", "WORK DONE"];
+            const colWidths = [28, 28, 30, 35, 70]; // Fixed column widths
+            const padding = 4; // Padding for text
+            const lineHeight = 7; // Line height for wrapped text
 
-        // Add headers with borders and center alignment
-        let x = 14;
-        let y = 30;
-        headers.forEach((header, index) => {
-            doc.rect(x, y - 4, colWidths[index], 10); // Draw header cell
-            doc.text(header, x + colWidths[index] / 2, y + 2, { align: "center" }); // Center header text
-            x += colWidths[index];
-        });
+            // Add headers with borders and center alignment
+            let x = 14;
+            let y = 30;
+            headers.forEach((header, index) => {
+                doc.rect(x, y - 4, colWidths[index], 10); // Draw header cell
+                doc.text(header, x + colWidths[index] / 2, y + 2, { align: "center" }); // Center header text
+                x += colWidths[index];
+            });
 
-        // Adding Table Content
-        y += 10;
-        let username = "";
-        let startDate = "";
-        let endDate = "";
-        for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName("td");
-            let maxHeight = 10; // Minimum row height
+            // Adding Table Content
+            y += 10;
+            let title = "";
+            let startDate = "";
+            let endDate = "";
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                let maxHeight = 10; // Minimum row height
 
-            // Capture username, start date, and end date
-            if (i === 1) {
-                username = cells[0].textContent.trim(); // First row's username
-                startDate = cells[1].textContent.trim(); // First row's date
+                // Capture username, start date, and end date
+                if (i === 1) {
+                    username = cells[0].textContent.trim(); // First row's username
+                    startDate = cells[2].textContent.trim(); // First row's date
+                }
+                endDate = cells[2].textContent.trim(); // Update end date to the last row's date
+
+                // Calculate row height based on content
+                const cellHeights = [];
+                for (let j = 0; j < 4; j++) {
+                    const cellText = cells[j].textContent.trim();
+                    const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2); // Wrap text
+                    const cellHeight = textLines.length * lineHeight; // Height for the cell
+                    cellHeights.push(cellHeight);
+                }
+                maxHeight = Math.max(...cellHeights, maxHeight); // Set row height based on the tallest cell
+
+                // Draw cells with adjusted height
+                x = 14;
+                for (let j = 0; j < 5; j++) {
+                    const cellText = cells[j].textContent.trim();
+                    const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2); // Wrap text
+
+                    // Draw cell border
+                    doc.rect(x, y - 4, colWidths[j], maxHeight);
+
+                    // Add text with line wrapping, slightly shifted down for padding
+                    doc.text(textLines, x + padding, y, { baseline: "top" });
+                    x += colWidths[j];
+                }
+
+                y += maxHeight; // Move to the next row
             }
-            endDate = cells[1].textContent.trim(); // Update end date to the last row's date
-
-            // Calculate row height based on content
-            const cellHeights = [];
-            for (let j = 0; j < 4; j++) {
-                const cellText = cells[j].textContent.trim();
-                const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2); // Wrap text
-                const cellHeight = textLines.length * lineHeight; // Height for the cell
-                cellHeights.push(cellHeight);
-            }
-            maxHeight = Math.max(...cellHeights, maxHeight); // Set row height based on the tallest cell
-
-            // Check if row overflows the page
-            if (y + maxHeight > doc.internal.pageSize.height - 20) {
-                doc.addPage(); // Add new page if the content exceeds the current page
-                y = 20; // Reset vertical position for new page
-            }
-
-            // Draw cells with adjusted height
-            x = 14;
-            for (let j = 0; j < 4; j++) {
-                const cellText = cells[j].textContent.trim();
-                const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2); // Wrap text
-
-                // Draw cell border
-                doc.rect(x, y - 4, colWidths[j], maxHeight);
-
-                // Add text with line wrapping, slightly shifted down for padding
-                doc.text(textLines, x + padding, y, { baseline: "top" });
-                x += colWidths[j];
-            }
-
-            y += maxHeight; // Move to the next row
+            const fileName = `${username}_work_report(${startDate}_to_${endDate}).pdf`;
+            // Save the PDF
+            doc.save(fileName);
         }
 
-        // Generate the dynamic file name
-        const fileName = `${username}_work_report(${startDate}_to_${endDate}).pdf`;
 
-        // Save the PDF
-        doc.save(fileName);
-    }
     </script>
     <script>
         function filterByUsername() {
