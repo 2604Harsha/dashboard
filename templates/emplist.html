@@ -9,8 +9,8 @@
   <title>
     In House page For BA talks Pvt Ltd
   </title>
-  {%include 'header.html'%}
-  <!--     Fonts and icons     -->
+  {% include 'header.html' %}
+  <!-- Fonts and icons -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
   <!-- Nucleo Icons -->
   <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
@@ -21,16 +21,16 @@
   <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
 </head>
 
-<body class="g-sidenav-show   bg-gray-100">
+<body class="g-sidenav-show bg-gray-100">
   <div class="min-height-300 bg-dark position-absolute w-100"></div>
-  <main class="main-content position-relative border-radius-lg ">
+  <main class="main-content position-relative border-radius-lg">
     <div class="container-fluid py-4">
       <div class="row">
         <div class="col-12">
           <div class="card mb-4">
-            <div class="col-12 ">
+            <div class="col-12">
               <form id="new-todo-form" action="/add_todo" method="post" class="m-4">
-            </form>
+              </form>
             </div>
             <div class="card-header pb-0">
               <h3>Employee List</h3>
@@ -47,28 +47,32 @@
                       <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Email Id</th>
                       <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Phone No</th>
                       <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Designation</th>
-                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Employee Id</th>
-                      
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Date of Join</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Status</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Edit</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for user in users %}
                     <tr>
                       <td></td>
-  
                       <td class="justify-content-center">{{ loop.index }}</td>
-                      <td class="justify-content-center">
-  
-                        {{ user[1] }}
-  
-                      </td>
+                      <td class="justify-content-center">{{ user[1] }}</td>
                       <td class="justify-content-center">{{ user[2] }}</td>
                       <td class="justify-content-center">{{ user[4] }}</td>
                       <td class="justify-content-center">{{ user[7] }}</td>
                       <td class="justify-content-center">{{ user[9] }}</td>
                       <td class="justify-content-center">{{ user[10] }}</td>
-  
-  
+                      <td class="justify-content-center">
+                        {% if user[22] == "1" %}
+                          <span style="color: green;">Active</span>
+                        {% else %}
+                          <span style="color: red;">Inactive</span>
+                        {% endif %}
+                      </td>
+                      <td class="justify-content-center">
+                        <a onclick="openEditModal('{{ user[1] }}', '{{ user[2] }}', '{{ user[4] }}', '{{ user[7] }}', '{{ user[9] }}', '{{ user[22] }}')" style="background-color: #512888; color: white;" class="btn btn-primary btn-sm">Edit</a>
+                      </td>
                     </tr>
                     {% else %}
                     <tr>
@@ -78,21 +82,123 @@
                   </tbody>
                 </table>
               </div>
+              <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel">Edit Employee</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="edit-form">
+                                <input type="hidden" id="edit-empid">
+                                <div class="mb-3">
+                                    <label for="edit-username" class="form-label">User Name</label>
+                                    <input type="text" class="form-control" id="edit-username">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="edit-email">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-phone" class="form-label">Phone No</label>
+                                    <input type="text" class="form-control" id="edit-phone">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-designation" class="form-label">Designation</label>
+                                    <!-- <input type="text" class="form-control" id=""> -->
+                                    <select class="form-control" name="designation" id="edit-designation" required>
+                                      <option value="" disabled selected>Select Designation</option>
+                                      <option value="Jr Developer">Jr. Developer</option>
+                                      <option value="Jr Designer">Jr. Designer</option>
+                                      <option value="Jr Tester">Jr. Tester</option>
+                                      <option value="Admin">Admin</option>
+                                      <option value="Manager">Manager</option>
+                                      <option value="CEO">CEO</option>
+                                      <option value="Research Associate">Research Associate</option>
+                                      <option value="HR">HR</option>
+                                      <option value="Domain Expert">Domain Expert</option>
+                                      <option value="Project Manager">Project Manager</option>
+                                      <option value="Trainer">Trainer</option>
+                                      <option value="Trainee">Trainee</option>
+                                  </select>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="edit-status" class="form-label">Status</label>
+                                  <!-- <input type="text" class="form-control" id=""> -->
+                                  <select class="form-control" name="status" id="edit-status" required>
+                                    <option value="" disabled selected>Select Status</option>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                              </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" style="background-color: red; color: white;" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" style="background-color: #512888; color: white;" onclick="submitEdit()">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+              </div>            
             </div>
           </div>
         </div>
       </div>
-
-      <!-- NOT REALATED TO DASHBOARD -->
-     
     </div>
   </main>
-  <!--   Core JS Files   -->
+  <!-- Core JS Files -->
   <script src="../assets/js/core/popper.min.js"></script>
   <script src="../assets/js/core/bootstrap.min.js"></script>
   <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
   <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
   <script>
+    function openEditModal(empid, username, email, phone, designation, status) {
+    document.getElementById('edit-empid').value = empid;
+    document.getElementById('edit-username').value = username;
+    document.getElementById('edit-email').value = email;
+    document.getElementById('edit-phone').value = phone;
+    document.getElementById('edit-designation').value = designation;
+    document.getElementById('edit-status').value = status;
+    var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    editModal.show();
+}
+
+
+    function submitEdit() {
+        var empid = document.getElementById('edit-empid').value;
+        var username = document.getElementById('edit-username').value;
+        var email = document.getElementById('edit-email').value;
+        var phone = document.getElementById('edit-phone').value;
+        var designation = document.getElementById('edit-designation').value;
+        var status = document.getElementById('edit-status').value;
+
+        fetch('/update_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                empid: empid,
+                username: username,
+                email: email,
+                phone: phone,
+                designation: designation,
+                status: status
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('User updated successfully.');
+                location.reload();
+            } else {
+                alert('Failed to update user: ' + data.message);
+            }
+        });
+    }
+</script>
+<script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
       var options = {

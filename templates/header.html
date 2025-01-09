@@ -519,7 +519,7 @@
                             <a href="/notification" class="text-white font-weight-bold px-0" id="notificationIcon">
                                 <img src="/static/assets/img/notification.png" alt="" style="padding-right: 20px;" height="30px">
                                 <span id="notificationCount" class="notification-counter" style="display: none;"></span>
-                                <!-- <audio id="notificationSound" src="/static/assets/notification.wav" preload="auto"></audio> -->
+                                <audio id="notificationSound" src="/static/assets/notification.wav" preload="auto"></audio>
                             </a>
                         </li>
                         <li class="nav-item d-flex align-items-center">
@@ -624,10 +624,29 @@
                     sendMessage();
                 }
             });
+            
         </script>
         
         <script>
-            let lastNotificationCount = 0; // Track the last notification count
+            let lastNotificationCount = 0; // Temporary initialization
+
+function setInitialNotificationCount() {
+    fetch('/get-notification-count')
+        .then(response => response.json())
+        .then(data => {
+            // Set the initial lastNotificationCount from the database value
+            lastNotificationCount = data.notificationCount;
+            // Optionally, update the UI immediately
+            const counterElement = document.getElementById('notificationCount');
+            if (lastNotificationCount > 0) {
+                counterElement.style.display = 'inline-block';
+                counterElement.textContent = lastNotificationCount;
+            } else {
+                counterElement.style.display = 'none';
+            }
+        })
+        .catch(error => console.error('Error fetching initial notification count:', error));
+}
 
 function fetchNotificationCount() {
     fetch('/get-notification-count')
@@ -638,28 +657,28 @@ function fetchNotificationCount() {
             const notificationSound = document.getElementById('notificationSound');
 
             if (notificationCount > 0) {
-                counterElement.style.display = 'inline-block'; // Show the counter
+                counterElement.style.display = 'inline-block';
                 counterElement.textContent = notificationCount;
 
-                // Check if the count has increased
+                // Play sound if count has increased
                 if (notificationCount > lastNotificationCount) {
-                    notificationSound.play(); // Play the sound
+                    notificationSound.play();
                 }
             } else {
-                counterElement.style.display = 'none'; // Hide the counter
+                counterElement.style.display = 'none';
             }
 
-            // Update the lastNotificationCount for future comparisons
+            // Update lastNotificationCount for next comparison
             lastNotificationCount = notificationCount;
         })
         .catch(error => console.error('Error fetching notification count:', error));
 }
 
-// Poll every 5 seconds (5000 ms)
-setInterval(fetchNotificationCount, 5000);
+// Set initial value from the database
+setInitialNotificationCount();
 
-// Initial fetch
-fetchNotificationCount();
+// Poll every 5 seconds
+setInterval(fetchNotificationCount, 5000);
 
         </script>
         <script>

@@ -174,9 +174,9 @@
                           <button type="button" onclick="enableEdit(this)" class="btn btn-primary editbtn" style="margin-left: 10px;">
                               Edit
                           </button>
-                          <button type="button" onclick="saveChanges({{ pro[0] }}, this)" class="btn btn-success editbtn"
+                          <button type="button" onclick="saveChanges('{{ pro[0] }}', this)" class="btn btn-success editbtn"
                             style="display:none;" >Save</button>
-                          <button type="button" onclick="deleteProject({{ pro[0] }})"
+                          <button type="button" onclick="deleteProject('{{ pro[0] }}')"
                             class="btn btn-danger">Delete</button>
                           {% endif %}
                         </td>

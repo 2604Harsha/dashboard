@@ -35,17 +35,30 @@
             margin: 0;
         }
 
-        #user-list ul li {
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-            cursor: pointer;
-            transition: 0.3s;
-        }
 
         #user-list ul li:hover, #user-list ul li.active {
             background-color: #007bff;
             color: #fff;
         }
+        #user-list ul li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Adjust username and count alignment */
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        transition: 0.3s;
+       }
+    #user-list ul li .message-count {
+    margin-left: auto; /* Ensure the count is beside the username */
+    display: none; /* Hidden by default; shown dynamically */
+    background-color: green;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
 
         #chat-container {
             flex: 1;
@@ -63,14 +76,13 @@
         }
 
         #placeholder-image {
-    max-width: 50%; /* Set the width to 50% of the container */
-    max-height: 300px; /* Limit the height */
-    opacity: 0.8; /* Slight transparency for better aesthetics */
-    display: block; /* Makes the image a block element */
-    margin-left: auto; /* Auto margin on the left to center */
-    margin-right: auto; /* Auto margin on the right to center */
-}
-        
+            max-width: 50%; /* Set the width to 50% of the container */
+            max-height: 300px; /* Limit the height */
+            opacity: 0.8; /* Slight transparency for better aesthetics */
+            display: block; /* Makes the image a block element */
+            margin-left: auto; /* Auto margin on the left to center */
+            margin-right: auto; /* Auto margin on the right to center */
+        }
 
         #message-form {
             display: flex;
@@ -120,6 +132,8 @@
         #send-button:hover {
             background-color: #0056b3;
         }
+
+        
     </style>
 </head>
 <body>
@@ -132,14 +146,26 @@
                     <div class="card">
                         <div class="card-body">
                            <div id="main-container">
-                                <div id="user-list">
-                                    <ul>
-                                        {% for u in profile %}
-                                        <li data-username="{{ u[2] }}">{{ u[2] }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                                <div id="chat-container">
+                            <div id="user-list">
+                                <ul style="list-style-type: none; padding: 0; margin: 0;">
+                                    {% for u in profile %}
+                                    <li data-username="{{ u[2] }}" style="display: flex; align-items: center; margin-bottom: 10px;">
+                                        <!-- Username displayed on the left with message count beside it -->
+                                        <span style="display: inline-flex; align-items: center;">
+                                            {{ u[2] }}
+                                            <span 
+                                                class="message-count" 
+                                                data-username="{{ u[2] }}" 
+                                                style="background-color: red; color: white; margin-left: 5px; border-radius: 50%; padding: 2px 6px; font-size: 12px;">
+                                                
+                                            </span>
+                                        </span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            
+                            <div id="chat-container">
                                 <div id="chat-header">Select a user to start chatting</div>
 
                                 <div id="messages">
@@ -158,6 +184,7 @@
                 </div>
             </div>
         </div>
+
     <script>
         const userList = document.getElementById('user-list');
         const messages = document.getElementById('messages');
@@ -184,6 +211,9 @@
                 // Show the message form
                 chatHeader.style.display = 'block';
                 messageForm.classList.remove('hidden');
+
+                // Fetch existing messages from the database
+                fetchMessages(sender, selectedUser);
             }
         });
 
@@ -228,49 +258,34 @@
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
         }
+
         messageForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    if (messageInput.value.trim() && selectedUser) {
-        const message = messageInput.value;
-        const sender = "{{ session['username'] }}";  // Replace with the actual sender username
-        const receiver = selectedUser;
+            e.preventDefault();
+            if (messageInput.value.trim() && selectedUser) {
+                const message = messageInput.value;
+                const sender = "{{ session['username'] }}";  // Replace with the actual sender username
+                const receiver = selectedUser;
 
-        fetch('/send_message', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `sender=${sender}&receiver=${receiver}&message=${message}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                addMessage(`You: ${message}`);
-                messageInput.value = '';
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sender=${sender}&receiver=${receiver}&message=${message}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addMessage(`You: ${message}`);
+                        messageInput.value = '';
+                    }
+                })
+                .catch(err => console.error('Error:', err));
             }
-        })
-        .catch(err => console.error('Error:', err));
-    }
-});
-userList.addEventListener('click', function(e) {
-    if (e.target.tagName === 'LI') {
-        document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
-        e.target.classList.add('active');
-        selectedUser = e.target.dataset.username;
-        messages.innerHTML = ''; // Clear previous messages
-        chatHeader.textContent = `${selectedUser}`; // Update the header with the username
+        });
 
-        // Show the message form
-        chatHeader.style.display = 'block';
-        messageForm.classList.remove('hidden');
-
-        // Fetch existing messages from the database
-        fetchMessages(sender, selectedUser);
-    }
-});
-
-// Function to fetch messages
-function fetchMessages(sender, receiver) {
+        // Function to fetch messages
+        function fetchMessages(sender, receiver) {
     fetch('/get_messages', {
         method: 'POST',
         headers: {
@@ -280,17 +295,15 @@ function fetchMessages(sender, receiver) {
     })
     .then(response => response.json())
     .then(data => {
+        messages.innerHTML = ''; // Clear existing messages to avoid duplicates
         if (data.messages) {
             data.messages.forEach(msg => {
-                // Check if the message contains a file URL or is a text message
                 const fileUrl = msg.message;
                 const fileName = fileUrl.split('/').pop(); // Extract the filename from the URL
 
                 if (fileUrl && fileUrl.startsWith('http')) {
-                    // If it's a file URL, display the file name as a clickable link
-                    addMessage(`${msg.sender}:📎 <a href="${fileUrl}" download="${fileName}">${fileName}</a>`);
+                    addMessage(`${msg.sender}: 📎 <a href="${fileUrl}" download="${fileName}">${fileName}</a>`);
                 } else {
-                    // If it's a regular text message, display it without the symbol
                     addMessage(`${msg.sender}: ${msg.message}`);
                 }
             });
@@ -300,10 +313,110 @@ function fetchMessages(sender, receiver) {
 }
 
 
+// Function to update unread message count beside the username
+function updateMessageCount(username, count) {
+    const countSpan = document.querySelector(`.message-count[data-username="${username}"]`);
+    
+    if (countSpan) {
+        if (count > 0) {
+            countSpan.textContent = count;  // Set the count value
+            countSpan.style.display = 'inline-block'; // Show the count
+        } else {
+            countSpan.style.display = 'none'; // Hide if count is 0
+        }
+    }
+}
+
+// Fetch unread message counts for all users
+function fetchUnreadCounts() {
+    fetch('/get_unread_counts', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.counts && Array.isArray(data.counts)) {
+            // data.counts will be in the format [['ceo', 1]]
+            data.counts.forEach(count => {
+                const [username, unread_count] = count;  // Destructure the tuple
+                updateMessageCount(username, unread_count);  // Update the count on the UI
+            });
+        } else {
+            console.error('Invalid data format:', data);
+        }
+    })
+    .catch(err => console.error('Error fetching unread counts:', err));
+}
+
+// Call the function every 5 seconds to update the counts
+setInterval(fetchUnreadCounts, 5000);
+document.addEventListener('DOMContentLoaded', () => {
+    const savedUser = localStorage.getItem('selectedUser');
+    const placeholderImage = document.getElementById('placeholder-image');
+    
+    if (savedUser) {
+        // If a user was previously selected
+        selectedUser = savedUser;
+        const userListItem = document.querySelector(`#user-list li[data-username="${selectedUser}"]`);
+        if (userListItem) {
+            userListItem.classList.add('active');
+            chatHeader.textContent = `${selectedUser}`; // Update the header with the username
+            chatHeader.style.display = 'block'; // Show the chat header
+            placeholderImage.style.display = 'none'; // Hide the placeholder image
+            messageForm.classList.remove('hidden'); // Show the message form
+
+            // Fetch existing messages for the saved user
+            fetchMessages(sender, selectedUser);
+        }
+    } else {
+        // No user selected, show placeholder image
+        chatHeader.style.display = 'none'; // Hide the chat header
+        messageForm.classList.add('hidden'); // Hide the message form
+        placeholderImage.style.display = 'block'; // Show the placeholder image
+    }
+});
+
+// Handle user selection
+userList.addEventListener('click', function (e) {
+    if (e.target.tagName === 'LI') {
+        document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
+        e.target.classList.add('active');
+        selectedUser = e.target.dataset.username;
+        localStorage.setItem('selectedUser', selectedUser); // Save the selected user
+
+        // Update UI after user selection
+        chatHeader.textContent = `${selectedUser}`; // Update the header with the username
+        chatHeader.style.display = 'block'; // Show the chat header
+        placeholderImage.style.display = 'none'; // Hide the placeholder image
+        messageForm.classList.remove('hidden'); // Show the message form
+        messages.innerHTML = ''; // Clear previous messages
+
+        // Fetch existing messages for the selected user
+        fetchMessages(sender, selectedUser);
+    }
+});
+
+// Example: Use a flag to prevent duplicate listeners
+let isUserListInitialized = false;
+
+if (!isUserListInitialized) {
+    userList.addEventListener('click', function (e) {
+        if (e.target.tagName === 'LI') {
+            document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
+            e.target.classList.add('active');
+            selectedUser = e.target.dataset.username;
+            localStorage.setItem('selectedUser', selectedUser);
+            chatHeader.textContent = `${selectedUser}`;
+            messages.innerHTML = ''; // Clear previous messages
+            fetchMessages(sender, selectedUser);
+        }
+    });
+
+    isUserListInitialized = true; // Mark as initialized
+}
     </script>
-     <script async defer src="https://buttons.github.io/buttons.js"></script>
-     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-     <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script>
+
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script>
  
 </body>
 </html>

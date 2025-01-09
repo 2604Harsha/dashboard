@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -9,27 +10,32 @@
     In House page For BA talks Pvt Ltd
   </title>
   {% include 'header.html' %}
-  <!--     Fonts and icons     -->
+  <!-- Fonts and icons -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-  <!-- Nucleo Icons -->
   <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
   <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
   <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-  <!-- CSS Files -->
   <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+  <style>
+    .status-complete {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-incomplete {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
 </head>
+
 <body class="g-sidenav-show bg-gray-100">
   <div class="min-height-300 bg-dark position-absolute w-100"></div>
-  <main class="main-content position-relative border-radius-lg ">
+  <main class="main-content position-relative border-radius-lg">
     <div class="container-fluid py-4">
       <div class="row">
         <div class="col-12">
           <div class="card mb-4">
-            <div class="col-12">
-              <form id="new-todo-form" action="/add_todo" method="post" class="m-4">
-              </form>
-            </div>
             <div class="card-header pb-0">
               <h3>Raise Ticket</h3>
             </div>
@@ -47,6 +53,7 @@
                       <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Page Name</th>
                       <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Pageurl</th>
                       <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Page Description</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Status</th>
                       <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Action</th>
                     </tr>
                   </thead>
@@ -63,6 +70,12 @@
                       <td class="justify-content-center">{{ sm[6] }}</td>
                       <td class="justify-content-center">{{ sm[7] }}</td>
                       <td class="justify-content-center">
+                        <select class="form-control status-dropdown" data-sitemapid="{{ sm[1] }}">
+                          <option value="complete" {% if sm[9] == 'complete' %} selected {% endif %}>Complete</option>
+                          <option value="incomplete" {% if sm[9] == 'incomplete' %} selected {% endif %}>Incomplete</option>
+                        </select>
+                      </td>
+                      <td class="justify-content-center">
                         <button type="button" class="btn btn-primary raise-ticket-btn" style="background-color: #512888; color: white;" data-bs-toggle="modal" data-bs-target="#ticketModal" data-sitemapid="{{ sm[1] }}">
                           Raise Ticket
                         </button>
@@ -70,7 +83,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                      <td class="justify-content-center" colspan="10">No users found.</td>
+                      <td class="justify-content-center" colspan="11">No users found.</td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -139,25 +152,45 @@
   <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
-      var options = {
-        damping: '0.5'
-      }
+      var options = { damping: '0.5' };
       Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
 
-    // Handle the "Raise Ticket" button click event
+    // Handle "Raise Ticket" button click event
     document.querySelectorAll('.raise-ticket-btn').forEach(button => {
       button.addEventListener('click', function () {
         const sitemapId = this.getAttribute('data-sitemapid');
-        const ticketId = 'TKT-' + new Date().getTime();  // Generate a unique ticket ID based on timestamp
-        
+        const ticketId = 'TKT-' + new Date().getTime();
         document.getElementById('sitemapId').value = sitemapId;
         document.getElementById('ticketId').value = ticketId;
       });
     });
-  </script>
 
+    // Handle status change
+    document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+      dropdown.addEventListener('change', function () {
+        const status = this.value;
+        const sitemapId = this.getAttribute('data-sitemapid');
+        this.classList.toggle('status-complete', status === 'complete');
+        this.classList.toggle('status-incomplete', status === 'incomplete');
+
+        fetch('/update_status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sitemapId, status })
+        }).then(response => response.json())
+          .then(data => console.log('Status updated:', data))
+          .catch(error => console.error('Error updating status:', error));
+      });
+
+      // Initialize styles
+      const status = dropdown.value;
+      dropdown.classList.toggle('status-complete', status === 'complete');
+      dropdown.classList.toggle('status-incomplete', status === 'incomplete');
+    });
+  </script>
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <script src="../assets/js/argon-dashboard.min.js?v=2.1.0"></script>
 </body>
+
 </html>

@@ -230,7 +230,7 @@
                                     </thead>
                                     <tbody>
                                         {% for employee in employees %}
-                                        <tr>
+                                        <tr data-leave-id="{{ employee[0] }}" >
                                             <td></td>
                                             <td class="justify-content-center">{{ loop.index }}</td>
 
@@ -268,10 +268,10 @@
                                                         <!-- Options dynamically populated via JavaScript -->
                                                     </select>
                                                     
-                                                    <!-- <td>
+                                                    <td>
                                                         <button class="btn btn-success edit-btn" onclick="enableEdit(this)" >Edit</button>
                                                         <button class="btn btn-primary save-btn" onclick="saveEdits(this)" style="display: none;">Save</button>
-                                                    </td>                                                                                             -->
+                                                    </td>                                                                                            
                                                 {% else %}
                                                 <!-- Show the status if leave is already processed -->
                                                 <span class="leave-status" id="f-color" data-status="{{ employee[6] }}"
@@ -402,9 +402,9 @@
             leaveTypeDisplay.style.display = 'none';
             leaveTypeEdit.style.display = 'block';
             leaveTypeEdit.innerHTML = `
-                <option value="sick">Sick</option>
+                <option value="sick">Sick Leave</option>
                 <option value="casual">Casual Leave</option>
-                <option value="Normal Leave">Normal Leave</option>
+                <option value="normal">Normal Leave</option>
             `;
             leaveTypeEdit.value = leaveTypeDisplay.textContent.trim();
         

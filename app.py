@@ -5,6 +5,9 @@ from datetime import datetime,timedelta,time
 from docx import Document
 import io,pytz
 import random
+import os
+from werkzeug.utils import secure_filename
+from flask import Flask, send_from_directory, abort
 from apscheduler.schedulers.background import BackgroundScheduler
 import time # To simulate time
 from functools import wraps
@@ -29,9 +32,6 @@ def index():
 def header():
     return render_template('header.html')
 
-import os
-from werkzeug.utils import secure_filename
-from flask import Flask, send_from_directory, abort
 UPLOAD_FOLDER = 'uploads/'  # Modify this path based on your project structure
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'txt', 'zip'}
 
@@ -81,8 +81,8 @@ def send_message():
     try:
         cursor = mysql.connection.cursor()
         cursor.execute(
-            "INSERT INTO messages (sender, receiver, message) VALUES (%s, %s, %s)",
-            (sender, receiver, message)
+            "INSERT INTO messages (sender, receiver, message,is_read) VALUES (%s, %s, %s,%s)",
+            (sender, receiver, message,False)
         )
         mysql.connection.commit()
         return jsonify({'status': 'success'}), 200
@@ -102,26 +102,25 @@ def get_messages():
 # Function to get messages from the database
 def get_messages_from_db(sender, receiver):
     # Create a cursor object using the MySQL connection
-    cur = mysql.connection.cursor()
+    cursor = mysql.connection.cursor()
 
     # Execute the query to fetch messages
-    query = """
-    SELECT sender, message, created_at 
-    FROM messages
-    WHERE (sender = %s AND receiver = %s)
-    OR (sender = %s AND receiver = %s)
+    cursor.execute("""
+    SELECT sender, message, is_read, created_at 
+    FROM messages 
+    WHERE (sender = %s AND receiver = %s) OR (sender = %s AND receiver = %s)
     ORDER BY created_at ASC
-    """
-    cur.execute(query, (sender, receiver, receiver, sender))
+""", (sender, receiver, receiver, sender))
 
-    # Fetch all results
-    result = cur.fetchall()
-
-    # Return the results as a list of dictionaries
-    messages = [{'sender': msg[0], 'message': msg[1], 'created_at': msg[2]} for msg in result]
-
-    # Close the cursor
-    cur.close()
+    rows = cursor.fetchall()
+    messages = [dict(zip([col[0] for col in cursor.description], row)) for row in rows]
+    # Mark messages as read
+    cursor.execute("""
+        UPDATE messages 
+        SET is_read = TRUE 
+        WHERE receiver = %s AND sender = %s AND is_read = FALSE
+    """, (sender, receiver))
+    mysql.connection.commit()
 
     return messages
 @app.route('/send_attachment', methods=['POST'])
@@ -167,8 +166,29 @@ def uploaded_file(filename):
         )
     except FileNotFoundError:
         return "File not found", 404
+@app.route('/get_unread_counts', methods=['POST'])
+def get_unread_counts():
+    current_user = session.get('username')  # Get the current logged-in user
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT sender, COUNT(*) AS unread_count
+        FROM messages
+        WHERE receiver = %s AND is_read = FALSE
+        GROUP BY sender
+    """, (current_user,))
+    counts = cursor.fetchall()
+   
+    # Return the counts as a JSON response
+    return jsonify({'counts': counts})
 
 
+@app.after_request
+def apply_no_cache_headers(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # @app.context_processor
 # def inject_notification_count():
@@ -179,20 +199,23 @@ def uploaded_file(filename):
 #         cur = mysql.connection.cursor()
 #         cur.execute("SELECT COUNT(*) FROM notifications WHERE username = %s", (username,))
 #         notification_count = cur.fetchone()[0]
+        
 #         cur.close()
 
 #     return {'notificationCount': notification_count}
+
+
 @app.route('/issues', methods=['GET', 'POST'])
 def sitemap():
     user_role = session.get('user_role')
     user_designation = session.get('designation')
     sitemap_id = f"SM-{random.randint(1, 1000)}"
+    
     if request.method == 'POST':
         # Extract form data
-        sitemap_id = sitemap_id  # Make sure this is not None
         project = request.form.get('project')
         module = request.form.get('module')
-        module_list = request.form.getlist('module-list')  # Convert list to a string
+        module_list = request.form.get('module-list')  # Convert list to a string
         page_name = request.form.get('page-name')
         page_url = request.form.get('page-url')
         page_description = request.form.get('page-description')
@@ -204,20 +227,76 @@ def sitemap():
         # Insert data into the MySQL database
         cur = mysql.connection.cursor()
 
-        # Insert query to add data to the 'sitemap' table
+        # Insert query to add data to the 'sitemap' table with default status
         insert_query = """
-        INSERT INTO sitemap (sitemap_id, project, module, module_list, page_name, page_url, page_description)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO sitemap (sitemap_id, project, module, module_list, page_name, page_url, page_description, status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, 'incomplete')
         """
 
         cur.execute(insert_query, (sitemap_id, project, module, module_list, page_name, page_url, page_description))
         mysql.connection.commit()  # Commit the transaction
 
-        # Optionally, redirect to the same page or a success page after insertion
+        notification_message = f"New Ticket is raised with Sitemap_Id: {sitemap_id}"
+        cur.execute("SELECT username FROM profile WHERE designation = %s", ('Jr Tester',))  # Fix: Ensure single-element tuple
+        ceo_users = cur.fetchall()
+
+        for ceo in ceo_users:
+            cur.execute(
+                'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
+                (ceo[0], notification_message)  # Fix: Access the username from ceo tuple
+            )
+        mysql.connection.commit()
+
+        # Redirect to the same page or a success page after insertion
         return redirect(url_for('sitemap'))
 
     # Generate a random sitemap ID on GET request
     return render_template('sitemap.html', sitemap_id=sitemap_id, user_role=user_role, user_designation=user_designation)
+
+@app.route('/update_status', methods=['POST'])
+def update_status():
+    try:
+        # Parse the JSON request
+        data = request.get_json()
+        sitemap_id = data.get('sitemapId')
+        new_status = data.get('status')
+
+        if not sitemap_id or not new_status:
+            return jsonify({"error": "Invalid data"}), 400
+
+        # Update the status in the database
+        cur = mysql.connection.cursor()
+        update_query = "UPDATE sitemap SET status = %s WHERE sitemap_id = %s"
+        cur.execute(update_query, (new_status, sitemap_id))
+        cur.execute("SELECT * FROM sitemap WHERE sitemap_id = %s", (sitemap_id,))
+        sitemap = cur.fetchone()
+
+        if not sitemap:
+            return jsonify({"error": "Sitemap not found"}), 404
+
+        if new_status.lower() == "complete":
+            notification_message = f"{sitemap[1]} is Resolved."
+        else:
+            notification_message = f"{sitemap[1]} is Not Resolved, please assign another."
+
+        # Notify CEO and HR
+        cur.execute("SELECT username FROM profile WHERE designation IN (%s, %s)", ('CEO', 'HR'))
+        ceo_users = cur.fetchall()
+        for ceo in ceo_users:
+            ceo_username = ceo[0]
+            cur.execute(
+                'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
+                (ceo_username, notification_message)
+            )
+
+        cur.close()
+        mysql.connection.commit()
+
+        return jsonify({"message": "Status updated successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/raiseticket', methods=['GET'])
 def raiseticket():
@@ -290,15 +369,15 @@ def update_ticket_description():
         # Update the solution column in the tickets table
         query = "UPDATE tickets SET solution = %s WHERE ticket_id = %s"
         cur.execute(query, (description, ticket_id))
+
         notification_message = f"{ticket_id} has updated the status."
-        cur.execute("SELECT username FROM profile WHERE designation IN (%s, %s)", ('CEO', 'HR'))
+        cur.execute("SELECT username FROM profile WHERE designation = %s", ('Jr Tester',))  # Fix: Ensure single-element tuple
         ceo_users = cur.fetchall()
 
         for ceo in ceo_users:
-            ceo_username = ceo[0]
             cur.execute(
                 'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
-                (ceo_username, notification_message)
+                (ceo[0], notification_message)  # Fix: Access the username from ceo tuple
             )
         mysql.connection.commit()
 
@@ -306,6 +385,7 @@ def update_ticket_description():
         return jsonify({"message": "Description updated successfully!"}), 200
     else:
         return jsonify({"error": "Unauthorized"}), 401
+
 
 
 
@@ -566,16 +646,22 @@ def complaint():
 @app.route('/get-notification-count')
 def get_notification_count():
     notification_count = 0  # Default value
-
     username = session.get('username')
     user_designation = session.get('designation')
+
     if username:
         cur = mysql.connection.cursor()
+        
+        # Fetch the notification count for the user
         cur.execute("SELECT COUNT(*) FROM notifications WHERE username = %s", (username,))
         notification_count = cur.fetchone()[0]
+        mysql.connection.commit()
+        
         cur.close()
 
     return jsonify({'notificationCount': notification_count})
+
+
 
 @app.route('/communication', methods=['GET', 'POST'])
 def communication():
@@ -1125,20 +1211,32 @@ def update_leave_status():
             leave_id = data.get('id')
             leave_type = data.get('leaveType')
             status = data.get('status')
-            print(leave_id)
 
-            cur = mysql.connection.cursor()
-            cur.execute("""
-                UPDATE empleave
-                SET leave_type = %s, status = %s
-                WHERE id = %s
-            """, (leave_type, status, leave_id))
+            try:
+                # Create a cursor to interact with the database
+                cur = mysql.connection.cursor()
 
-            # Optionally, add a notification logic here if needed
-            mysql.connection.commit()
-            cur.close()
+                # Execute the update query
+                cur.execute("""
+                    UPDATE empleave
+                    SET leave_type = %s, status = %s
+                    WHERE id = %s
+                """, (leave_type, status, leave_id))
 
-            return jsonify({'message': 'Leave status updated successfully'}), 200
+                # Commit the transaction to save changes
+                mysql.connection.commit()
+
+                # Close the cursor
+                cur.close()
+
+                # Return a success response
+                return jsonify({'message': 'Leave status updated successfully'}), 200
+            except Exception as e:
+                # Handle any errors that occur during the query
+                print(f"Error: {e}")
+                return jsonify({'error': 'An error occurred while updating the leave status'}), 500
+        else:
+            return jsonify({'error': 'Request must be in JSON format'}), 400
 
 
 # profile update
@@ -2037,11 +2135,38 @@ def emplist():
         cur.execute("SELECT * FROM profile")
         data = cur.fetchall()
         cur.close()
+
         # print(data)
         return render_template('emplist.html', user_role=user_role, users=data,user_designation =user_designation)
     else:
         return redirect(url_for('index'))
 
+@app.route('/update_user', methods=['POST'])
+def update_user():
+    if 'username' not in session or session['user_role'] in ['Employee', 'Trainee']:
+        return jsonify(success=False, message="Access denied")
+
+    data = request.json
+    empid = data.get('empid')
+    username = data.get('username')
+    email = data.get('email')
+    phone = data.get('phone')
+    designation = data.get('designation')
+    status = data.get('status')
+
+    try:
+        cur = mysql.connection.cursor()
+        query = """
+            UPDATE profile
+            SET username=%s, email_address=%s, phone_number=%s, designation=%s, user_status=%s
+            WHERE empid=%s
+        """
+        cur.execute(query, (username, email, phone, designation, status, empid))
+        mysql.connection.commit()
+        cur.close()
+        return jsonify(success=True)
+    except Exception as e:
+        return jsonify(success=False, message=str(e))
 
 
 
