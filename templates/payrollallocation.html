@@ -566,6 +566,42 @@
         <button type="button" onclick="manualPay()" class="btn btn-primary">Manual Pay</button>
     </div>
     <script>
+        
+        document.getElementById("pay_period").addEventListener("change", function () {
+    updatePayPeriod(this.value);
+});
+
+function updatePayPeriod(selectedMonth) {
+    if (!selectedMonth) return;
+
+    // Extract year and month from input value (format: YYYY-MM)
+    let [year, month] = selectedMonth.split("-");
+    month = parseInt(month); // Convert to integer for calculation
+
+    // Calculate the next month and year
+    let nextMonth = month === 12 ? 1 : month + 1;
+    let nextYear = month === 12 ? parseInt(year) + 1 : parseInt(year);
+
+    // Set the pay date to the 10th of the next month
+    let payDate = new Date(nextYear, nextMonth - 1, 10);
+
+    // If the 10th is Saturday (6) or Sunday (0), adjust to next Monday
+    if (payDate.getDay() === 6) {
+        payDate.setDate(payDate.getDate() + 2);  // Move to Monday (Monday after Saturday)
+    } else if (payDate.getDay() === 0) {
+        payDate.setDate(payDate.getDate() + 1);  // Move to Monday (Monday after Sunday)
+    }
+
+    // Format the adjusted date to YYYY-MM-DD for the input field
+    let formattedDate = payDate.toISOString().split("T")[0];
+
+    // Set the calculated pay date in the input field
+    document.getElementById("pay_date").value = formattedDate;
+
+    // Display the selected month in the pay period display input
+    document.getElementById("pay_period_display").value = selectedMonth;
+}
+
         document.getElementById("generateIdBtn").addEventListener("click", function () {
             const payslipId = generateUniqueId();
             document.getElementById("payslipIdDisplay").innerText = "Payslip ID: " + payslipId;

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <title>
+    In House page For BA talks Pvt Ltd
+  </title>
+  {% include 'header.html' %}
+  <!-- Fonts and icons -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+  <style>
+    .status-complete {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-incomplete {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+  <div class="min-height-300 bg-dark position-absolute w-100"></div>
+  <main class="main-content position-relative border-radius-lg">
+    <div class="container-fluid py-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="card-header pb-0">
+              <h3>Meetings</h3>
+            </div>
+            <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                    <tr>
+                      <th class="text-secondary opacity-7"></th>
+                      <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">SL.No</th>
+                      <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ps-2">Meet Tittle</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Date</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Timing</th>
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Meet Description</th>
+                      {% if user_role == 'CEO' or user_role=='HR' %}
+                      <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Link</th>
+                      {% endif %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for sm in meetings[::-1] %}
+                    <tr>
+                      {% if user_role != 'CEO' and user_role != 'HR' %}
+                      <td></td>
+                      <td class="justify-content-center">{{ loop.index }}</td>
+                      <td class="justify-content-center">{{ sm[1] }}</td>
+                      <td class="justify-content-center">{{ sm[2] }}</td>
+                      <td class="justify-content-center">{{ sm[3] }}</td>
+                      <td class="justify-content-center">{{ sm[6] }}</td>
+                      <!-- <td class="justify-content-center">
+                        <button type="button" class="btn btn-primary raise-ticket-btn" 
+                                style="background-color: #512888; color: white;" 
+                                onclick="navigateToLink('{{ sm[4] }}')">
+                          Meet Link
+                        </button>
+                      </td> -->
+                    {% else %}
+                      <td></td>
+                      <td class="justify-content-center">{{ loop.index }}</td>
+                      <td class="justify-content-center">{{ sm[0] }}</td>
+                      <td class="justify-content-center">{{ sm[1] }}</td>
+                      <td class="justify-content-center">{{ sm[2] }}</td>
+                      <td class="justify-content-center">{{ sm[4] }}</td>
+                      <td class="justify-content-center">
+                        <button type="button" class="btn btn-primary raise-ticket-btn" 
+                                style="background-color: #512888; color: white;" 
+                                onclick="navigateToLink('https://meet.google.com/landing')">
+                          Meet Link
+                        </button>
+                      </td>
+                    {% endif %}
+                      <!-- {% if user_role == 'CEO' %}
+                      <td class="justify-content-center">
+                        <input type="text" name="meet" value="{{ sm[4] }}" class="form-control" style="display:none;" readonly>
+                        <button type="button" class="btn btn-primary raise-ticket-btn" style="background-color: #512888; color: white;" onclick="enableEdit(this)">
+                          Edit
+                        </button>
+                        <button type="button" onclick="saveChanges(this)" class="btn btn-success editbtn" style="display:none;">Save</button>
+                      </td> -->
+                      {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td class="justify-content-center" colspan="11">No Meetings Found.</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../assets/js/core/popper.min.js"></script>
+  <script src="../assets/js/core/bootstrap.min.js"></script>
+  <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script>
+    
+    function navigateToLink(link) {
+  // Redirect to the link when the button is clicked
+  window.open(link, '_blank');
+}
+
+    // Get the 'editTitle' from the query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const editTitle = urlParams.get('editTitle');
+
+    if (editTitle) {
+        // Find the "Edit" button for the meeting with the given title and highlight it
+        const editButton = document.querySelector(`button[data-title="${editTitle}"]`);
+        if (editButton) {
+            editButton.style.backgroundColor = "#f9f9f9"; // Highlight the button (example style)
+            editButton.style.color = "#512888";
+        }
+    }
+
+
+    function enableEdit(button) {
+  const row = button.closest('tr');
+  const inputs = row.querySelectorAll('input[type="text"], input[type="date"]');
+  const meetButton = row.querySelector('button.meetbtn');
+
+  // Enable all inputs in the row
+  inputs.forEach(input => {
+    input.removeAttribute('readonly');
+    if (input.style.display === 'none') {
+      input.style.display = 'block';
+    }
+  });
+
+  // Convert the meet button to an editable text box
+  if (meetButton) {
+    const meetInput = row.querySelector('input[name="meet"]');
+    meetButton.style.display = 'none';
+    meetInput.style.display = 'block';
+  }
+
+  // Hide the Edit button and show the Save button
+  button.style.display = 'none';
+  row.querySelector('button.btn-success').style.display = 'inline-block';
+}
+
+function saveChanges(saveButton) {
+  const row = saveButton.closest('tr');
+  const meetTitleCell = row.children[2]; // Assuming "Meet Title" is the 3rd cell in the row (index 2)
+  const meetTitle = meetTitleCell.textContent.trim();
+
+  const meetLinkInput = row.querySelector('input[name="meet"]');
+  const meetLink = meetLinkInput.value;
+
+  console.log('Meet Title:', meetTitle); // Debugging
+  console.log('Meet Link:', meetLink); // Debugging
+
+  // AJAX request to send data to the server
+  fetch('/update_meeting', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      meet_title: meetTitle,
+      meet_link: meetLink,
+    }),
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Failed to update the meeting.');
+    })
+    .then(data => {
+      if (data.success) {
+        alert('Meeting updated successfully!');
+        // Reset the UI
+        meetLinkInput.setAttribute('readonly', true);
+        saveButton.style.display = 'none';
+        row.querySelector('button[onclick="enableEdit(this)"]').style.display = 'inline-block';
+        
+        // Refresh the page
+        location.reload();
+      } else {
+        alert('Failed to update the meeting: ' + data.error);
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      alert('An error occurred while updating the meeting.');
+    });
+}
+
+  </script>
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="../assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+</body>
+</html>

@@ -32,6 +32,173 @@ def index():
 def header():
     return render_template('header.html')
 
+@app.route('/dispute')
+def dispute():
+    return render_template('dispute.html')
+
+
+@app.route('/submit_dispute', methods=['POST'])
+def submit_dispute():
+    data = request.json
+    id = data.get('id')
+    name = data.get('name')
+    email = data.get('email')
+    phone = data.get('phone')
+    data_dis = data.get('data_dis')
+
+    cur = mysql.connection.cursor()
+    cur.execute('INSERT INTO disputes ( ticket_id, full_name, email, phone, dispute_details) VALUES (%s, %s, %s, %s, %s)', (id,name, email, phone,data_dis))
+    mysql.connection.commit()
+    cur.close()    
+    return redirect(url_for('index'))
+
+@app.route('/attendence', methods=['GET', 'POST'])
+def attendence():
+    user_role = session.get('user_role')
+    username = session.get('username')
+    current_time2 = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    if not username:
+        return jsonify({'message': "Access denied. Please log in.", 'redirect': '/login'}), 401
+
+    if request.method == 'POST':
+        date = request.form['date']
+        option = request.form['option']
+
+        cur = mysql.connection.cursor()
+
+        # Check if attendance exists for the date
+        cur.execute("SELECT * FROM attendence WHERE date = %s AND username = %s", (date, username))
+        existing_entry = cur.fetchone()
+
+        if existing_entry:
+            updated_index = 5
+            if existing_entry[updated_index]:
+                cur.close()
+                return jsonify({'message': "You can only update your attendance once for the same date."}), 400
+            else:
+                cur.execute("UPDATE attendence SET type = %s, updated = TRUE,created_at= %s WHERE date = %s AND username = %s", 
+                            (option, current_time2,date, username))
+                mysql.connection.commit()
+        else:
+            cur.execute("INSERT INTO attendence (username, date, type,created_at, updated) VALUES (%s, %s, %s, %s, %s)", 
+                        (username, date, current_time2, option, True))
+            mysql.connection.commit()
+
+        today_date = datetime.now().date()
+        current_time = datetime.now().time()
+
+        cur.execute("SELECT checkin, checkout FROM worklog WHERE username = %s AND date = %s", 
+                    (username, today_date))
+        record = cur.fetchone()
+
+        if record:
+            checkin_time, checkout_time = record
+            if checkin_time and checkout_time is None:
+                cur.close()
+                return jsonify({'message': "Please check out before checking in again."}), 400
+
+            # if checkin_time and checkout_time:
+            #     cur.close()
+            #     return jsonify({'message': "You have already checked in and checked out today."}), 400
+        else:
+            cur.execute("INSERT INTO worklog (username, date, checkin, status) VALUES (%s, %s, %s, %s)", 
+                        (username, today_date, current_time, "pending"))
+            mysql.connection.commit()
+
+        cur.close()
+        return jsonify({'message': "Attendance submitted successfully!"}), 200
+
+    return render_template('attendence.html', user_role=user_role)
+
+def insert_attendance_records():
+    """Function to insert attendance records for all active users."""
+    with app.app_context():  # Push the application context manually
+        active_users = get_active_users()
+        cursor = mysql.connection.cursor()
+        current_date = datetime.now().strftime('%Y-%m-%d')  # Format date as YYYY-MM-DD
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Current timestamp
+
+        try:
+            for user in active_users:
+                username = user[0]  # Assuming `username` is the first field in the tuple
+                # Insert attendance record for each user
+                cursor.execute(
+                    "INSERT INTO attendence (username, date, type, created_at, updated) "
+                    "VALUES (%s, %s, %s, %s, %s)",
+                    (username, current_date, 'leave', current_time, False)
+                )
+            mysql.connection.commit()  # Commit changes after all inserts
+        except Exception as e:
+            mysql.connection.rollback()  # Roll back changes in case of an error
+            print(f"Error: {e}")
+        finally:
+            cursor.close()
+
+
+@app.route('/attendencelist', methods=['GET', 'POST'])
+def attendencelist():
+    user_role = session.get('user_role')
+
+    # Get today's date in the required format (YYYY-MM-DD)
+    today_date = datetime.today().strftime('%Y-%m-%d')
+
+    if request.method == 'POST':
+        # Fetch data from form
+        type_filter = request.form.get('usernameFilter', '')
+        from_date_filter = request.form.get('fromDateFilter', today_date)  # Default to today if not provided
+        to_date_filter = request.form.get('toDateFilter', today_date)  # Default to today if not provided
+        print(type_filter)
+        
+        # Create a cursor object to interact with the database
+        cur = mysql.connection.cursor()
+
+        # Get attendance types instead of usernames
+        types = ['work from home', 'work from office', 'leave']
+
+        # SQL query to filter attendance by type and date range
+        query = """
+            SELECT a.id, a.username, a.type, a.date, a.created_at, 
+                   COALESCE(SUM(w.work_time), 0) AS total_work_time
+            FROM attendence a
+            LEFT JOIN worklog w ON a.date = w.date AND a.username = w.username
+            WHERE a.type = %s AND a.date BETWEEN %s AND %s
+            GROUP BY a.id, a.username, a.type, a.date
+        """
+        cur.execute(query, (type_filter, from_date_filter, to_date_filter))
+        
+        # Fetch all matching records with work time included
+        attendence_data = cur.fetchall()
+        print(attendence_data)
+        cur.close()
+
+        # Check if no data is found
+        no_data = not attendence_data
+
+        return render_template('attendencelist.html', 
+                               attendence_data=attendence_data, 
+                               no_data=no_data,
+                               user_role=user_role,
+                               selected_from_date=from_date_filter,
+                               selected_to_date=to_date_filter,
+                               types=types,
+                               selected_type=type_filter)
+
+    # For the GET request, set the default dates to today
+    return render_template('attendencelist.html', 
+                           user_role=user_role, 
+                           selected_from_date=today_date,
+                           selected_to_date=today_date,
+                           types=['work from home', 'work from office', 'leave'],
+                           selected_type='')
+
+
+
+
+
+import os
+from werkzeug.utils import secure_filename
+from flask import Flask, send_from_directory, abort
 UPLOAD_FOLDER = 'uploads/'  # Modify this path based on your project structure
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'txt', 'zip'}
 
@@ -53,7 +220,8 @@ def save_file(file):
         file_url =request.host_url + 'uploads/' + filename  # This should be accessible via your static folder
         return file_url
     else:
-        raise ValueError("Invalid file type")
+        raise ValueError("Invalid file type")\
+        
 @app.route('/chatbox')
 def chat():
     if 'username' in session:
@@ -62,13 +230,37 @@ def chat():
         empid = session['empid']
         
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT * FROM profile WHERE username != %s", (username,))
+        
+        # Query to get all usernames from profile where status = '1' and prioritize those with the latest messages
+        cursor.execute("""
+            SELECT p.*, COALESCE(m.latest_message_time, '1970-01-01 00:00:00') AS message_time
+            FROM profile p
+            LEFT JOIN (
+                SELECT 
+                    CASE
+                        WHEN sender = %s THEN receiver
+                        ELSE sender
+                    END AS username, 
+                    MAX(created_at) AS latest_message_time
+                FROM messages
+                WHERE sender = %s OR receiver = %s
+                GROUP BY 
+                    CASE
+                        WHEN sender = %s THEN receiver
+                        ELSE sender
+                    END
+            ) m ON p.username = m.username
+            WHERE p.user_status = '1'
+            ORDER BY m.latest_message_time DESC, p.username ASC
+        """, (username, username, username, username))
+        
         profile = cursor.fetchall()
         cursor.close()
         
         return render_template('chatbox.html', profile=profile, user_role=user_role)
     else:
         return redirect(url_for('login'))
+
 
 @app.route('/send_message', methods=['POST'])
 def send_message():
@@ -89,6 +281,7 @@ def send_message():
     except Exception as e:
         print(f"Error: {str(e)}")  # Log any database-related errors
         return jsonify({'status': 'error', 'message': str(e)}), 500
+    
 @app.route('/get_messages', methods=['POST'])
 def get_messages():
     sender = request.form.get('sender')
@@ -123,6 +316,89 @@ def get_messages_from_db(sender, receiver):
     mysql.connection.commit()
 
     return messages
+
+# code start
+
+
+# @app.route('/chatbox')
+# def chat():
+#     if 'username' in session:
+#         username = session['username']
+#         user_role = session['user_role']
+#         empid = session['empid']
+        
+#         cursor = mysql.connection.cursor()
+#         cursor.execute("SELECT * FROM profile WHERE username != %s", (username,))
+#         profile = cursor.fetchall()
+#         cursor.close()
+        
+#         return render_template('chatbox.html', profile=profile, user_role=user_role)
+#     else:
+#         return redirect(url_for('login'))
+
+# @app.route('/send_message', methods=['POST'])
+# def send_message():
+#     sender = request.form.get('sender')
+#     receiver = request.form.get('receiver')
+#     message = request.form.get('message')
+
+#     print(f"Sender: {sender}, Receiver: {receiver}, Message: {message}")  # Debugging line
+
+#     try:
+#         cursor = mysql.connection.cursor()
+#         # Insert message in both directions
+#         cursor.execute(
+#             "INSERT INTO messages (sender, receiver, message, is_read) VALUES (%s, %s, %s, %s)",
+#             (sender, receiver, message, False)
+#         )
+#         cursor.execute(
+#             "INSERT INTO messages (sender, receiver, message, is_read) VALUES (%s, %s, %s, %s)",
+#             (receiver, sender, message, False)
+#         )
+#         mysql.connection.commit()
+#         return jsonify({'status': 'success'}), 200
+#     except Exception as e:
+#         print(f"Error: {str(e)}")  # Log any database-related errors
+#         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# @app.route('/get_messages', methods=['POST'])
+# def get_messages():
+#     sender = request.form.get('sender')
+#     receiver = request.form.get('receiver')
+
+#     # Fetch messages from the database between sender and receiver
+#     messages = get_messages_from_db(sender, receiver)
+
+#     return jsonify({'messages': messages})
+
+# # Function to get messages from the database
+# def get_messages_from_db(sender, receiver):
+#     # Create a cursor object using the MySQL connection
+#     cursor = mysql.connection.cursor()
+
+#     # Execute the query to fetch messages
+#     cursor.execute("""
+#     SELECT sender, message, is_read, created_at 
+#     FROM messages 
+#     WHERE (sender = %s AND receiver = %s) OR (sender = %s AND receiver = %s)
+#     ORDER BY created_at ASC
+#     """, (sender, receiver, receiver, sender))
+
+#     rows = cursor.fetchall()
+#     messages = [dict(zip([col[0] for col in cursor.description], row)) for row in rows]
+    
+#     # Mark messages as read (receiver should mark the message as read when retrieved)
+#     cursor.execute("""
+#         UPDATE messages 
+#         SET is_read = TRUE 
+#         WHERE receiver = %s AND sender = %s AND is_read = FALSE
+#     """, (sender, receiver))
+#     mysql.connection.commit()
+
+#     return messages
+
+
+# code end
 @app.route('/send_attachment', methods=['POST'])
 def send_attachment():
     file = request.files['file']
@@ -166,6 +442,8 @@ def uploaded_file(filename):
         )
     except FileNotFoundError:
         return "File not found", 404
+    
+    
 @app.route('/get_unread_counts', methods=['POST'])
 def get_unread_counts():
     current_user = session.get('username')  # Get the current logged-in user
@@ -213,6 +491,7 @@ def sitemap():
     
     if request.method == 'POST':
         # Extract form data
+        sitemap=request.form.get('sitemap-id')
         project = request.form.get('project')
         module = request.form.get('module')
         module_list = request.form.get('module-list')  # Convert list to a string
@@ -233,7 +512,7 @@ def sitemap():
         VALUES (%s, %s, %s, %s, %s, %s, %s, 'incomplete')
         """
 
-        cur.execute(insert_query, (sitemap_id, project, module, module_list, page_name, page_url, page_description))
+        cur.execute(insert_query, (sitemap, project, module, module_list, page_name, page_url, page_description))
         mysql.connection.commit()  # Commit the transaction
 
         notification_message = f"New Ticket is raised with Sitemap_Id: {sitemap_id}"
@@ -314,6 +593,225 @@ def raiseticket():
         return render_template('raiseticket.html', sitemap=sitemap, user_designation=user_designation,user_role=user_role)
     else:
         return redirect(url_for('login'))
+
+@app.route('/ticket', methods=['GET'])
+def ticket():
+    username = session.get('username')
+    user_role = session.get('user_role')
+    user_designation = session.get('designation')
+    return render_template('ticket.html',user_role=user_role,user_designation=user_designation)
+
+@app.route('/empreview', methods=['GET', 'POST'])
+def empreview():
+    username = session.get('username')
+    user_role = session.get('user_role')
+    user_designation = session.get('designation')
+
+    if request.method == 'POST':
+        # Get data from the form
+        submitted_username = request.form.get('username')
+        month = request.form.get('month')
+        review_number = request.form.get('review_number')
+        work = request.form.get('work')
+        work_reason = request.form.get('work_reason')
+        code_of_conduct_value = request.form.get('code_of_conduct_value')
+        code_of_conduct_reason = request.form.get('code_of_conduct_reason')
+        time_management_value = request.form.get('time_management_value')
+        time_management_reason = request.form.get('time_management_reason')
+        ethical_behaviour_value = request.form.get('ethical_behaviour_value')
+        ethical_behaviour_reason = request.form.get('ethical_behaviour_reason')
+        summary = request.form.get('summary')
+
+        # Check if the entry already exists
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            SELECT COUNT(*) FROM empreview
+            WHERE username = %s AND month = %s AND review_number = %s
+        """, (submitted_username, month, review_number))
+        existing_count = cursor.fetchone()[0]
+
+        if existing_count > 0:
+            return '''
+                        <script type="text/javascript">
+                            alert("You have already reviewed that user");
+                            window.location.href = "/empreview";
+                        </script>
+                    '''
+
+        # Insert the data into the empreview table
+        cursor.execute(""" 
+            INSERT INTO empreview (username, month, review_number, work, cywork, code_of_conduct, 
+                                   cycode_of_conduct, time_management, cytime_management, 
+                                   ethical_behaviour, cyethical_behaviour, summary) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            submitted_username, 
+            month, 
+            review_number, 
+            work, 
+            work_reason, 
+            code_of_conduct_value, 
+            code_of_conduct_reason, 
+            time_management_value, 
+            time_management_reason, 
+            ethical_behaviour_value, 
+            ethical_behaviour_reason, 
+            summary
+        ))
+        mysql.connection.commit()
+        cursor.close()
+
+        # Redirect to the empreview page
+        return redirect('/empreview')
+
+    # Fetch the active users from the database
+    return render_template(
+        'empreview.html', 
+        user_role=user_role, 
+        user_designation=user_designation, 
+        users=get_active_users()
+    )
+
+def get_active_users():
+    """Helper function to fetch active users."""
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT username FROM profile WHERE user_status = '1'")
+    users = cursor.fetchall()
+    cursor.close()
+    return users
+
+
+
+@app.route('/empreview/edit', methods=['POST'])
+def edit_review():
+    if session.get('user_role') != 'CEO':
+        abort(403)  # Forbidden for non-CEOs
+
+    review_id = request.form.get('review_id')
+    work = request.form.get('work1')
+    work_reason = request.form.get('work_reason')
+    code_of_conduct_value = request.form.get('code_of_conduct1')
+    code_of_conduct_reason = request.form.get('code_of_conduct_reason')
+    time_management_value = request.form.get('time_management1')
+    time_management_reason = request.form.get('time_management_reason')
+    ethical_behaviour_value = request.form.get('ethical_behaviour1')
+    ethical_behaviour_reason = request.form.get('ethical_behaviour_reason')
+    summary = request.form.get('summary')
+    print(work)
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        UPDATE empreview 
+        SET work=%s, cywork=%s, code_of_conduct=%s, cycode_of_conduct=%s,
+            time_management=%s, cytime_management=%s, ethical_behaviour=%s,
+            cyethical_behaviour=%s, summary=%s 
+        WHERE id=%s
+    """, (
+        work, work_reason, code_of_conduct_value, code_of_conduct_reason,
+        time_management_value, time_management_reason, ethical_behaviour_value,
+        ethical_behaviour_reason, summary, review_id
+    ))
+    mysql.connection.commit()
+    cursor.close()
+    return redirect('/empreviewlist')
+
+@app.route('/empreview/validate', methods=['POST'])
+def validate_review():
+    if session.get('user_role') != 'CEO':
+        abort(403)  # Forbidden for non-CEOs
+
+    review_id = request.form.get('review_id')
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE empreview SET status='validated' WHERE id=%s", (review_id,))
+    mysql.connection.commit()
+    cursor.close()
+    return redirect('/empreviewlist')
+
+@app.route('/empreview/details/<int:review_id>', methods=['GET'])
+def get_review_details(review_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM empreview WHERE id=%s", (review_id,))
+    review = cursor.fetchone()
+    cursor.close()
+    print(review)
+    
+    # Ensure the review exists
+    if not review:
+        return jsonify({"error": "Review not found"}), 404
+
+    # Map the review fields to meaningful keys
+    review_data = {
+        "id": review[0],
+        "work": review[4],
+        "work_reason": review[5],
+        "code_of_conduct": review[6],
+        "code_of_conduct_reason": review[7],
+        "time_management": review[8],
+        "time_management_reason": review[9],
+        "ethical_behaviour": review[10],
+        "ethical_behaviour_reason": review[11],
+        "summary": review[12],
+    }
+
+    return jsonify(review_data)
+
+
+
+@app.route('/empreviewlist', methods=['GET', 'POST'])
+def empreviewlist():
+    # Get the form data if it's a POST request
+    selected_username = request.form.get('username')
+    selected_month = request.form.get('month')
+    selected_review_number = request.form.get('review_number')
+
+    # You can also use session data (for user role, etc.) if needed
+    user_role = session.get('user_role')
+    user_designation = session.get('designation')
+
+    # Fetch active users from the database (if needed)
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT username FROM profile WHERE user_status = '1'")
+    users = cursor.fetchall()
+
+    # Fetch review data based on the form data (selected username, month, and review number)
+    cursor.execute("""
+        SELECT * FROM empreview
+        WHERE username = %s
+        AND month = %s
+        AND review_number = %s
+    """, (selected_username, selected_month, selected_review_number))
+
+    review_data = cursor.fetchall()
+    # cursor.close()
+    # print(review_data)
+    cursor.execute("""
+        SELECT work, code_of_conduct, time_management, ethical_behaviour
+        FROM empreview
+        WHERE username = %s AND month = %s AND review_number = %s
+    """, (selected_username, selected_month, selected_review_number))
+
+    review = cursor.fetchone()  # Assuming one row is returned
+    cursor.close()
+
+    # Prepare the 'row' for the frontend
+    if review_data:
+        row = [0, 0, 0, 0, review[0], 0, review[1], 0, review[2], 0, review[3]]
+    else:
+        row = [0] * 11  # Default if no data is found
+
+
+    # Return the template with the fetched data
+    return render_template('empreviewlist.html', 
+                           user_role=user_role, 
+                           user_designation=user_designation, 
+                           users=users, 
+                           row=row,
+                           review_data=review_data,
+                           selected_username=selected_username,
+                           selected_month=selected_month,
+                           selected_review_number=selected_review_number)
+
+
 
     
 @app.route('/ticketlist', methods=['GET'])
@@ -563,9 +1061,9 @@ def post_redflags_for_missing_work_reports():
             return
 
         # Get all employees from the profile table
-        cursor.execute("SELECT empid, username FROM profile")
-        all_employees = cursor.fetchall()  # Returns a list of tuples (empid, username)
-
+        cursor.execute("SELECT empid, username FROM profile WHERE user_status = '1' ")
+        all_employees = cursor.fetchall()  # Returns a list of tuples (empid, username, status)
+        print(all_employees)
         # Get all work reports for today
         cursor.execute("""
             SELECT wr.empid, wr.time
@@ -584,6 +1082,8 @@ def post_redflags_for_missing_work_reports():
 
         # Process each employee
         for empid, username in all_employees:
+            # Skip employees with status 0
+
             reported_slots = work_reports_dict.get(empid, set())
 
             # Check if the employee is on approved leave
@@ -608,7 +1108,6 @@ def post_redflags_for_missing_work_reports():
         # Commit the changes and close the cursor
         mysql.connection.commit()
         cursor.close()
-
 
 @app.route('/complaint', methods=['GET', 'POST'])
 def complaint():
@@ -661,6 +1160,250 @@ def get_notification_count():
 
     return jsonify({'notificationCount': notification_count})
 
+@app.route('/meetings', methods=['GET'])
+def meetings():
+    username = session.get('username')
+    user_role = session.get('user_role')
+    user_designation = session.get('designation')
+    if 'username' in session:
+        username = session['username']
+        cur = mysql.connection.cursor()
+        
+        # If the user is a CEO, show all unique meetings
+        if user_role == 'CEO' or user_role =='HR':
+            cur.execute("SELECT DISTINCT meet_title, date, time_slots, meet_link,meet_description FROM scheduler")
+
+        else:
+            # If the user is not CEO, filter the meetings based on the username
+            cur.execute("SELECT * FROM scheduler WHERE username = %s", (username,))
+        
+        meetings = cur.fetchall()
+        cur.close()
+        
+        return render_template('meetings.html', meetings=meetings, username=username, user_designation=user_designation, user_role=user_role)
+    else:
+        return redirect(url_for('login'))
+
+    
+@app.route('/update_meeting', methods=['POST'])
+def update_meeting():
+    try:
+        data = request.json
+        meet_title = data.get('meet_title')
+        meet_link = data.get('meet_link')
+
+        if not meet_title or not meet_link:
+            return jsonify({'success': False, 'error': 'Missing data.'}), 400
+
+        cursor = mysql.connection.cursor()
+        query = "UPDATE scheduler SET meet_link = %s WHERE meet_title = %s"
+        cursor.execute(query, (meet_link, meet_title))
+        mysql.connection.commit()  # commit should be mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error updating meeting: {e}")  # Print error for debugging
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/scheduler', methods=['GET', 'POST'])
+def scheduler():
+    if 'username' in session:
+        username = session.get('username')
+        user_role = session.get('user_role')
+        user_designation = session.get('designation')
+        print(user_designation)
+
+        # Check user role for access control
+        if not username or user_role in ['Employee', 'Trainee']:
+            return '''
+                <script type="text/javascript">
+                    alert("Access denied. You do not have permission to view this page.");
+                    window.location.href = "/dashboard";
+                </script>
+            '''
+
+        # Fetch users from the profile table
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM profile")
+        users = cur.fetchall()  # Fetch all rows
+
+        # Fetch project titles from the project table
+        cur.execute("SELECT project_title FROM project")
+        projects = cur.fetchall()  # Fetch all rows
+
+        cur.close()
+
+        # Transform query results into lists for easier handling
+        usernames = [user for user in users]
+        project_titles = [project for project in projects]
+
+        # Initialize selected_usernames2 as an empty list
+        selected_usernames2 = []
+
+        if request.method == 'POST':
+            message = request.form.get('message')
+            meet_title = request.form.get('meet_title')
+            meet_time = request.form.get('time_slot')
+            current_date = request.form.get('date')
+            selected_usernames_json = request.form.get('selectedUsernames', '[]')
+            selected_projects_json = request.form.get('selectedProjects', '[]')
+
+            # Parse the selected usernames and projects
+            try:
+                selected_usernames = json.loads(selected_usernames_json) if selected_usernames_json else []
+                selected_projects = json.loads(selected_projects_json) if selected_projects_json else []
+            except json.JSONDecodeError as e:
+                selected_usernames = []
+                selected_projects = []
+                print(f"JSON decode error: {e}")
+
+            # Fetch email addresses for selected usernames
+            if selected_usernames_json:
+                selected_usernames = json.loads(selected_usernames_json)
+                
+                # Ensure selected_usernames is not empty before querying
+                if selected_usernames:
+                    cur = mysql.connection.cursor()
+                    cur.execute(""" 
+                        SELECT username 
+                        FROM profile 
+                        WHERE email_address IN %s
+                    """, (tuple(selected_usernames),))
+                    emails = cur.fetchall()
+                    selected_usernames2 = [email[0] for email in emails]  # usernames matched with emails
+
+            # Fetch usernames based on selected projects
+            if selected_projects:
+                cur = mysql.connection.cursor()
+                cur.execute("""
+                    SELECT username 
+                    FROM workallocation 
+                    WHERE project_title IN %s
+                """, (tuple(selected_projects),))
+                filtered_users = cur.fetchall()
+                selected_usernames2.extend([user[0] for user in filtered_users])  # Append to the list
+
+                # Fetch email addresses from the profile table based on the selected usernames
+                cur.execute("""
+                    SELECT email_address 
+                    FROM profile 
+                    WHERE username IN %s
+                """, (tuple(selected_usernames2),))
+                emails = cur.fetchall()
+                selected_usernames = [email[0] for email in emails]
+
+            # Handle 'All' selection for users
+            if "All" in selected_usernames:
+                selected_usernames = json.loads(selected_usernames_json)
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT username FROM profile")
+                selected_usernames2 = [user[0] for user in cur.fetchall()]
+
+            # Default to the current date if not provided
+            email_ids = selected_usernames
+            print(email_ids)
+            default_link = 'https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox' 
+
+            # Insert meeting data into scheduler table
+            for user, email in zip(selected_usernames2, email_ids):
+                cur = mysql.connection.cursor()
+                cur.execute("""
+                    INSERT INTO scheduler (meet_title, date, time_slots, meet_link, guests, meet_description, username) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (meet_title, current_date, meet_time, default_link, email, message, user))
+
+            # Commit changes after all inserts are completed
+            mysql.connection.commit()
+
+            # Insert notifications for each user
+            cur = mysql.connection.cursor()
+            notify = f"They have raised a meeting on {current_date} at {meet_time}"
+            for user in selected_usernames2:
+                cur.execute("""
+                    INSERT INTO notifications (username, notification, timestamp) 
+                    VALUES (%s, %s, NOW())
+                """, (user, notify))
+
+            mysql.connection.commit()
+            cur.close()
+
+            return redirect(url_for('scheduler'))
+        # projects_employees = {
+        #     "happy": ["user1@example.com", "user2@example.com"],
+        #     "kjnhbg": ["user3@example.com", "user4@example.com"],
+        # }
+        cur = mysql.connection.cursor()
+        cur.execute(""" 
+            SELECT project_title, email_address 
+            FROM workallocation 
+            JOIN profile ON workallocation.username = profile.username
+        """)
+        project_user_emails = cur.fetchall()
+        projects_employees = {}
+        for project_title, email in project_user_emails:
+            if project_title in projects_employees:
+                projects_employees[project_title].append(email)
+            else:
+                projects_employees[project_title] = [email]
+
+        cur.close()
+        return render_template(
+            'scheduler.html',
+            user_role=user_role,
+            usernames=usernames,
+            projects=project_titles,
+            selected_username=None,
+            disable_filter=False, 
+            user_designation=user_designation,
+            projects_employees=projects_employees
+        )
+    else:
+        return redirect(url_for('login'))
+    
+
+from datetime import datetime, timedelta
+
+def send_reminder_notifications():
+    with app.app_context():  # Ensure the app context is available
+        cur = mysql.connection.cursor()
+        print("jack")
+
+        # Get the current time and the time 30 minutes from now
+        current_time = datetime.now()
+        reminder_time = current_time + timedelta(minutes=30)
+
+        # Custom time formatting to remove leading zero in the hour
+        current_date_str = current_time.strftime('%Y-%m-%d')
+        current_time_str = current_time.strftime('%I:%M %p').lstrip('0')  # Remove leading zero
+        reminder_time_str = reminder_time.strftime('%I:%M %p').lstrip('0')  # Remove leading zero
+
+        print(current_time_str)
+        print(reminder_time_str)
+
+        # Query for meetings happening in the next 30 minutes
+        cur.execute("""
+            SELECT username, meet_title, date, time_slots 
+            FROM scheduler 
+            WHERE date = %s AND time_slots BETWEEN %s AND %s
+        """, (current_date_str, current_time_str, reminder_time_str))
+        
+        meetings = cur.fetchall()
+        print(meetings)
+        for meeting in meetings:
+            username, meet_title, date, time_slots = meeting
+            # Send notification
+            notify = f"Reminder: You have a meeting '{meet_title}' on {date} at {time_slots}."
+            print(notify)  # Replace with actual notification logic (e.g., email or SMS API)
+
+            cur.execute("""
+                INSERT INTO notifications (username, notification, timestamp) 
+                VALUES (%s, %s, NOW())
+            """, (username, notify))
+        
+        mysql.connection.commit()
+        cur.close()
 
 
 @app.route('/communication', methods=['GET', 'POST'])
@@ -896,7 +1639,6 @@ def dashboard():
 def login():
     username = request.form['username']
     password = request.form['password']
-    
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM profile WHERE username = %s AND password = %s", (username, password))
     user = cur.fetchone()
@@ -985,21 +1727,34 @@ def manage_todo():
 def auto_reject_pending_leaves():
     with app.app_context():  # Explicitly push the Flask app context
         cur = mysql.connection.cursor()
-        current_time = datetime.now()
-        today_date = current_time.strftime('%Y-%m-%d')  # Format the current date as YYYY-MM-DD
-        print(f"Running auto-reject task at {current_time}")
         
-        cur.execute("""
-            UPDATE empleave
-            SET status = 'Rejected'
-            WHERE leave_type = 'sick' 
-              AND status = 'Pending'
-              AND start_date = %s
-        """, (today_date,))
+        # Retrieve all holiday dates
+        cur.execute("SELECT holiday_date FROM holidays")
+        holiday_dates = [row[0] for row in cur.fetchall()]
         
-        mysql.connection.commit()
-        cur.close()
-        print("Auto-reject task completed.")
+        if holiday_dates:
+            # Reject 'Pending' or 'Approved' leaves where start_date equals end_date and matches a holiday
+            cur.execute("""
+                UPDATE empleave
+                SET status = 'Rejected'
+                WHERE (status = 'Pending' OR status = 'Approved')
+                AND start_date = end_date
+                AND start_date IN %s
+            """, (tuple(holiday_dates),))
+            
+            # Adjust start_date for leave requests where start_date != end_date and start_date falls on a holiday
+            cur.execute("""
+                UPDATE empleave
+                SET start_date = DATE_ADD(start_date, INTERVAL 1 DAY)
+                WHERE start_date != end_date
+                AND start_date IN %s
+            """, (tuple(holiday_dates),))
+            
+            # Commit changes to the database
+            mysql.connection.commit()
+            cur.close()
+            
+            print("Auto-reject and adjustment task completed.")
 
 def add_weekend_holidays():
     with app.app_context():  # Ensure the application context is active
@@ -1007,11 +1762,10 @@ def add_weekend_holidays():
         # print(today) 
         # Current time in 'Asia/Kolkata' timezone
         day_of_week = today.weekday()  # Monday is 0, Sunday is 6
-
         if day_of_week in [5, 6]:  # 5 is Saturday, 6 is Sunday
             holiday_reason = "Weekend (Saturday)" if day_of_week == 5 else "Weekend (Sunday)"
             holiday_date = today.strftime('%Y-%m-%d')
-
+            print(holiday_reason)
             cur = None
             try:
                 # Save the holiday details to the database
@@ -1088,8 +1842,9 @@ def add_holiday():
 def leavemanager():
     username = session.get('username')
     user_role = session.get('user_role')
+    # print(user_role)
     user_designation = session.get('designation')
-    print(user_designation)
+    # print(user_designation)
     # Check permissions
     if not username or user_role in ['Employee', 'Trainee']:
         return '''
@@ -1145,7 +1900,7 @@ def leavemanager():
                     WHERE start_date = %s AND leave_type = %s AND username = %s
                 """, (status, start_date, leave_type, leave_username))
 
-                notification_message = f"Your leave request starting {start_date} has been approved."
+                notification_message = f"Your leave request starting {start_date} has been approved by {username}."
                 cur.execute(
                     'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
                     (leave_username, notification_message)
@@ -1323,16 +2078,56 @@ def adduser():
 
 
 #leaverequest 
+# leave request changing code start
+
+
+@app.route('/calculate_end_date', methods=['POST'])
+def calculate_end_date():
+    """Calculate 5 working days from the given start date."""
+    data = request.get_json()
+    start_date_str = data.get('start_date')
+
+    if not start_date_str:
+        return jsonify({'error': 'Start date is required'}), 400
+
+    try:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        days_added = 0
+        current_date = start_date
+
+        # Calculate 5 working days excluding weekends
+        while days_added < 5:
+            current_date += timedelta(days=1)
+            if current_date.weekday() < 5:  # Monday to Friday
+                days_added += 1
+
+        end_date = current_date.strftime('%Y-%m-%d')
+        return jsonify({'end_date': end_date})
+    except ValueError:
+        return jsonify({'error': 'Invalid date format'}), 400
+
+
 @app.route('/leaverequest', methods=['GET', 'POST'])
 def leavemanagement():
     username = session.get('username')  # Get username from session
-
     user_designation = session.get('designation')
     cursor = mysql.connection.cursor()  # Open the cursor
 
     # Fetch leave requests for the logged-in user
     cursor.execute('SELECT * FROM empleave WHERE username = %s', (username,))
     data = cursor.fetchall()
+
+    # Fetch leave type totals
+    cursor.execute("""
+        SELECT leave_type, SUM(DATEDIFF(end_date, start_date) + 1) AS total_days
+        FROM empleave
+        WHERE username = %s AND status = 'Approved' AND leave_type IN ('sick', 'casual')
+        GROUP BY leave_type
+    """, (username,))
+    leave_days = cursor.fetchall()
+    leave_days_dict = {row[0].lower(): row[1] for row in leave_days}
+    total_casual_days = leave_days_dict.get('casual', 0)
+    total_sick_days = leave_days_dict.get('sick', 0)
 
     if request.method == 'POST':
         leave_type = request.form['leave_type'].lower()
@@ -1343,41 +2138,41 @@ def leavemanagement():
         error_message = None
 
         # Validation
-        if not leave_type or not start_date or not end_date or not reason:
+        if not leave_type or not start_date or not reason:
             error_message = "All fields are required. Please fill in all the details."
-        elif start_date > end_date:
+        elif leave_type != 'marriage' and (not end_date or start_date > end_date):
             error_message = "Start date must be before end date."
+
+        if leave_type == 'marriage' and not end_date:
+            # Calculate end date for marriage leave dynamically
+            try:
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+                days_added = 0
+                current_date = start_date_obj
+
+                while days_added < 5:
+                    current_date += timedelta(days=1)
+                    if current_date.weekday() < 5:
+                        days_added += 1
+
+                end_date = current_date.strftime('%Y-%m-%d')
+            except ValueError:
+                error_message = "Invalid start date for marriage leave."
 
         if error_message is None:
             try:
-                start_date_obj = datetime.strptime(start_date, '%d/%m/%Y')
-                end_date_obj = datetime.strptime(end_date, '%d/%m/%Y')
-                year_from_start_date = start_date_obj.year
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+                end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
 
-                # Count leaves by type and status (Approved)
-                cursor.execute(
-                    """
-                    SELECT leave_type, COUNT(*) AS leave_count 
-                    FROM empleave 
-                    WHERE username = %s AND YEAR(start_date) = %s AND status = %s
-                    GROUP BY leave_type
-                    """,
-                    (username, year_from_start_date, 'Approved')
-                )
-                leave_counts = cursor.fetchall()
-                leave_counts_dict = {row[0].lower(): row[1] for row in leave_counts}
-
-                casual_leaves_taken = leave_counts_dict.get('casual', 0)
-                sick_leaves_taken = leave_counts_dict.get('sick', 0)
-
-                if leave_type == 'casual' and casual_leaves_taken >= 12:
+                # Check leave limits
+                if leave_type == 'casual' and total_casual_days >= 12:
                     return '''
                         <script type="text/javascript">
                             alert("You have already taken the maximum of 12 casual leaves for the selected year.");
                             window.location.href = "/dashboard";
                         </script>
                     '''
-                elif leave_type == 'sick' and sick_leaves_taken >= 12:
+                elif leave_type == 'sick' and total_sick_days >= 12:
                     return '''
                         <script type="text/javascript">
                             alert("You have already taken the maximum of 12 sick leaves for the selected year.");
@@ -1392,8 +2187,8 @@ def leavemanagement():
                      end_date_obj.strftime('%Y-%m-%d'), reason, 'Pending')
                 )
 
-                # Add notification
-                notification_message = f"{username} is requesting for a leave."
+                # Add notification for HR/CEO
+                notification_message = f"{username} is requesting for a leave.From {start_date} To {end_date}"
                 cursor.execute("SELECT username FROM profile WHERE designation IN (%s, %s)", ('CEO', 'HR'))
                 ceo_users = cursor.fetchall()
 
@@ -1403,33 +2198,6 @@ def leavemanagement():
                         'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
                         (ceo_username, notification_message)
                     )
-
-                # Check for red flags (approved leaves only)
-                cursor.execute("""
-                    SELECT MAX(end_date) AS last_approved_date 
-                    FROM empleave 
-                    WHERE username = %s 
-                    AND leave_type = %s
-                    AND status = 'Approved'
-                """, (username, leave_type))
-                last_approved_date = cursor.fetchone()[0]
-
-                cursor.execute("""
-                    SELECT COUNT(*) 
-                    FROM empleave 
-                    WHERE username = %s 
-                    AND leave_type = %s 
-                    AND status = 'Approved'
-                """, (username, leave_type))
-                approved_leave_count = cursor.fetchone()[0]
-
-                if last_approved_date:
-                    last_approved_date_str = last_approved_date.strftime('%d/%m/%Y')
-                    today_date_str = datetime.today().strftime('%d/%m/%Y')
-                    cursor.execute("""
-                        INSERT INTO redflags (username, redflag)
-                        VALUES (%s, %s)
-                    """, (username, f"You've already taken {approved_leave_count} {leave_type} leave(s).Last approved leave on {last_approved_date_str}.Requesting on {today_date_str}."))
 
                 mysql.connection.commit()  # Commit all changes
 
@@ -1442,10 +2210,24 @@ def leavemanagement():
             except ValueError:
                 error_message = "There was an error processing the date. Please check your input."
 
-        return render_template('leaverequest.html', leaves=data, error_message=error_message,user_designation=user_designation)
+        return render_template(
+            'leaverequest.html',
+            leaves=data,
+            error_message=error_message,
+            user_designation=user_designation,
+            total_sick_days=total_sick_days,
+            total_casual_days=total_casual_days
+        )
 
     cursor.close()  # Close the cursor
-    return render_template('leaverequest.html', leaves=data, user_designation=user_designation)
+    return render_template(
+        'leaverequest.html',
+        leaves=data,
+        user_designation=user_designation,
+        total_sick_days=total_sick_days,
+        total_casual_days=total_casual_days
+    )
+
 
 
 
@@ -2143,6 +2925,7 @@ def emplist():
 
 @app.route('/update_user', methods=['POST'])
 def update_user():
+
     if 'username' not in session or session['user_role'] in ['Employee', 'Trainee']:
         return jsonify(success=False, message="Access denied")
 
@@ -2152,16 +2935,17 @@ def update_user():
     email = data.get('email')
     phone = data.get('phone')
     designation = data.get('designation')
+    account_number = data.get('account_number')
     status = data.get('status')
 
     try:
         cur = mysql.connection.cursor()
         query = """
             UPDATE profile
-            SET username=%s, email_address=%s, phone_number=%s, designation=%s, user_status=%s
+            SET username=%s, email_address=%s, phone_number=%s, designation=%s, user_status=%s, account_number=%s
             WHERE empid=%s
         """
-        cur.execute(query, (username, email, phone, designation, status, empid))
+        cur.execute(query, (username, email, phone, designation, status, account_number, empid))
         mysql.connection.commit()
         cur.close()
         return jsonify(success=True)
@@ -2386,6 +3170,182 @@ def workreport():
 
     return render_template('workreport.html', profile=profile, user_role=user_role, booked_slots=booked_slots,user_designation = user_designation)
 
+@app.route('/checklist')
+def checklist():
+    username = session.get('username')
+    user_role = session.get('user_role')
+    user_designation = session.get('designation')
+    cursor = mysql.connection.cursor()
+
+    today_date = datetime.today().date()
+
+    # Modified query to join worklog and attendance based on today's date and username
+    query = '''
+        SELECT w.*, a.type 
+        FROM worklog w
+        LEFT JOIN attendence a ON a.username = w.username AND a.date = %s
+        WHERE w.status = "pending" AND w.date = %s
+    '''
+    
+    cursor.execute(query, (today_date,today_date,))
+    worklog_data = cursor.fetchall()
+    # print(worklog_data)
+
+    no_data = not worklog_data
+
+    return render_template('checkinaccept.html', 
+                           username=username, 
+                           user_role=user_role, 
+                           user_designation=user_designation, 
+                           no_data=no_data, 
+                           worklog_data=worklog_data)
+
+
+@app.route('/update_checkin_status', methods=['POST'])
+def update_checkin_status():
+    worklog_id = request.form.get('id')
+    status = request.form.get('status')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE worklog SET status = %s WHERE id = %s", (status, worklog_id))
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"message": "Status updated successfully"})
+
+@app.route('/checkin', methods=['POST'])
+def checkin():
+    # Get the username from the session
+    username = session.get('username')
+    if not username:
+        return jsonify({'message': 'Access denied. Please log in.', 'redirect': '/login'}), 401
+
+    # Get today's date and current time
+    today_date = datetime.now().date()
+    current_time = datetime.now().time()
+
+    # Insert the check-in details into the database
+    try:
+        cursor = mysql.connection.cursor()
+
+        # Check if the user has already checked in today, and whether check-out is NULL
+        cursor.execute(
+            'SELECT checkin, checkout FROM worklog WHERE username = %s AND date = %s',
+            (username, today_date)
+        )
+        record = cursor.fetchone()
+
+        if record:
+            checkin_time, checkout_time = record
+
+            # If the check-in is already done but check-out is NULL, prompt for re-checkin
+            if checkin_time and checkout_time is None:
+                cursor.close()
+                return jsonify({'message': 'Please check out before checking in again.'}), 400
+
+            # If the user already checked in and checked out, prevent further check-ins
+            if checkin_time and checkout_time:
+                cursor.close()
+                return jsonify({'message': 'You have already checked in and checked out today.'}), 400
+
+        # If no previous record found, insert check-in record
+        cursor.execute(
+            'INSERT INTO worklog (username, date, checkin, status) VALUES (%s, %s, %s, %s)',
+            (username, today_date, current_time,"pending")
+        )
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({'message': 'Check-in successful!', 'redirect': '/dashboard'}), 200
+
+    except Exception as e:
+        return jsonify({'message': f'Error: {str(e)}'}), 500
+    
+
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    # Get the username from the session
+    username = session.get('username')
+    if not username:
+        return jsonify({'message': 'Access denied. Please log in.', 'redirect': '/login'}), 401
+
+    try:
+        cursor = mysql.connection.cursor()
+
+        # Check if the user's status is "pending" or "rejected"
+        # cursor.execute('SELECT  FROM worklog WHERE username = %s', (username,))
+        # user_status = cursor.fetchone()
+
+        # if not user_status or user_status[0] in ['pending', 'rejected']:
+        #     cursor.close()
+        #     return jsonify({'message': 'Your account status is pending or rejected. You cannot checkout.'}), 403
+
+        # Get today's date and current time
+        today_date = datetime.now().date()
+        current_time = datetime.now().time()
+
+        # Check if the user has already checked in today
+        cursor.execute(
+            'SELECT COUNT(*) FROM worklog WHERE username = %s AND date = %s AND checkout IS NULL',
+            (username, today_date)
+        )
+        record_exists = cursor.fetchone()[0]
+
+        if record_exists == 0:
+            cursor.close()
+            return jsonify({'message': 'No check-in record found for today or already checked out. Please check in first.'}), 400
+        
+        # Get the check-in time and previous work time for today, ensuring checkout is NULL
+        cursor.execute(
+            'SELECT checkin, work_time, checkout,status FROM worklog WHERE username = %s AND date = %s AND checkout IS NULL',
+            (username, today_date)
+        )
+        record = cursor.fetchone()
+
+        if not record:
+            cursor.close()
+            return jsonify({'message': 'No check-in record found for today or already checked out. Please check in first.'}), 400
+
+        checkin_time = record[0]
+        checkout_time = record[2]  # Will be None
+        previous_work_time = record[1] or 0  # Handle NULL values by defaulting to 0
+
+        # Ensure checkout time is None
+        if checkout_time is not None:
+            cursor.close()
+            return jsonify({'message': 'Already checked out. Cannot check out again.'}), 400
+        
+        if record[3] in ['pending', 'rejected']:
+            cursor.close()
+            return jsonify({'message': 'Your account status is pending or rejected. You cannot checkout.'}), 403
+        else:
+
+            time_format = "%H:%M:%S"
+            checkin_time_obj = datetime.strptime(str(checkin_time), time_format)
+            current_time_obj = datetime.strptime(current_time.strftime(time_format), time_format)
+
+            # Calculate the time difference in minutes
+            time_difference = current_time_obj - checkin_time_obj
+            time_difference_minutes = time_difference.total_seconds() // 60
+
+            total_work_time = previous_work_time + time_difference_minutes
+
+            # Update the worklog and set checkout time after checkout
+            cursor.execute(
+                'UPDATE worklog SET checkout = %s, work_time = %s WHERE username = %s AND date = %s AND checkout IS NULL',
+                (current_time, total_work_time, username, today_date)
+            )
+            mysql.connection.commit()
+            cursor.close()
+
+            return jsonify({'message': 'Checkout successful!', 'redirect': '/dashboard'}), 200
+
+    except Exception as e:
+        return jsonify({'message': f'Error: {str(e)}'}), 500
+
+
+
 # Track toggle state
 @app.route('/toggle_updates', methods=['POST'])
 def toggle_updates():
@@ -2440,9 +3400,11 @@ scheduler = BackgroundScheduler()
 # Add jobs to toggle at specific times
 scheduler.add_job(manual_toggle_updates, 'cron', hour=9, minute=0)  # 9:00 AM
 scheduler.add_job(manual_toggle_updates, 'cron', hour=18, minute=15)  # 6:15 PM
-scheduler.add_job(auto_reject_pending_leaves, 'cron', hour=10, minute=30)
-scheduler.add_job(post_redflags_for_missing_work_reports, 'cron', hour=11, minute=18)
+scheduler.add_job(auto_reject_pending_leaves, 'cron', hour=12, minute=37)
+scheduler.add_job(post_redflags_for_missing_work_reports, 'cron', hour=18, minute=51)
 scheduler.add_job(add_weekend_holidays,'cron', hour=0, minute=0)
+scheduler.add_job(insert_attendance_records, 'cron', hour=10, minute=45)
+scheduler.add_job(func=send_reminder_notifications, trigger="interval", minutes=30)
                   
 
 
@@ -2459,17 +3421,199 @@ def manual_toggle_endpoint():
 # # Logging
 # logging.basicConfig(level=logging.ERROR)
 
+def get_missing_time_slots_data(start_date, end_date, selected_username=None):
+    with app.app_context():
+        cursor = mysql.connection.cursor()
+
+        # Define the available time slots
+        time_slots = [
+            "9am to 10am", "10am to 11am", "11am to 12pm",
+            "12pm to 1pm", "1pm to 2pm",
+            "2pm to 3pm", "3pm to 4pm", "4pm to 4:30pm",
+            "4:30pm to 5pm", "5pm to 6pm"
+        ]
+
+        # Fetch all employees
+        if selected_username:
+            cursor.execute("SELECT empid, username, user_status FROM profile WHERE username = %s", (selected_username,))
+        else:
+            cursor.execute("SELECT empid, username, user_status FROM profile")
+        all_employees = cursor.fetchall()
+
+        # Fetch work reports for the given date range
+        cursor.execute(""" 
+            SELECT empid, date, time FROM workreport 
+            WHERE date BETWEEN %s AND %s
+        """, (start_date, end_date))
+        work_reports = cursor.fetchall()
+
+        # Organize work reports into a dictionary by empid and date
+        work_reports_dict = {}
+        for empid, date, time_slot in work_reports:
+            key = (empid, date)
+            if key not in work_reports_dict:
+                work_reports_dict[key] = set()
+            if time_slot:
+                work_reports_dict[key].add(time_slot)
+
+        # Prepare the result data
+        missing_slots_data = []
+        for empid, username, user_status in all_employees:
+            if user_status == "0":
+                continue  # Skip inactive employees
+
+            for date in (start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)):
+                # Check if the current date is a holiday
+                cursor.execute("""
+                    SELECT COUNT(*) FROM holidays WHERE holiday_date = %s
+                """, (date,))
+                is_holiday = cursor.fetchone()[0] > 0
+
+                if is_holiday:
+                    continue  # Skip the current date if it's a holiday
+
+                key = (empid, date)
+                reported_slots = work_reports_dict.get(key, set())
+
+                # Check if the employee is on approved leave
+                cursor.execute("""
+                    SELECT COUNT(*) FROM empleave
+                    WHERE username = %s AND status = 'Approved'
+                    AND start_date <= %s AND end_date >= %s
+                """, (username, date, date))
+                is_on_leave = cursor.fetchone()[0] > 0
+
+                if not is_on_leave:
+                    # Identify missing slots
+                    missing_slots = [slot for slot in time_slots if slot not in reported_slots]
+
+                    if missing_slots:
+                        missing_slots_data.append({
+                            "username": username,
+                            "date": str(date),
+                            "missed_slots_count": len(missing_slots),
+                            "missed_slots": ", ".join(missing_slots)
+                        })
+
+        cursor.close()
+        return missing_slots_data
+
+def get_non_holiday_non_leave_dates_count(start_date, end_date, selected_username=None):
+    with app.app_context():
+        cursor = mysql.connection.cursor()
+
+        # Fetch all employees
+        if selected_username:
+            cursor.execute("SELECT empid, username, user_status FROM profile WHERE username = %s", (selected_username,))
+        else:
+            cursor.execute("SELECT empid, username, user_status FROM profile")
+        all_employees = cursor.fetchall()
+
+        # Prepare the result data for counting non-holiday and non-leave dates
+        non_holiday_non_leave_counts = {}
+
+        for empid, username, user_status in all_employees:
+            if user_status == "0":
+                continue  # Skip inactive employees
+
+            non_holiday_non_leave_count = 0
+            for date in (start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)):
+                # Check if the current date is a holiday
+                cursor.execute("""
+                    SELECT COUNT(*) FROM holidays WHERE holiday_date = %s
+                """, (date,))
+                is_holiday = cursor.fetchone()[0] > 0
+
+                if is_holiday:
+                    continue  # Skip the current date if it's a holiday
+
+                # Check if the employee is on approved leave
+                cursor.execute("""
+                    SELECT COUNT(*) FROM empleave
+                    WHERE username = %s AND status = 'Approved'
+                    AND start_date <= %s AND end_date >= %s
+                """, (username, date, date))
+                is_on_leave = cursor.fetchone()[0] > 0
+
+                if not is_on_leave:
+                    non_holiday_non_leave_count += 1  # Count the date if it's not a holiday and not a leave day
+
+            # Store the count for each employee
+            non_holiday_non_leave_counts[username] = non_holiday_non_leave_count
+
+        cursor.close()
+        return non_holiday_non_leave_counts
+
+
+@app.route('/missing', methods=['GET', 'POST'])
+def missing():
+    try:
+        # Check if the user is logged in
+        if 'username' in session:
+            empid = session.get('empid')
+            username = session.get('username')
+            user_role = session.get('user_role')
+
+            cursor = mysql.connection.cursor()
+
+            # Fetch distinct usernames for filter options
+            cursor.execute("SELECT DISTINCT username FROM profile")
+            usernames = [row[0] for row in cursor.fetchall()]
+
+            # Get filter parameters from the form
+            selected_username = request.form.get('usernameFilter')
+            selected_from_date = request.form.get('fromDateFilter')
+            selected_to_date = request.form.get('toDateFilter')
+
+            # Default to today's date if no filter dates provided
+            today_date = datetime.today().strftime('%Y-%m-%d')
+            if not selected_from_date:
+                selected_from_date = today_date
+            if not selected_to_date:
+                selected_to_date = today_date
+
+            # Convert string to date object
+            try:
+                start_date = datetime.strptime(selected_from_date, '%Y-%m-%d').date()
+                end_date = datetime.strptime(selected_to_date, '%Y-%m-%d').date()
+            except ValueError:
+                return jsonify({"error": "Invalid date format. Use YYYY-MM-DD."}), 400
+
+            # Fetch the missing slots data
+            missing_slots_data = get_missing_time_slots_data(start_date, end_date, selected_username)
+            actual=get_non_holiday_non_leave_dates_count(start_date, end_date, selected_username)
+            actual_count = actual.get(selected_username, 0) * 10
+            print(actual_count)
+
+            # Render the template
+            return render_template(
+                'missing.html',
+                usernames=usernames,
+                selected_username=selected_username,
+                selected_from_date=selected_from_date,
+                selected_to_date=selected_to_date,
+                missing_slots_data=missing_slots_data,
+                user_role=user_role,
+                actual_count=actual_count
+            )
+        else:
+            return redirect(url_for('index'))
+    except Exception as e:
+        app.logger.error(f"Error in missing: {str(e)}")
+        return render_template('error.html', message="An error occurred while processing your request.")
+
+
 @app.route('/workreportlist', methods=['GET', 'POST'])
 def workreportlist():
     global allow_updates
     user_designation = session.get('designation')
     try:
         # Fetch the current toggle state from the database
-        # cursor = mysql.connection.cursor()
-        # cursor.execute("SELECT toogle FROM work LIMIT 1")
-        # result = cursor.fetchone()
-        # allow_updates = result[0] == "on" if result else False
-        # cursor.close()
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT toogle FROM work LIMIT 1")
+        result = cursor.fetchone()
+        allow_updates = result[0] == "on" if result else False
+        cursor.close()
 
         # Check if the user is logged in
         if 'username' in session:

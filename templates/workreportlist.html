@@ -68,6 +68,10 @@
                                     Enable Updates
                                     {% endif %}
                                 </button>
+                                <a class="btn btn-secondary btn-sm" href="/missing" 
+                                    {% if session['user_role'] != 'CEO' and session['user_role'] != 'HR' %}style="display:none;"{% endif %}>
+                                    Missing Slots
+                            </a>
                                 <!-- Print Button -->
                                 <button class="btn btn-secondary btn-sm" onclick="generatePDF()" 
                                     {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %} style="display:block;" {% else %} style="display:none;" {% endif %}>

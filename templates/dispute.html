@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="static/assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="static/assets/img/favicon.png">
+  <style>
+    form small {
+      display: flex;
+      justify-content: flex-end;
+    }
+    form .forgot {
+      color: red;
+      justify-content: right;
+    }
+    .baimg {
+      width: 168px;
+      border-radius: 5px;
+    }
+    @media (max-width: 768px) {
+      .baimg {
+        width: 100px;
+      }
+    }
+    @media (max-width: 576px) {
+      .baimg {
+        width: 80px;
+      }
+    }
+  </style>
+  <title>
+    Dispute Form - BA Talks Pvt Ltd
+  </title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link href="static/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="static/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link id="pagestyle" href="static/assets/css/argon-dashboard.css?v=2.0.4" rel="stylesheet" />
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100 shadow-none my-3 navbar-transparent mt-4">
+    <div class="container">
+      <a class="navbar-brand font-weight-bolder ms-lg-0 ms-3 text-white" href="/">
+        <img class="baimg" src="../static/assets/img/logo.jpeg" alt="BA Talks Logo">
+      </a>
+    </div>
+  </nav>
+
+  <main class="main-content mt-0">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-xl-5 col-lg-6 col-md-8 mx-auto">
+          <div class="card z-index-0">
+            <div class="card-header text-center pt-4">
+              <h5>Dispute Form</h5>
+            </div>
+            <div class="card-body">
+              <form action="/submit_dispute" method="post">
+                <div class="mb-3">
+                  <input name="full_name" type="text" class="form-control" placeholder="Full Name" required>
+                </div>
+                <div class="mb-3">
+                  <input name="email" type="email" class="form-control" placeholder="Email" required>
+                </div>
+                <div class="mb-3">
+                  <input name="phone" type="tel" class="form-control" placeholder="Phone Number" required>
+                </div>
+                <div class="mb-3">
+                  <textarea name="dispute_details" class="form-control" placeholder="Describe your dispute" rows="4" required></textarea>
+                </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-lg btn-primary w-100 mt-4 mb-0">Submit Dispute</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="static/assets/js/core/popper.min.js"></script>
+  <script src="static/assets/js/core/bootstrap.min.js"></script>
+</body>
+
+</html>

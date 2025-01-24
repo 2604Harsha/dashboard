@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        In House page For BA talks Pvt Ltd
+    </title>
+    {% include 'header.html' %}
+    
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Adjust the width of the date inputs */
+        input[type="date"]
+         {
+            width: 220px;
+            /* You can adjust this value as needed */
+        }
+
+        .work {
+            content: center;
+        }
+
+        .work button {
+            border-radius: 5px;
+            border: 7px;
+            color: gainsboro;
+        }
+
+        #timings-int {
+            margin-top: 10px;
+            max-width: 300px
+        }
+
+        #timings {
+            margin-top: 10px;
+            max-width: 300px
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white
+        }
+
+        .btn:hover {
+            background-color: white;
+
+        }
+        .required {
+            color: red;
+            font-weight: bold;
+            padding: 5px;
+        }
+    </style>
+
+</head>
+
+<body class="g-sidenav-show   bg-gray-100">
+    
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <p>Work-Report </p>
+                        <form method="POST">
+                            <div class="work container">
+                                <div class="row">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>Current Time<span class="required">*</span></label><br />
+                                    <input class="form-control" type="time" id="currentTime" name="currentTime"
+                                        value="" required readonly />
+                                </div>
+                                <div class="row">
+                                    <!-- Date Field -->
+                                    
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label>Date<span class="required">*</span></label><br />
+                                        <input class="form-control" type="date" id="date" name="date" value="" required
+                                            readonly />
+                                    </div>
+
+                                    <!-- Timings Select Field 1 -->
+                                     <div class="row">
+                                        <div class="col-12 col-md-6 mb-3">
+                                            <label>Options <span class="required">*</span></label>
+                                            <select class="form-control" name="option" id="option" required>
+                                                <option value="" disabled selected>Select an option</option>
+                                                <option value="work from office">Work From Office</option>
+                                                <option value="work from home">Work From Home</option>
+                                                <option value="leave">Leave</option>
+                                            </select>
+                                        </div>
+                                     </div>
+                                    <!-- Save Button -->
+                                    <div class="col-12 col-md-auto">
+                                        <button type="submit" class="btn btn-sm fontsz w-100 w-md-auto mt-2">Submit</button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            // Set the current date
+            var today = new Date();
+            var day = String(today.getDate()).padStart(2, '0');
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            var year = today.getFullYear();
+            document.getElementById('date').value = `${year}-${month}-${day}`;
+
+            // Update the time field every second
+            function updateTime() {
+                var now = new Date();
+                var hours = String(now.getHours()).padStart(2, '0');
+                var minutes = String(now.getMinutes()).padStart(2, '0');
+                var seconds = String(now.getSeconds()).padStart(2, '0');
+                var formattedTime = `${hours}:${minutes}:${seconds}`;
+                document.getElementById('currentTime').value = formattedTime;
+            }
+
+            // Call updateTime every second
+            setInterval(updateTime, 1000);
+
+            // Initialize the time field immediately
+            updateTime();
+        };
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch user's designation from the backe  // Assuming the 8th field (index 7) is designation
+
+            // Disable both dropdowns initially
+            document.getElementById('timings').disabled = true;
+            document.getElementById('timings-int').disabled = true;
+
+            // Enable appropriate dropdown based on designation
+            if (designation === 'Trainee') {
+                document.getElementById('timings-int').disabled = false;
+                document.getElementById('timings').style.display = 'none'
+
+            } else {
+                document.getElementById('timings').disabled = false;
+                document.getElementById('timings-int').style.display = 'none'
+            }
+        });
+    </script>
+    <script>
+        document.querySelector('form').addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent the default form submission
+    
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+    
+            try {
+                const response = await fetch('/attendence', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message); // Show success message
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                    }
+                } else {
+                    alert(result.message); // Show error message
+                }
+            } catch (error) {
+                alert("An unexpected error occurred. Please try again.");
+            }
+        });
+    </script>
+</body>
+
+</html>

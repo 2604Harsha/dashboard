@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>In House page For BA talks Pvt Ltd</title>
+    {% include 'header.html' %}
+
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        input[type="date"] {
+            width: 220px;
+        }
+
+        .work {
+            content: center;
+        }
+
+        .work button {
+            border-radius: 5px;
+            border: 7px;
+            color: gainsboro;
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white;
+        }
+
+        .btn:hover {
+            background-color: white;
+            color: #512888;
+        }
+
+        .required {
+            color: red;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .review-btn {
+            margin-left: 10px;
+        }
+
+        .review-info {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .review-info p {
+            font-weight: bold;
+        }
+        .filled-star {
+    color: gold;
+    font-size: 20px;
+}
+
+.empty-star {
+    color: lightgray;
+    font-size: 20px;
+}
+
+        
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Card 1: Form for Employee Review -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p>Employee Reviews</p>
+                        <form method="POST" action="{{ url_for('empreviewlist') }}">
+                            <div class="work container">
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label>Username<span class="required">*</span></label>
+                                        <select class="form-control" name="username" required>
+                                            <option value="">Select Username</option>
+                                            {% for user in users %}
+                                            <option value="{{ user[0] }}" {% if user[0] == selected_username %}selected{% endif %}>{{ user[0] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Month<span class="required">*</span></label>
+                                        <input class="form-control" type="month" name="month" value="{{ selected_month }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Review Number<span class="required">*</span></label>
+                                        <select class="form-control" name="review_number" required>
+                                            <option value="">Select</option>
+                                            <option value="1" {% if selected_review_number == '1' %}selected{% endif %}>1</option>
+                                            <option value="2" {% if selected_review_number == '2' %}selected{% endif %}>2</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Card 2: Summary of the Selected Employee -->
+                {% if selected_username and selected_month and selected_review_number %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Employee Summary</h5>
+                        <p><strong>Username:</strong> {{ selected_username if selected_username else 'N/A' }}</p>
+                        <p><strong>Month:</strong> {{ selected_month if selected_month else 'N/A' }}</p>
+                        <p><strong>Review Number:</strong> {{ selected_review_number if selected_review_number else 'N/A' }}</p>
+
+                        {% if review_data %}
+                        <h6>Review Data:</h6>
+
+                        {% for row in review_data %}
+                        <div class="chart-container">
+                            <canvas id="reviewChart"></canvas>
+                        </div>
+                        <ul>
+                            <li>
+                                <strong>Work Rating:</strong>
+                                <span class="stars" id="work-stars"></span>
+                                <button type="button" class="btn btn-info review-btn" onclick="showReviewInfo('work')">Show Reason</button>
+                                <div id="work" class="review-info">
+                                    <p>Reason: {{ row[5] }}</p>
+                                </div>
+                            </li>
+                            <li>
+                                <strong>Code of Conduct Rating:</strong>
+                                <span class="stars" id="code-of-conduct-stars"></span>
+                                <button type="button" class="btn btn-info review-btn" onclick="showReviewInfo('code_of_conduct')">Show Reason</button>
+                                <div id="code_of_conduct" class="review-info">
+                                    <p>Reason: {{ row[7] }}</p>
+                                </div>
+                            </li>
+                            <li>
+                                <strong>Time Management Rating:</strong>
+                                <span class="stars" id="time-management-stars"></span>
+                                <button type="button" class="btn btn-info review-btn" onclick="showReviewInfo('time_management')">Show Reason</button>
+                                <div id="time_management" class="review-info">
+                                    <p>Reason: {{ row[9] }}</p>
+                                </div>
+                            </li>
+                            <li>
+                                <strong>Ethical Behaviour Rating:</strong>
+                                <span class="stars" id="ethical-behaviour-stars"></span>
+                                <button type="button" class="btn btn-info review-btn" onclick="showReviewInfo('ethical_behaviour')">Show Reason</button>
+                                <div id="ethical_behaviour" class="review-info">
+                                    <p>Reason: {{ row[11] }}</p>
+                                </div>
+                            </li>
+                            <p><strong>Summary:</strong> {{ row[12] }}</p>
+                            {% if row[13] == 'validated' %}
+                            <p>
+                                <strong>Status:</strong> 
+                                <img src="./static/assets/img/validated.png" alt="validated" style="width:150px;height:150px;">
+                            <p>
+                            {% endif %}
+                        </ul>
+
+                        {% if user_role == 'CEO' and row[13] != 'validated' %}
+                        <div>
+                            <button class="btn btn-warning" onclick="editReview({{ row[0] }})">Edit</button>
+                            <form method="POST" action="/empreview/validate" style="display:inline;">
+                                <input type="hidden" name="review_id" value="{{ row[0] }}">
+                                <button type="submit" class="btn btn-success">Validate</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        <p>No review data found for the selected criteria.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing Review -->
+    <div class="modal" id="editReviewModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="POST" action="/empreview/edit">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Review</h5>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="review_id" id="review_id">
+    
+                        <div class="form-group">
+                            <label>Work Rating</label>
+                            <input type="number" class="form-control" name="work1" id="work1" min="0" max="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Reason (Work)</label>
+                            <input type="text" class="form-control" name="work_reason" id="work_reason" required>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Code of Conduct Rating</label>
+                            <input type="number" class="form-control" name="code_of_conduct1" id="code_of_conduct1" min="1" max="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Reason (Code of Conduct)</label>
+                            <input type="text" class="form-control" name="code_of_conduct_reason" id="code_of_conduct_reason" required>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Time Management Rating</label>
+                            <input type="number" class="form-control" name="time_management1" id="time_management1" min="1" max="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Reason (Time Management)</label>
+                            <input type="text" class="form-control" name="time_management_reason" id="time_management_reason" required>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Ethical Behaviour Rating</label>
+                            <input type="number" class="form-control" name="ethical_behaviour1" id="ethical_behaviour1" min="1" max="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Reason (Ethical Behaviour)</label>
+                            <input type="text" class="form-control" name="ethical_behaviour_reason" id="ethical_behaviour_reason" required>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Summary</label>
+                            <textarea class="form-control" name="summary" id="summary" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+
+    <!-- Add these in the `<head>` section -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        function showReviewInfo(id) {
+            const infoDiv = document.getElementById(id);
+            infoDiv.style.display = infoDiv.style.display === 'block' ? 'none' : 'block';
+        }
+        function editReview(reviewId) {
+    fetch(`/empreview/details/${reviewId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Log the fetched data for debugging
+            console.log('Fetched data:', data);
+
+            // Populate the modal fields
+            document.getElementById('review_id').value = data.id || '';
+            document.getElementById('work1').value = data.work || '';
+            document.getElementById('work_reason').value = data.work_reason || '';
+            document.getElementById('code_of_conduct1').value = data.code_of_conduct || '';
+            document.getElementById('code_of_conduct_reason').value = data.code_of_conduct_reason || '';
+            document.getElementById('time_management1').value = data.time_management || '';
+            document.getElementById('time_management_reason').value = data.time_management_reason || '';
+            document.getElementById('ethical_behaviour1').value = data.ethical_behaviour || '';
+            document.getElementById('ethical_behaviour_reason').value = data.ethical_behaviour_reason || '';
+            document.getElementById('summary').value = data.summary || '';
+
+            // Show the modal
+            $('#editReviewModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error fetching review details:', error);
+            alert('Failed to load review details. Please try again.');
+        });
+}
+    
+        // If you want to close the modal programmatically from JavaScript:
+        function closeModal() {
+            $('#editReviewModal').modal('hide');
+        }
+    </script>
+    <script>
+        // Get the row data from the server (passed in from the backend)
+        const row = {{ row | tojson }};
+    
+        // Function to generate stars dynamically based on a rating
+        function generateStars(rating) {
+            const maxStars = 10;
+            let starsHtml = '';
+            for (let i = 1; i <= maxStars; i++) {
+                starsHtml += `<span class="${i <= rating ? 'filled-star' : 'empty-star'}">★</span>`;
+            }
+            return starsHtml;
+        }
+    
+        function updateStarRatings(row) {
+            const ratings = [
+                { id: 'work-stars', value: row[4] },
+                { id: 'code-of-conduct-stars', value: row[6] },
+                { id: 'time-management-stars', value: row[8] },
+                { id: 'ethical-behaviour-stars', value: row[10] }
+            ];
+    
+            ratings.forEach(rating => {
+                const starContainer = document.getElementById(rating.id);
+                if (starContainer) {
+                    starContainer.innerHTML = generateStars(rating.value);
+                }
+            });
+        }
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStarRatings(row);
+        });
+    </script>
+    <script>
+        const ctx = document.getElementById('reviewChart').getContext('2d');
+        const reviewChart = new Chart(ctx, {
+            type: 'bar', // Can be 'bar', 'line', 'radar', etc.
+            data: {
+                labels: ['Work', 'Code of Conduct', 'Time Management', 'Ethical Behaviour'],
+                datasets: [{
+                    label: 'Review Ratings',
+                    data: [
+                        {{ row[4] | default(0) }},
+                        {{ row[6] | default(0) }},
+                        {{ row[8] | default(0) }},
+                        {{ row[10] | default(0) }}
+                    ],
+                    backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 99, 132, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10 // Assuming the maximum rating is 10
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

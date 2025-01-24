@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        In House page For BA talks Pvt Ltd
+    </title>
+    {% include 'header.html' %}
+    
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        input[type="date"] {
+            width: 220px;
+        }
+
+        .work {
+            content: center;
+        }
+
+        .work button {
+            border-radius: 5px;
+            border: 7px;
+            color: gainsboro;
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white
+        }
+
+        .btn:hover {
+            background-color: white;
+        }
+
+        .required {
+            color: red;
+            font-weight: bold;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <p>Employee Review Form</p>
+                        <form method="POST" action="{{ url_for('empreview') }}">
+                            <div class="work container">
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label>Username<span class="required">*</span></label>
+                                        <select class="form-control" name="username" required>
+                                            <option value="">Select Username</option>
+                                            {% for user in users %}
+                                            <option value="{{ user[0] }}">{{ user[0] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Month<span class="required">*</span></label>
+                                        <input class="form-control" type="month" name="month" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Review Number<span class="required">*</span></label>
+                                        <select class="form-control" name="review_number" required>
+                                            <option value="">Select</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Work (0-10)<span class="required">*</span></label>
+                                        <input class="form-control" type="number" name="work" min="0" max="10" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Work Reason<span class="required">*</span></label>
+                                        <textarea class="form-control" name="work_reason" rows="3" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Code of Conduct (0-10)<span class="required">*</span></label>
+                                        <input class="form-control" type="number" name="code_of_conduct_value" min="0" max="10" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Code of Conduct Reason<span class="required">*</span></label>
+                                        <textarea class="form-control" name="code_of_conduct_reason" rows="3" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Time Management (0-10)<span class="required">*</span></label>
+                                        <input class="form-control" type="number" name="time_management_value" min="0" max="10" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Time Management Reason<span class="required">*</span></label>
+                                        <textarea class="form-control" name="time_management_reason" rows="3" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ethical Behaviour (0-10)<span class="required">*</span></label>
+                                        <input class="form-control" type="number" name="ethical_behaviour_value" min="0" max="10" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ethical Behaviour Reason<span class="required">*</span></label>
+                                        <textarea class="form-control" name="ethical_behaviour_reason" rows="3" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Summary<span class="required">*</span></label>
+                                        <textarea class="form-control" name="summary" rows="3" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

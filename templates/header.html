@@ -23,175 +23,205 @@
     <!-- <audio id="notificationSound" src="/static/assets/notification.wav" preload="auto"></audio> -->
     <style>
 
-        /* Add hover effect */
-        .nav-link:hover {
-            background-color: #e0cdf8 ;  /* Highlight background */
-            border-radius: 0.375rem; /* Optional: rounded corners */
-        }
-    
-        /* Change the icon color when hovered */
-        .nav-link:hover .ni {
-            color: #5e72e4;  /* Change to your desired highlight color */
-        }
-        .notification-counter {
-        position: absolute;
-        top: 24px;
-        right: 210px;
-        background-color: red;
-        color: white;
-        border-radius: 50%;
-        padding: 1px;
-        font-size: 14px;
-        min-width: 20px;
-        text-align: center;
-    }
 
-    .chat-popup {
-            display: none;
-            position: fixed;
-            bottom: 90px;
-            right: 20px;
-            width: 350px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            background: #512888;
-            color: white;
-            padding: 10px;
+        .nav-item a {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            text-decoration: none;
         }
-
-        .chat-header h4 {
-            margin: 0;
-        }
-
-        .chat-header button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .chat-messages {
-            height: 250px;
-            overflow-y: auto;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 10px;
-            border-radius: 10px;
-        }
-
-        .message.user {
-            background: #512888;
-            color: white;
-            align-self: flex-end;
-        }
-
-        .message.bot {
-            background: #f1f1f1;
-            align-self: flex-start;
-        }
-
-        .chat-input {
-            display: flex;
-            padding: 10px;
-            gap: 10px;
-            border-top: 1px solid #ccc;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .chat-input button {
-            background-color: #512888;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .chat-input button:hover {
-            background-color: #0056b3;
-        }
-        /* Optional: change text color when hovered */
-        .nav-link:hover .nav-link-text {
-            color: rgb(7, 6, 6);  /* Same highlight color for text */
         
+        /* .nav-item a i, .nav-item a img {
+            width: 24px; 
+            height: 24px; 
+            margin-right: 8px; 
+        } */
+        
+        /* .nav-item a span {
+            font-size: 16px; 
+            font-weight: bold; 
+            color: white; 
+        } */
+        
+        .logout_img {
+            margin-left: 3px;
+            width: 38px; /* Match size of fa-user icon */
+            height: 38px;
+            object-fit: contain; /* Ensure proper scaling of image */
         }
-        .floating-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #512888;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .floating-button:hover {
-            background-color: #0056b3;
-        }
-        .weltitle{
-        font-size: 30px;
-        }
-        .mymenu{
-            font-size: 20px;
-        }
-        @media (max-width:700px){
-            .weltitle{
-                font-size:15px;
-            }
-            .logout_img{
-                height:45px;
-            }
-
-        }
-        @media (max-width:700px){
-            .weltitle{
-                font-size:15px;
-            }
-            .nav_img{
-                height:40px;
-            }
-
-        }
-        .nav-link-text:hover{
-            color:white;
-        }
-        .logout_img{
-                height:45px;
-            }
+        
+        
+        
+        
+        
+                /* Add hover effect */
+                .nav-link:hover {
+                    background-color: #e0cdf8 ;  /* Highlight background */
+                    border-radius: 0.375rem; /* Optional: rounded corners */
+                }
             
-
-    </style>
+                /* Change the icon color when hovered */
+                .nav-link:hover .ni {
+                    color: #5e72e4;  /* Change to your desired highlight color */
+                }
+                /* .notification-counter {
+                position: absolute;
+                top: 24px;
+                right: 210px;
+                background-color: red;
+                color: white;
+                border-radius: 50%;
+                padding: 1px;
+                font-size: 14px;
+                min-width: 20px;
+                text-align: center;
+            } */
+        
+            .chat-popup {
+                    display: none;
+                    position: fixed;
+                    bottom: 90px;
+                    right: 20px;
+                    width: 350px;
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                    z-index: 1001;
+                    overflow: hidden;
+                }
+        
+                .chat-header {
+                    background: #512888;
+                    color: white;
+                    padding: 10px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+        
+                .chat-header h4 {
+                    margin: 0;
+                }
+        
+                .chat-header button {
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 20px;
+                    cursor: pointer;
+                }
+        
+                .chat-messages {
+                    height: 250px;
+                    overflow-y: auto;
+                    padding: 10px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+        
+                .message {
+                    max-width: 80%;
+                    padding: 10px;
+                    border-radius: 10px;
+                }
+        
+                .message.user {
+                    background: #512888;
+                    color: white;
+                    align-self: flex-end;
+                }
+        
+                .message.bot {
+                    background: #f1f1f1;
+                    align-self: flex-start;
+                }
+        
+                .chat-input {
+                    display: flex;
+                    padding: 10px;
+                    gap: 10px;
+                    border-top: 1px solid #ccc;
+                }
+        
+                .chat-input input {
+                    flex: 1;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                }
+        
+                .chat-input button {
+                    background-color: #512888;
+                    color: white;
+                    border: none;
+                    padding: 10px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+        
+                .chat-input button:hover {
+                    background-color: #0056b3;
+                }
+                /* Optional: change text color when hovered */
+                .nav-link:hover .nav-link-text {
+                    color: rgb(7, 6, 6);  /* Same highlight color for text */
+                
+                }
+                .floating-button {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background-color: #512888;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 60px;
+                    height: 60px;
+                    font-size: 24px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                }
+        
+                .floating-button:hover {
+                    background-color: #0056b3;
+                }
+                .weltitle{
+                font-size: 30px;
+                }
+                .mymenu{
+                    font-size: 20px;
+                }
+                @media (max-width:700px){
+                    .weltitle{
+                        font-size:15px;
+                    }
+                    .logout_img{
+                        height:45px;
+                    }
+        
+                }
+                @media (max-width:700px){
+                    .weltitle{
+                        font-size:15px;
+                    }
+                    .nav_img{
+                        height:40px;
+                    }
+        
+                }
+                .nav-link-text:hover{
+                    color:white;
+                }
+                .logout_img{
+                        height:45px;
+                    }
+                    
+        
+            </style>
 </head>
 
 <body class="g-sidenav-show   bg-gray-100">
@@ -221,6 +251,8 @@
                         <span class="nav-link-text ms-1">Dashboard</span>
                     </a>
                 </li>
+                
+                
                 <!-- <li class="nav-item">
                     <a class="nav-link " href="/todo">
                         <div
@@ -302,68 +334,77 @@
                         <span class="nav-link-text ms-1">Reports</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/empreview">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-file-signature text-dark text-sm opacity-10"></i> <!-- Form submission icon -->
+                        </div>
+                        <span class="nav-link-text ms-1">Employee Review Form</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/empreviewlist">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-folder-open text-dark text-sm opacity-10"></i> <!-- Viewing document list icon -->
+                        </div>
+                        <span class="nav-link-text ms-1">Employee Reviews</span>
+                    </a>
+                </li>                
+                <li class="nav-item">
+                    <a class="nav-link active" href="/scheduler">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-calendar-alt text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Scheduler</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/meetings">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-handshake text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Meetings</span>
+                    </a>
+                </li>
                 
                 <li class="nav-item">
-                    <a class="nav-link " href="/communication">
+                    <a class="nav-link" href="/communication">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa fa-comments text-dark text-sm opacity-10"></i>
+                            <i class="fas fa-bullhorn text-dark text-sm opacity-10"></i>  <!-- Updated icon for communication -->
                         </div>
                         <span class="nav-link-text ms-1">Communication</span>
                     </a>
                 </li>
+                
                 <li class="nav-item">
-                    <a class="nav-link " href="/adduser">
+                    <a class="nav-link" href="/adduser">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                             <i class="fa fa-user-plus text-dark text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Add User</span>
                     </a>
                 </li>
+                
                 <li class="nav-item">
-                    <a class="nav-link " href="/chatbox">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                    <a class="nav-link" href="/chatbox">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-comment-dots text-dark text-sm opacity-10"></i>  <!-- Updated icon for chat -->
                         </div>
                         <span class="nav-link-text ms-1">Chat</span>
                     </a>
                 </li>
+                             
                 <li class="nav-item">
-                    <a class="nav-link " href="/raiseticket">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                    <a class="nav-link" href="/ticket">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-folder-17 text-dark text-sm opacity-10"></i>
                         </div>
-                        <span class="nav-link-text ms-1">Raise Ticket</span>
+                        <span class="nav-link-text ms-1">Ticket</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link " href="/issues">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">Sitemap</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link " href="/ticketlist">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">Ticket List</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link " href="/resolvedticket">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">Resolved Ticket</span>
-                    </a>
-                </li>
+
                 <li class="nav-item">
                     <a class="nav-link " href="/emp_agreement">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -414,6 +455,7 @@
                         <span class="nav-link-text ms-1">Project List</span>
                     </a>
                 </li>
+                
                 <li class="nav-item">
                     <a class="nav-link " href="/leaverequest">
                         <div
@@ -423,6 +465,17 @@
                         <span class="nav-link-text ms-1">Leave Request</span>
                     </a>
                 </li>
+                {% if user_designation == 'HR' %}
+                <li class="nav-item">
+                    <a class="nav-link " href="/leavemanager">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Leave Disposition</span>
+                    </a>
+                </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link " href="/report">
                         <div
@@ -430,6 +483,24 @@
                             <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i> <!-- Document icon for work report -->
                         </div>
                         <span class="nav-link-text ms-1">Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="/empreviewlist">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i> <!-- Document icon for work report -->
+                        </div>
+                        <span class="nav-link-text ms-1">Employee Reviews</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/meetings">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-handshake text-dark text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Meetings</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -441,10 +512,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="/chatbox">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                    <a class="nav-link" href="/chatbox">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-comment-dots text-dark text-sm opacity-10"></i>  <!-- Updated icon for chat -->
                         </div>
                         <span class="nav-link-text ms-1">Chat</span>
                     </a>
@@ -453,26 +523,25 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/raiseticket">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                            <i class="ni ni-send text-dark text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Raise Ticket</span>
                     </a>
                 </li>
                 {% endif %}
                 <li class="nav-item">
-                    <a class="nav-link " href="/issues">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                    <a class="nav-link" href="/issues">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-support-16 text-dark text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Sitemap</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link " href="/resolvedticket">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="ni ni-collection text-dark text-sm opacity-10"></i>
+                    <a class="nav-link" href="/resolvedticket">
+                        <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="ni ni-check-bold text-dark text-sm opacity-10"></i>
                         </div>
                         <span class="nav-link-text ms-1">Resolved Ticket</span>
                     </a>
@@ -508,6 +577,21 @@
                             <!-- <input type="text" class="form-control" placeholder="Type here..."> -->
                         </div>
                     </div>
+                    <!-- <li class="nav-item d-flex align-items-center">
+                        <a href="#" onclick="checkIn()" class="text-white font-weight-bold px-0">
+                            <i class="fa fa-clock fa-2x me-sm-1"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <a href="#" onclick="checkOut()" class="text-white font-weight-bold px-0">
+                            <i class="fa fa-sign-out-alt fa-2x me-sm-1"></i>
+                        </a>
+                    </li> -->
+                    <!-- <li class="nav-item d-flex align-items-center">
+                        <a href="/break" class="text-white font-weight-bold px-0">
+                            <i class="fa fa-coffee fa-2x me-sm-1"></i>
+                        </a>
+                    </li> -->
                     <ul class="navbar-nav  justify-content-end">
                         <li class="nav-item d-flex align-items-center ">
                             <a href="/redflag" class="text-white font-weight-bold px-0 ">
@@ -521,19 +605,46 @@
                                 <span id="notificationCount" class="notification-counter" style="display: none;"></span>
                                 <audio id="notificationSound" src="/static/assets/notification.wav" preload="auto"></audio>
                             </a>
+                            <style>
+                                /* Default styling for the notification count */
+                                #notificationCount {
+                                    position: absolute;
+                                    margin-top:-7px;
+                                    display: inline-block;
+                                    top: -7px; /* Moved slightly up */
+                                    right: -7px; /* Moved slightly right */
+                                    background: red;
+                                    color: white;
+                                    border-radius: 50%;
+                                    padding: 2px 6px;
+                                    font-size: 15px;
+                                }
+                        
+                                /* Styling for smaller screens */
+                                @media (max-width: 768px) {
+                                    #notificationCount {
+                                        top: -6px; /* Slightly adjusted for smaller screens */
+                                        right: -5px; /* Aligned for smaller icons */
+                                        font-size: 10px; /* Smaller font size */
+                                        padding: 1px 4px; /* Adjust padding for compactness */
+                                    }
+                                }
+                            </style>
                         </li>
                         <li class="nav-item d-flex align-items-center">
-                            <a href="/profile" class=" text-white font-weight-bold px-0 ">
+                            <a href="/profile" class="text-white font-weight-bold px-0">
                                 <i class="fa fa-user fa-2x me-sm-1"></i>
                                 <span class="d-sm-inline d-none">Profile</span>
                             </a>
                         </li>
-                        <li class="nav-item d-flex align-items-center ">
-                            <a href="/logout" class="text-white font-weight-bold px-0 ">
+                        
+                        <li class="nav-item d-flex align-items-center">
+                            <a href="/logout" class="text-white font-weight-bold px-0">
                                 <img src="/static/assets//img/logout.png" alt="" srcset="" class="logout_img">
-                                <span class="d-sm-inline d-none">log out</span>
+                                <span class="d-sm-inline d-none">Log Out</span>
                             </a>
                         </li>
+                        
                         <li class="nav-item d-xl-none d-flex align-items-center">
                             <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">
                                 <div class="sidenav-toggler-inner">
@@ -559,30 +670,42 @@
                 </div>
             </div>
         </nav>
-        <!-- End Navbar -->
-        <button class="floating-button" onclick="toggleChat()">💬</button>
-        <div class="chat-popup" id="chatPopup">
-            <div class="chat-header">
-                <h4 style="color: white;">Talk to CEO</h4>
-                <button onclick="toggleChat()">×</button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <!-- Chat messages will appear here -->
-                <div class="message bot">
-                    Hello! 👋 is there any Problem?
-                </div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="userInput" placeholder="Type your message...">
-                <button onclick="sendMessage()">Send</button>
-            </div>
-        </div>
         <!--   Core JS Files   -->
         <script src="/static/assets//js/core/popper.min.js"></script>
         <script src="/static/assets//js/core/bootstrap.min.js"></script>
         <script src="/static/assets//js/plugins/perfect-scrollbar.min.js"></script>
         <script src="/static/assets//js/plugins/smooth-scrollbar.min.js"></script>
         <script src="/static/assets//js/plugins/chartjs.min.js"></script>
+        <script>
+            function checkOut() {
+                fetch('/checkout', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        }
+                    })
+                    .catch(error => {
+                        alert("Error: " + error.message);
+                    });
+            }
+        </script>
+        <script>
+            function checkIn() {
+                fetch('/checkin', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        }
+                    })
+                    .catch(error => {
+                        alert("Error: " + error.message);
+                    });
+            }
+        </script>
         <script>
             function toggleChat() {
                 const chatPopup = document.getElementById('chatPopup');
@@ -630,55 +753,55 @@
         <script>
             let lastNotificationCount = 0; // Temporary initialization
 
-function setInitialNotificationCount() {
-    fetch('/get-notification-count')
-        .then(response => response.json())
-        .then(data => {
-            // Set the initial lastNotificationCount from the database value
-            lastNotificationCount = data.notificationCount;
-            // Optionally, update the UI immediately
-            const counterElement = document.getElementById('notificationCount');
-            if (lastNotificationCount > 0) {
-                counterElement.style.display = 'inline-block';
-                counterElement.textContent = lastNotificationCount;
-            } else {
-                counterElement.style.display = 'none';
-            }
-        })
-        .catch(error => console.error('Error fetching initial notification count:', error));
-}
-
-function fetchNotificationCount() {
-    fetch('/get-notification-count')
-        .then(response => response.json())
-        .then(data => {
-            const notificationCount = data.notificationCount;
-            const counterElement = document.getElementById('notificationCount');
-            const notificationSound = document.getElementById('notificationSound');
-
-            if (notificationCount > 0) {
-                counterElement.style.display = 'inline-block';
-                counterElement.textContent = notificationCount;
-
-                // Play sound if count has increased
-                if (notificationCount > lastNotificationCount) {
-                    notificationSound.play();
-                }
-            } else {
-                counterElement.style.display = 'none';
+            function setInitialNotificationCount() {
+                fetch('/get-notification-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Set the initial lastNotificationCount from the database value
+                        lastNotificationCount = data.notificationCount;
+                        // Optionally, update the UI immediately
+                        const counterElement = document.getElementById('notificationCount');
+                        if (lastNotificationCount > 0) {
+                            counterElement.style.display = 'inline-block';
+                            counterElement.textContent = lastNotificationCount;
+                        } else {
+                            counterElement.style.display = 'none';
+                        }
+                    })
+                    .catch(error => console.error('Error fetching initial notification count:', error));
             }
 
-            // Update lastNotificationCount for next comparison
-            lastNotificationCount = notificationCount;
-        })
-        .catch(error => console.error('Error fetching notification count:', error));
-}
+            function fetchNotificationCount() {
+                fetch('/get-notification-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        const notificationCount = data.notificationCount;
+                        const counterElement = document.getElementById('notificationCount');
+                        const notificationSound = document.getElementById('notificationSound');
 
-// Set initial value from the database
-setInitialNotificationCount();
+                        if (notificationCount > 0) {
+                            counterElement.style.display = 'inline-block';
+                            counterElement.textContent = notificationCount;
 
-// Poll every 5 seconds
-setInterval(fetchNotificationCount, 5000);
+                            // Play sound if count has increased
+                            if (notificationCount > lastNotificationCount) {
+                                notificationSound.play();
+                            }
+                        } else {
+                            counterElement.style.display = 'none';
+                        }
+
+                        // Update lastNotificationCount for next comparison
+                        lastNotificationCount = notificationCount;
+                    })
+                    .catch(error => console.error('Error fetching notification count:', error));
+            }
+
+            // Set initial value from the database
+            setInitialNotificationCount();
+
+            // Poll every 5 seconds
+            setInterval(fetchNotificationCount, 5000);
 
         </script>
         <script>

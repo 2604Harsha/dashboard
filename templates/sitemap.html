@@ -9,7 +9,7 @@
     </title>
     {% include 'header.html' %}
 
-    <style>
+    <!-- <style>
         body {
             overflow-x: hidden;
         }
@@ -56,11 +56,144 @@
         .list-item {
             margin-left: 20px;
         }
+    </style> -->
+   
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+    
+        .card {
+            max-width: 800px; /* Increased card width */
+            margin: 0 auto;
+            padding: 30px; /* Increased card padding */
+        }
+    
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+    
+        .form-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+    
+        .form-group input,
+        .form-group textarea {
+            font-size: 14px;
+            padding: 5px;
+            width: 100%;
+        }
+    
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+    
+        .form-group.half {
+            flex: 1;
+            min-width: 200px;
+        }
+    
+        .btn {
+            background-color: #512888;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    
+        .btn:hover {
+            background-color: white;
+            color: #512888;
+            border: 1px solid #512888;
+        }
+    
+        .required {
+            color: red;
+            font-weight: bold;
+            margin-left: 3px;
+        }
+    
+        .short-textarea {
+            height: 80px; /* Reduced height for module-list */
+        }
+    
+        .wide-textarea {
+            height: 120px; /* Increased height for page-description */
+            max-width: 300px; /* Reduced width for page-description (on X-axis) */
+        }
     </style>
-
-</head>
-
-<body class="g-sidenav-show bg-gray-100">
+    
+    
+    </head>
+    
+    <body class="g-sidenav-show bg-gray-100">
+        <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    
+        <div class="container-fluid py-4">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Site Map</h3>
+    
+                            <form method="POST" action="{{ url_for('sitemap') }}">
+                                <div class="row">
+                                    <div class="form-group half">
+                                        <label for="sitemap-id">Site Map ID <span class="required">*</span></label>
+                                        <input type="text" id="sitemap-id" class="form-control" readonly value="{{ sitemap_id }}">
+                                    </div>
+    
+                                    <div class="form-group half">
+                                        <label for="project">Project <span class="required">*</span></label>
+                                        <input type="text" id="project" name="project" class="form-control" placeholder="Enter project name" required>
+                                    </div>
+                                </div>
+    
+                                <div class="row">
+                                    <div class="form-group half">
+                                        <label for="module">Module <span class="required">*</span></label>
+                                        <input type="text" id="module" name="module" class="form-control" placeholder="Enter module name" required>
+                                    </div>
+    
+                                    <div class="form-group half">
+                                        <label for="page-name">Page Name <span class="required">*</span></label>
+                                        <input type="text" id="page-name" name="page-name" class="form-control" placeholder="Enter page name" required>
+                                    </div>
+                                </div>
+    
+                                <div class="row">
+                                    <div class="form-group half">
+                                        <label for="page-url">Page URL <span class="required">*</span></label>
+                                        <input type="url" id="page-url" name="page-url" class="form-control" placeholder="Enter page URL" required>
+                                    </div>
+    
+                                    <div class="form-group half">
+                                        <label for="module-list">Module List <span class="required">*</span></label>
+                                        <textarea id="module-list" name="module-list" class="form-control short-textarea" placeholder="Enter Module List" required></textarea>
+                                    </div>
+                                </div>
+    
+                                <div class="form-group">
+                                    <label for="page-description">Page Description <span class="required">*</span></label>
+                                    <textarea id="page-description" name="page-description" class="form-control wide-textarea" placeholder="Enter page description" required></textarea>
+                                </div>
+    
+                                <button type="submit" class="btn">Submit</button>
+                            </form>
+    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+<!-- <body class="g-sidenav-show bg-gray-100">
 
     <div class="min-height-300 bg-primary position-absolute w-100"></div>
 
@@ -132,6 +265,6 @@
         });
     </script>
 
-</body>
+</body> -->
 
 </html>

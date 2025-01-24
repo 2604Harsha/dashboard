@@ -151,8 +151,44 @@
 
           </div>
         </div>
+        <button id="floatingButton" class="btn btn-primary" style="position: fixed; bottom: 20px; right: 20px; border-radius: 50%; width: 60px; height: 60px; font-size: 24px;">
+          +
+        </button>
       </div>
     </div>
+    <!-- <div class="modal fade" id="disputeModal" tabindex="-1" aria-labelledby="disputeModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="disputeModalLabel">Submit a Dispute</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="submit-form">
+              <div class="mb-3">
+                <input id="ticketId" name="ticket_id" type="text" class="form-control" placeholder="Ticket ID" readonly required>
+              </div>
+              <div class="mb-3">
+                <input id="name" name="full_name" type="text" class="form-control" placeholder="Full Name" required>
+              </div>
+              <div class="mb-3">
+                <input id="email" name="email" type="email" class="form-control" placeholder="Email" required>
+              </div>
+              <div class="mb-3">
+                <input id="number" name="phone" type="tel" class="form-control" placeholder="Phone Number" required>
+              </div>
+              <div class="mb-3">
+                <textarea id="data" name="dispute_details" class="form-control" placeholder="Describe your dispute" rows="4" required></textarea>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-lg btn-primary w-100 mt-4 mb-0" onclick="submitEdit()" >Submit Dispute</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
   </main>
   <!-- -------- START FOOTER 3 w/ COMPANY DESCRIPTION WITH LINKS & SOCIAL ICONS & COPYRIGHT ------- -->
 
@@ -221,6 +257,64 @@
           //}
           
       </script>
+      <script>
+        document.getElementById('floatingButton').addEventListener('click', function () {
+          var disputeModal = new bootstrap.Modal(document.getElementById('disputeModal'));
+          disputeModal.show();
+        });
+      </script>
+      <script>
+        function submitEdit() {
+        var id = document.getElementById('id').value;
+        var name = document.getElementById('name').value;
+        var email = document.getElementById('email').value;
+        var phone = document.getElementById('number').value;
+        var data_dis = document.getElementById('data').value;
+
+        fetch('/submit_dispute', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id,
+                name: name,
+                email: email,
+                phone: phone,
+                data_dis: data_dis
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('User updated successfully.');
+                location.reload();
+            } else {
+                alert('Failed to update user: ' + data.message);
+            }
+        });
+    }
+       function generateTicketId() {
+          const ticketPrefix = "DISP-";
+
+          // Generate a random 8-digit number
+          const randomNumber = Math.floor(Math.random() * 100000000); 
+
+          // Format the number with leading zeros if necessary
+          const paddedNumber = randomNumber.toString().padStart(8, '0'); 
+
+          const ticketId = ticketPrefix + paddedNumber;
+
+          document.getElementById('ticketId').value = ticketId;
+        }
+
+      document.getElementById('floatingButton').addEventListener('click', function () {
+        var disputeModal = new bootstrap.Modal(document.getElementById('disputeModal'));
+        generateTicketId();
+        disputeModal.show();
+      });
+      </script>
+
       
 
 

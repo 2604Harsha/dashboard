@@ -19,7 +19,7 @@
   <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
   <!-- CSS Files -->
   <link id="pagestyle" href="/static/assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
-  <style>
+  <!-- <style>
     .table thead th {
       font-size: 12px;
     }
@@ -35,7 +35,26 @@
             font-weight: bold;
             padding: 5px;
     }
-  </style>
+  </style> -->
+
+  
+<style>
+  .table thead th {
+    font-size: 12px;
+  }
+  .fontsz {
+    font-size: 16px;
+  }
+  .btn {
+    background-color: #512888;
+    color: white;
+  }
+  .required {
+    color: red;
+    font-weight: bold;
+    padding: 5px;
+  }
+</style>
 </head>
 
 <body class="g-sidenav-show   bg-gray-100">
@@ -48,12 +67,63 @@
           <div class="card mb-4">
             <div class="col-12 ">
               <div class="card-header pb-0 d-flex">
-                <h3>Create Project</h3>
+                <!-- <h3>Create Project</h3> -->
+                <h3 style="font-weight: bold; text-align: center; width: 100%;">CREATE-PROJECT</h3>
+
               </div>
             </div>
 
             <div class="card-body px-0 pt-0 pb-2">
-              <form method="POST" class="container">
+
+              <form method="POST" class="container" style="margin-left: 20px;">
+                <div class="row gy-3">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="project_title" class="form-control-label fontsz">Project Title<span class="required">*</span></label>
+                      <input class="form-control" type="text" name="project_title" id="project_title" value="" required>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-12 col-md-3">
+                      <div class="form-group">
+                        <label for="start_date" class="form-control-label fontsz">Start Date<span class="required">*</span></label>
+                        <input class="form-control" type="date" name="start_date" id="start_date" required oninput="validateYear(this)">
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <div class="form-group">
+                        <label for="end_date" class="form-control-label fontsz">End Date<span class="required">*</span></label>
+                        <input class="form-control" type="date" name="end_date" id="end_date" value="" required oninput="validateYear(this)">
+                      </div>
+                    </div>
+                  </div>
+              
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="meet_link" class="form-control-label fontsz">Meet Link<span class="required">*</span></label>
+                      <input class="form-control" type="url" name="meet_link" id="meet_link" placeholder="Enter the Meet link" required>
+                    </div>
+                  </div>
+              
+                  <div class="col-md-7">
+                    <div class="form-group">
+                      <label for="description" class="form-control-label fontsz">Description<span class="required">*</span></label>
+                      <textarea class="form-control" name="description" id="description" rows="5" placeholder="Project description" style="width: 100%;" required></textarea>
+                    </div>
+                  </div>
+              
+                  <div class="col-12">
+                    <hr class="horizontal dark">
+                  </div>
+              
+                  <div class="col-md-4">
+                    <button class="btn btn-sm fontsz w-100 w-md-auto" type="submit" style="margin-top: -80px;">Add Project</button>
+                  </div>
+                </div>
+              </form>
+              
+              
+              <!-- <form method="POST" class="container">
                 <div class="row gy-3">
                   <div class=" col-md-4">
                     <div class="form-group">
@@ -100,7 +170,7 @@
                     <button class="btn  btn-sm fontsz w-100 w-md-auto" type="submit">Add Project</button>
                   </div>
                 </div>
-              </form>
+              </form> -->
 
 
 

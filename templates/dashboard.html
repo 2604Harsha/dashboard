@@ -24,9 +24,79 @@
     .card1 {
       height: 120px;
     }
+    .floating-btn-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Button styles (hidden initially) */
+        .floating-btn {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            overflow: hidden;
+            transition: gap 0.3s ease;
+            align-items: center;
+            margin-bottom: 15px; /* Gap between buttons and toggle button */
+        }
+
+        .floating-btn a {
+            width: 50px;
+            height: 50px;
+            background: #512888;
+            color: #fff;
+            font-size: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
+            text-decoration: none;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        /* Show buttons with spacing when active */
+        .floating-btn.active {
+            gap: 15px;  /* Space between each button when expanded */
+        }
+
+        .floating-btn.active a {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .floating-btn a:hover {
+            background: #512888;
+        }
+
+        /* Toggle Button (Fixed Position) */
+        .toggle-btn {
+            width: 50px;
+            height: 50px;
+            background: #512888;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.3s;
+            /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); */
+        }
+
+        .toggle-btn:hover {
+            background: #512888;
+        }
     /* Gradient backgrounds */
 .bg-gradient-blue {
-    background: linear-gradient(135deg, #007bff, #00c6ff);
+    background: linear-gradient(135deg, #512888, #00c6ff);
 }
 
 .bg-gradient-red {
@@ -64,9 +134,29 @@
 <body class="g-sidenav-show   bg-gray-100">
   <div class="min-height-300 bg-dark position-absolute w-100"></div>
 
+
   <div class="container-fluid py-4">
     {% if user_role == 'Admin' or user_role == 'Manager' or user_role == 'CEO' or user_role == 'HR' %}
     <!-- Admin and Manager specific items -->
+    <div class="floating-btn-container">
+        <div class="floating-btn" id="floatingMenu">
+            <a href="/attendence" title="Attendance">
+                <i class="fa fa-calendar-check"></i>
+            </a>
+            <a href="/checklist" title="Check In List">
+                <i class="fa fa-list"></i>
+            </a>
+            <a href="#" onclick="checkIn()" title="Check In">
+                <i class="fa fa-clock"></i>
+            </a>
+            <a href="#" onclick="checkOut()" title="Check Out">
+                <i class="fa fa-sign-out-alt"></i>
+            </a>
+        </div>
+        <div class="toggle-btn" onclick="toggleFloatingMenu()">
+            <i class="fa fa-angle-up"></i>
+        </div>
+    </div>
     <div class="row">
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <a href="/workreportlist">
@@ -239,6 +329,25 @@
   
   {% else %}
   <!-- Employee specific items -->
+  <div class="floating-btn-container">
+    <div class="floating-btn" id="floatingMenu">
+        <a href="/attendence" title="Attendance">
+            <i class="fa fa-calendar-check"></i>
+        </a>
+        <!-- <a href="/checklist" title="Check In List">
+            <i class="fa fa-list"></i>
+        </a> -->
+        <a href="#" onclick="checkIn()" title="Check In">
+            <i class="fa fa-clock"></i>
+        </a>
+        <a href="#" onclick="checkOut()" title="Check Out">
+            <i class="fa fa-sign-out-alt"></i>
+        </a>
+    </div>
+    <div class="toggle-btn" onclick="toggleFloatingMenu()">
+        <i class="fa fa-angle-up"></i>
+    </div>
+</div>
   <div class="row">
     <!-- Work Report -->
     <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
@@ -527,6 +636,53 @@
       },
     });
   </script>
+  <script>
+    function checkOut() {
+        fetch('/checkout', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(error => {
+                alert("Error: " + error.message);
+            });
+    }
+</script>
+<script>
+    function toggleFloatingMenu() {
+        const menu = document.getElementById('floatingMenu');
+        const toggleBtn = document.querySelector('.toggle-btn i');
+
+        // Toggle active class to show/hide buttons
+        menu.classList.toggle('active');
+
+        if (menu.classList.contains('active')) {
+            toggleBtn.classList.remove('fa-angle-up');
+            toggleBtn.classList.add('fa-angle-down');
+        } else {
+            toggleBtn.classList.remove('fa-angle-down');
+            toggleBtn.classList.add('fa-angle-up');
+        }
+    }
+</script>
+<script>
+    function checkIn() {
+        fetch('/checkin', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(error => {
+                alert("Error: " + error.message);
+            });
+    }
+</script>
   <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {

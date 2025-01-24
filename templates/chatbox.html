@@ -6,27 +6,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
     <link rel="icon" type="image/png" href="../assets/img/favicon.png">
-    <title>
-        In House page For BA talks Pvt Ltd
-    </title>
+    <title>In House page For BA talks Pvt Ltd</title>
     {% include 'header.html'%}
-
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Nucleo Icons -->
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/static/assets//css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
     <style>
+        #close-chat {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        #chat-header {
+            background-color: #512888;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            font-size: 1.2em;
+            position: relative;
+            border-top-right-radius: 10px; /* Round the top-right corner */
+            border-top-left-radius: 0px;  /* Keep the top-left corner square */
+            border-bottom-right-radius: 0px; /* Round the bottom-right corner */
+            border-bottom-left-radius: 0px; /* Round the bottom-left corner */
+        }
+
+
+        #close-chat:hover {
+            background-color: #ddd;
+        }
+
+        /* Adjust message container to have padding at the top to avoid overlap */
+
+
+        /* Hover effect for sent and received messages */
+        .sent-message:hover,
+        .received-message:hover {
+            background-color: #f1f1f1; /* Slightly darker shade on hover */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        /* Timestamp styles */
+        .timestamp {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+            text-align: right;
+            z-index: 1;
+        }
+
+        /* Animation for new messages */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Original body and container styles */
         body {
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
         }
 
         #main-container {
             display: flex;
             width: 100%;
-            height: 100%; /* Full-screen height */
+            height: 100vh;
         }
 
         #user-list {
-            width: 25%;
+            width: 30%;
             background-color: #e9ecef;
             border-right: 1px solid #ddd;
             overflow-y: auto;
+            height: 100%;
+            padding: 10px;
+            border-top-left-radius: 10px; /* Round the top-left corner */
+            border-top-right-radius: 0px; /* Keep the top-right corner square */
+            border-bottom-left-radius: 10px; /* Round the bottom-left corner */
+            border-bottom-right-radius: 0px; /* Round the bottom-right corner */
+        }
+
+
+        #user-list ul li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 8px;  /* Rounded corners for individual user list items */
         }
 
         #user-list ul {
@@ -36,52 +130,65 @@
         }
 
 
-        #user-list ul li:hover, #user-list ul li.active {
-            background-color: #007bff;
+        #user-list ul li:hover,
+        #user-list ul li.active {
+            background-color: #512888;
             color: #fff;
         }
-        #user-list ul li {
-        display: flex;
-        align-items: center;
-        justify-content: space-between; /* Adjust username and count alignment */
-        padding: 15px;
-        border-bottom: 1px solid #ddd;
-        cursor: pointer;
-        transition: 0.3s;
-       }
-    #user-list ul li .message-count {
-    margin-left: auto; /* Ensure the count is beside the username */
-    display: none; /* Hidden by default; shown dynamically */
-    background-color: green;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-}
-
 
         #chat-container {
             flex: 1;
             display: flex;
             flex-direction: column;
-            height: 100%; /* Ensure the chat container takes full height */
             background-color: #fff;
+            height: 100%;
+            position: relative;
+            border-radius: 10px;  /* Rounded corners for the chat container */
         }
 
-        #chat-header {
-            background-color: #007bff;
-            color: #fff;
+        #close-chat:hover {
+            background-color: #ddd;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: auto;
             padding: 15px;
-            font-size: 1.2em;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;/* Round the bottom-right corner */
         }
 
-        #placeholder-image {
-            max-width: 50%; /* Set the width to 50% of the container */
-            max-height: 300px; /* Limit the height */
-            opacity: 0.8; /* Slight transparency for better aesthetics */
-            display: block; /* Makes the image a block element */
-            margin-left: auto; /* Auto margin on the left to center */
-            margin-right: auto; /* Auto margin on the right to center */
+
+        .sent-message {
+            background-color: #dcf8c6;
+            color: #000;
+            align-self: flex-end;
+            border-radius: 10px;  /* Rounded corners for sent messages */
+            padding: 10px;
+            margin: 5px 0;
+            max-width: 70%;
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        .received-message {
+            background-color: #fff;
+            color: #000;
+            align-self: flex-start;
+            border-radius: 10px;  /* Rounded corners for received messages */
+            padding: 10px;
+            margin: 5px 0;
+            max-width: 70%;
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         #message-form {
@@ -90,7 +197,38 @@
             background-color: #fff;
             border-top: 1px solid #ddd;
             align-items: center;
+            position: sticky;
+            bottom: 0;
+            border-top-left-radius: 0px;  /* Keep the top-left corner square */
+            border-top-right-radius: 0px; /* Keep the top-right corner square */
+            border-bottom-left-radius: 0px; /* Keep the bottom-left corner square */
+            border-bottom-right-radius: 10px;  /* Rounded corners for message form */
         }
+                #placeholder-image {
+                    max-width: 50%;
+                    max-height: 300px;
+                    opacity: 0.8;
+                    display: block;
+                    margin: auto;
+                }
+                .attachment-icon {
+            font-size: 24px;
+            color: #6c757d;
+            cursor: pointer;
+            }
+            .attachment-icon:hover {
+            color: #495057; /* Slightly darker shade on hover */
+            }
+
+        /* #message-form {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+            align-items: center;
+            position: sticky;
+            bottom: 0;
+        } */
 
         #message-input {
             flex: 1;
@@ -104,16 +242,6 @@
             display: none;
         }
 
-        #upload-button {
-            padding: 10px;
-            background-color: #6c757d;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-            transition: 0.3s;
-        }
 
         #upload-button:hover {
             background-color: #5a6268;
@@ -121,62 +249,66 @@
 
         #send-button {
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #512888;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: 0.3s;
         }
 
         #send-button:hover {
-            background-color: #0056b3;
+            background-color: #512888;
         }
-
-        
     </style>
+
 </head>
-<body>
-    <body class="g-sidenav-show   bg-gray-100">
-        <div class="min-height-300 bg-primary position-absolute w-100"></div>
-    
-        <div class="container-fluid py-4">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-body">
-                           <div id="main-container">
-                            <div id="user-list">
-                                <ul style="list-style-type: none; padding: 0; margin: 0;">
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card" style="height: 80vh; overflow: hidden; position: relative;"> <!-- Reduced card height -->
+                    <div class="card-body" style="overflow: hidden; height: 100%; position: relative;">
+                        <div id="main-container" style="display: flex; height: 100%;">
+                            <div id="user-list" style="width: 30%; background-color: #e9ecef; border-right: 1px solid #ddd; overflow-y: auto; height: 100%; padding: 10px;">
+                                <ul>
+                                    <!-- Search Bar -->
+                                    <input type="text" id="search-bar" placeholder="Search users..." style="width: 100%; padding: 5px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            
+                                    <!-- Loop through profiles to display user list -->
                                     {% for u in profile %}
-                                    <li data-username="{{ u[2] }}" style="display: flex; align-items: center; margin-bottom: 10px;">
-                                        <!-- Username displayed on the left with message count beside it -->
-                                        <span style="display: inline-flex; align-items: center;">
-                                            {{ u[2] }}
-                                            <span 
-                                                class="message-count" 
-                                                data-username="{{ u[2] }}" 
-                                                style="background-color: red; color: white; margin-left: 5px; border-radius: 50%; padding: 2px 6px; font-size: 12px;">
-                                                
+                                    <li data-username="{{ u[2] }}" style="position: relative;">
+                                        <span>{{ u[2] }}
+                                            <span class="message-count" data-username="{{ u[2] }}" 
+                                                style="color: red; font-size: 15px; width: 18px; height: 18px; text-align: center; 
+                                                line-height: 18px; position: absolute; right: 10px; top: 50%; 
+                                                transform: translateY(-50%); font-weight: bold;">
                                             </span>
                                         </span>
                                     </li>
                                     {% endfor %}
                                 </ul>
                             </div>
-                            
-                            <div id="chat-container">
-                                <div id="chat-header">Select a user to start chatting</div>
+                        
 
-                                <div id="messages">
-                                    <img id="placeholder-image" src="/static/assets/img/logo.jpeg" alt="placeholder">
+                            <div id="chat-container" style="flex: 1; display: flex; flex-direction: column; background-color: #fff; height: 100%; position: relative;">
+                                <div id="chat-header" style="background-color: #512888; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 15px; font-size: 1.2em;">
+                                    <span>Select a user to start chatting</span>
+                                    <button id="close-chat" class="btn-close" aria-label="Close" title="Close Chat">×</button>
+                                </div>                                
+
+                                <div id="messages" style="flex: 1; overflow-y: auto; padding: 15px; background-color: #f9f9f9; display: flex; flex-direction: column;">
+                                    <img id="placeholder-image" src="/static/assets/img/logo.jpeg" alt="placeholder" style="max-width: 50%; max-height: 300px; opacity: 0.8; display: block; margin: auto;">
                                 </div>
-                                <!-- Message Input Form -->
-                                 <form id="message-form" class="hidden">
-                                    <input id="message-input" autocomplete="off" placeholder="Type a message..." />
-                                    <button id="upload-button" type="button">📎</button>
-                                    <input id="file-input" type="file" />
-                                    <button id="send-button" type="submit">Send</button>
+
+                                <form id="message-form" class="hidden" style="display: flex; padding: 10px; background-color: #fff; border-top: 1px solid #ddd; align-items: center; position: sticky; bottom: 0;">
+                                    <i class="fas fa-paperclip attachment-icon" id="attachment-icon" style="padding: 10px; margin-right: 10px;"></i>
+                                    <input id="message-input" autocomplete="off" placeholder="Type a message..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px;" />
+                                    <!-- <button id="upload-button" type="button" style="padding: 10px; background-color: #6c757d; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;"><i class="fas fa-paperclip"></i></button> -->
+                                    <input id="file-input" type="file" style="display: none;" />
+                                    <button id="send-button" type="submit" style="padding: 10px 20px; background-color: #512888; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Send</button>
                                 </form>
                             </div>
                         </div>
@@ -184,45 +316,98 @@
                 </div>
             </div>
         </div>
-
+    </div>
+    <!-- Add Audio Elements for Sounds -->
+    <audio id="send-sound" src="/static/sounds/send-sound.mp3" preload="auto"></audio>
+    <audio id="receive-sound" src="/static/sounds/receive-sound.mp3" preload="auto"></audio>
+    
     <script>
+        document.getElementById('search-bar').addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            const users = document.querySelectorAll('#user-list li');
+    
+            users.forEach(user => {
+                const username = user.getAttribute('data-username').toLowerCase();
+                if (username.includes(query)) {
+                    user.style.display = '';
+                } else {
+                    user.style.display = 'none';
+                }
+            });
+        });
+    </script>
+    <script>
+        
         const userList = document.getElementById('user-list');
         const messages = document.getElementById('messages');
         const messageForm = document.getElementById('message-form');
         const messageInput = document.getElementById('message-input');
         const fileInput = document.getElementById('file-input');
-        const uploadButton = document.getElementById('upload-button');
+        const uploadButton = document.getElementById('attachment-icon');
         const chatHeader = document.getElementById('chat-header');
+        const closeButton = document.getElementById('close-chat'); // Close button
         const sender = "{{ session['username'] }}";
-        let selectedUser = null;
-
-        // Initially hide the chat header and message form
-        chatHeader.style.display = 'none';
-
+        let selectedUser = localStorage.getItem('selectedUser') || null; // Persisted selected user
+    
+        // Get the audio elements
+        const sendSound = document.getElementById('send-sound');
+        const receiveSound = document.getElementById('receive-sound');
+    
+        // Restore selected user on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (selectedUser) {
+                const userElement = document.querySelector(`#user-list li[data-username="${selectedUser}"]`);
+                if (userElement) {
+                    userElement.classList.add('active');
+                    chatHeader.textContent = `${selectedUser}`;
+                    chatHeader.style.display = 'flex';
+                    closeButton.style.visibility = 'visible';
+                    messageForm.classList.remove('hidden');
+                    messageForm.style.display = 'flex';
+                    fetchMessages(sender, selectedUser);
+                }
+            } else {
+                chatHeader.style.display = 'none';
+                messageForm.style.display = 'none';
+            }
+        });
+    
         // Handle user selection
         userList.addEventListener('click', function(e) {
             if (e.target.tagName === 'LI') {
                 document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
                 e.target.classList.add('active');
                 selectedUser = e.target.dataset.username;
-                messages.innerHTML = ''; // Clear previous messages
-                chatHeader.textContent = `${selectedUser}`; // Update the header with the username
-
-                // Show the message form
-                chatHeader.style.display = 'block';
+                localStorage.setItem('selectedUser', selectedUser); // Persist selected user
+                messages.innerHTML = '';
+                chatHeader.textContent = `${selectedUser}`;
+                chatHeader.style.display = 'flex';
+                closeButton.style.visibility = 'visible'; // Show the close button when a user is selected
                 messageForm.classList.remove('hidden');
-
-                // Fetch existing messages from the database
+                messageForm.style.display = 'flex'; // Ensure the message form is shown
                 fetchMessages(sender, selectedUser);
             }
         });
-
-        // Handle file upload button click
+    
+        // Close chat functionality
+        closeButton.addEventListener('click', function() {
+            selectedUser = null;
+            localStorage.removeItem('selectedUser'); // Clear persisted user
+            chatHeader.textContent = 'Select a user to start chatting';
+            chatHeader.style.display = 'none'; // Hide the chat header when no user is selected
+            closeButton.style.visibility = 'hidden'; // Hide the close button when no user is selected
+            messageForm.classList.add('hidden');
+            messageForm.style.display = 'none'; // Hide the message form when no user is selected
+            messages.innerHTML = '';
+            document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
+        });
+    
+        // File upload button click
         uploadButton.addEventListener('click', () => {
             fileInput.click();
         });
-
-        // Handle file selection
+    
+        // Handle file selection and sending
         fileInput.addEventListener('change', () => {
             const file = fileInput.files[0];
             if (file && selectedUser) {
@@ -230,8 +415,6 @@
                 formData.append('file', file);
                 formData.append('sender', sender);
                 formData.append('receiver', selectedUser);
-
-                // Send file to the server
                 fetch('/send_attachment', {
                     method: 'POST',
                     body: formData
@@ -239,82 +422,103 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        if (file.type.startsWith('uploads/')) {
-                            addMessage(`<img src="${data.file_url}" alt="Image attachment">`);
-                        } else {
-                            addMessage(`📎 <a href="${data.file_url}" download="${file.name}">${file.name}</a>`);
-                        }
+                        addMessage(sender, `<a href="${data.file_url}" download>${file.name}</a>`, new Date().toLocaleTimeString());
+                        playSound(sendSound);
                     }
                 })
                 .catch(err => console.error('Error uploading file:', err));
             }
         });
-
-        // Add message to the chat
-        function addMessage(content) {
-            const div = document.createElement('div');
-            div.innerHTML = content;
-            div.style.margin = '10px 0';
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
-        }
-
+    
+        // Send text messages
         messageForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            if (messageInput.value.trim() && selectedUser) {
-                const message = messageInput.value;
-                const sender = "{{ session['username'] }}";  // Replace with the actual sender username
-                const receiver = selectedUser;
-
+            const message = messageInput.value.trim();
+            if (message && selectedUser) {
                 fetch('/send_message', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `sender=${sender}&receiver=${receiver}&message=${message}`
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `sender=${sender}&receiver=${selectedUser}&message=${message}`
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        addMessage(`You: ${message}`);
+                        const date = new Date();
+                        const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                        const dateTime = `${formattedDate} ${time}`;
+
+
+                        addMessage(sender, message, dateTime);
                         messageInput.value = '';
+                        playSound(sendSound); // Play send sound
                     }
                 })
                 .catch(err => console.error('Error:', err));
             }
         });
-
-        // Function to fetch messages
-        function fetchMessages(sender, receiver) {
-    fetch('/get_messages', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `sender=${sender}&receiver=${receiver}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        messages.innerHTML = ''; // Clear existing messages to avoid duplicates
-        if (data.messages) {
-            data.messages.forEach(msg => {
-                const fileUrl = msg.message;
-                const fileName = fileUrl.split('/').pop(); // Extract the filename from the URL
-
-                if (fileUrl && fileUrl.startsWith('http')) {
-                    addMessage(`${msg.sender}: 📎 <a href="${fileUrl}" download="${fileName}">${fileName}</a>`);
-                } else {
-                    addMessage(`${msg.sender}: ${msg.message}`);
-                }
-            });
+    
+        // Add messages to the chat window with dynamic styles and timestamp
+        function addMessage(senderName, messageContent, timestamp) {
+            const messageDiv = document.createElement('div');
+            const isSender = senderName === sender;
+    
+            messageDiv.classList.add(isSender ? 'sent-message' : 'received-message', 'message');
+            messageDiv.innerHTML = `
+                <span>${messageContent}</span>
+                <div class="timestamp">${timestamp}</div>
+            `;
+    
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+    
+            if (!isSender) {
+                playSound(receiveSound); // Play receive sound when a message is received
+            }
         }
-    })
-    .catch(err => console.error('Error fetching messages:', err));
-}
-
-
-// Function to update unread message count beside the username
-function updateMessageCount(username, count) {
+    
+        // Play sound function for send and receive
+        function playSound(audioElement) {
+            if (audioElement) {
+                audioElement.play();
+            }
+        }
+    
+        // Fetch chat messages
+        function fetchMessages(sender, receiver) {
+            fetch('/get_messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `sender=${sender}&receiver=${receiver}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                messages.innerHTML = '';
+                if (data.messages) {
+                    data.messages.forEach(msg => {
+                        const fileUrl = msg.message;
+                        const fileName = msg.message.split('/').pop(); // Extract the filename from the URL
+                        
+                        // Adjust the timestamp to correct the timezone offset
+                        const createdAt = new Date(msg.created_at);
+                        const correctedTime = new Date(createdAt.getTime() - (5 * 60 + 30) * 60 * 1000); // Subtract 5 hours and 30 minutes
+    
+                        // Format date and time without seconds
+                        const formattedTime = correctedTime.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' }) + 
+                                            ' ' + correctedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+                        if (msg.message && msg.message.startsWith('http')) {
+                            addMessage(msg.sender, `<a href="${fileUrl}" download="${fileName}">${fileName}</a>`, formattedTime);
+                        } else {
+                            addMessage(msg.sender, msg.message, formattedTime);
+                        }
+                    });
+                }
+            })
+            .catch(err => console.error('Error fetching messages:', err));
+        }
+        function updateMessageCount(username, count) {
     const countSpan = document.querySelector(`.message-count[data-username="${username}"]`);
     
     if (countSpan) {
@@ -348,75 +552,10 @@ function fetchUnreadCounts() {
 }
 
 // Call the function every 5 seconds to update the counts
-setInterval(fetchUnreadCounts, 5000);
-document.addEventListener('DOMContentLoaded', () => {
-    const savedUser = localStorage.getItem('selectedUser');
-    const placeholderImage = document.getElementById('placeholder-image');
-    
-    if (savedUser) {
-        // If a user was previously selected
-        selectedUser = savedUser;
-        const userListItem = document.querySelector(`#user-list li[data-username="${selectedUser}"]`);
-        if (userListItem) {
-            userListItem.classList.add('active');
-            chatHeader.textContent = `${selectedUser}`; // Update the header with the username
-            chatHeader.style.display = 'block'; // Show the chat header
-            placeholderImage.style.display = 'none'; // Hide the placeholder image
-            messageForm.classList.remove('hidden'); // Show the message form
+setInterval(fetchUnreadCounts, 2000);
 
-            // Fetch existing messages for the saved user
-            fetchMessages(sender, selectedUser);
-        }
-    } else {
-        // No user selected, show placeholder image
-        chatHeader.style.display = 'none'; // Hide the chat header
-        messageForm.classList.add('hidden'); // Hide the message form
-        placeholderImage.style.display = 'block'; // Show the placeholder image
-    }
-});
-
-// Handle user selection
-userList.addEventListener('click', function (e) {
-    if (e.target.tagName === 'LI') {
-        document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
-        e.target.classList.add('active');
-        selectedUser = e.target.dataset.username;
-        localStorage.setItem('selectedUser', selectedUser); // Save the selected user
-
-        // Update UI after user selection
-        chatHeader.textContent = `${selectedUser}`; // Update the header with the username
-        chatHeader.style.display = 'block'; // Show the chat header
-        placeholderImage.style.display = 'none'; // Hide the placeholder image
-        messageForm.classList.remove('hidden'); // Show the message form
-        messages.innerHTML = ''; // Clear previous messages
-
-        // Fetch existing messages for the selected user
-        fetchMessages(sender, selectedUser);
-    }
-});
-
-// Example: Use a flag to prevent duplicate listeners
-let isUserListInitialized = false;
-
-if (!isUserListInitialized) {
-    userList.addEventListener('click', function (e) {
-        if (e.target.tagName === 'LI') {
-            document.querySelectorAll('#user-list li').forEach(li => li.classList.remove('active'));
-            e.target.classList.add('active');
-            selectedUser = e.target.dataset.username;
-            localStorage.setItem('selectedUser', selectedUser);
-            chatHeader.textContent = `${selectedUser}`;
-            messages.innerHTML = ''; // Clear previous messages
-            fetchMessages(sender, selectedUser);
-        }
-    });
-
-    isUserListInitialized = true; // Mark as initialized
-}
     </script>
-
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <script src="static/assets/js/argon-dashboard.min.js?v=2.0.4"></script>
- 
+    
 </body>
+
 </html>

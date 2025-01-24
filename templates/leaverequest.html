@@ -56,9 +56,13 @@
                     <div class="card mb-4">
                         <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                             <h3 class="fontsz">Leave Request</h3>
-                            <!-- Button to Open Modal -->
-                            <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#holidayModal">Holidays List</button>
-                        </div>
+                            <div class="d-flex align-items-center">
+                                <span style="font-size: 14px; font-weight: bold;" class="me-3">
+                                    Sick Leave: {{ 12 - total_sick_days }} | Casual Leave: {{ 12 - total_casual_days }}
+                                </span>
+                                <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#holidayModal">Holidays List</button>
+                            </div>
+                        </div>                        
                         <div class="card-body px-0 pt-0 pb-2">
                             <form method="POST" class="needs-validation p-2" novalidate>
                                 <div class="mb-3 row">
@@ -69,7 +73,11 @@
                                                 <option value="">Select Leave Type</option>
                                                 <option value="sick">Sick Leave</option>
                                                 <option value="casual">Casual Leave</option>
+                                                <option value="unpaid">Unpaid Leave</option>
+                                                <option value="wedding">Wedding/Marriage Leave</option>
+                                                <option value="bereavement">Bereavement Leave</option>
                                             </select>
+                                            
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -201,6 +209,31 @@
     <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
 
+    <script>
+        document.getElementById("leave_type").addEventListener("change", function () {
+            const leaveType = this.value;
+            const startDateInput = document.getElementById("start_date");
+            const endDateInput = document.getElementById("end_date");
+    
+            startDateInput.value = ""; // Reset start date
+            endDateInput.value = "";  // Reset end date
+            endDateInput.min = "";    // Clear minimum restriction
+            endDateInput.max = "";    // Clear maximum restriction
+    
+            if (leaveType === "wedding" || leaveType === "bereavement") {
+                startDateInput.addEventListener("change", function () {
+                    const startDate = new Date(this.value);
+                    if (!isNaN(startDate)) {
+                        const maxEndDate = new Date(startDate);
+                        maxEndDate.setDate(maxEndDate.getDate() + 5);
+                        endDateInput.min = this.value;
+                        endDateInput.max = maxEndDate.toISOString().split("T")[0];
+                    }
+                });
+            }
+        });
+    </script>
+    
     <script>
         $(document).ready(function () {
             var today = new Date();
@@ -371,6 +404,47 @@
 
         // Call the function when the page loads
         window.onload = showDaysDifference;
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#start_date').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true
+            }).on("change", function () {
+                let startDate = $(this).datepicker("getDate");
+
+                if (startDate) {
+                    let nextFiveDays = getNextFiveWorkingDays(startDate);
+                    $('#end_date').datepicker("setStartDate", nextFiveDays[0]);
+                    $('#end_date').datepicker("setEndDate", nextFiveDays[4]);
+                }
+            });
+
+            $('#end_date').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true
+            });
+
+            // Helper function to get next 5 working days excluding weekends
+            function getNextFiveWorkingDays(startDate) {
+                var workingDays = [];
+                var currentDate = new Date(startDate);
+
+                // Add the start date as the first option
+                workingDays.push(new Date(currentDate));
+
+                while (workingDays.length < 5) {
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+                        workingDays.push(new Date(currentDate));
+                    }
+                }
+
+                return workingDays;
+            }
+        });
     </script>
     <script>
         var win = navigator.platform.indexOf('Win') > -1;

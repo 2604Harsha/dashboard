@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <title>In House page For BA talks Pvt Ltd</title>
+    {% include 'header.html'%}
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+    <!-- Fonts and icons -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white;
+        }
+
+        .table th, .table td {
+            text-align: center;
+            padding: 8px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
+
+    <main class="main-content position-relative border-radius-lg">
+        <div class="container-fluid py-4">
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4 m-3">
+                        <div class="card-header pb-0"></div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                {% if no_data %}
+                                <h6 class="text-center">No Data Found</h6>
+                                {% else %}
+                                <table class="table align-items-center justify-content-center mb-0" id="workReportTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                USERNAME
+                                            </th>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                DATE
+                                            </th>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                REPORTING TIME
+                                            </th>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                WORK TYPE
+                                            </th>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="workreportBody">
+                                        
+                                        {% for a in worklog_data %}
+                                        <tr>
+                                            <td>{{a[1]}}</td>
+                                            <td>{{a[2]}}</td>
+                                            <td>{{a[3]}}</td>
+                                            <td>{{a[8]}}</td>
+                                            <td>
+                                                {% if a[7] == 'pending' %}
+                                                    <button class="btn btn-success approve-btn" data-id="{{ a[0] }}">Approve</button>
+                                                    <button class="btn btn-danger reject-btn" data-id="{{ a[0] }}">Reject</button>
+                                                {% else %}
+                                                    {{ a[7] }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="static/assets/js/core/popper.min.js"></script>
+    <script src="static/assets/js/core/bootstrap.min.js"></script>
+    <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
+    
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Handle approve button click
+            $('.approve-btn').click(function () {
+                var worklogId = $(this).data('id');
+                updateStatus(worklogId, 'approved');
+            });
+    
+            // Handle reject button click
+            $('.reject-btn').click(function () {
+                var worklogId = $(this).data('id');
+                updateStatus(worklogId, 'rejected');
+            });
+    
+            function updateStatus(id, status) {
+                $.ajax({
+                    url: '/update_checkin_status',
+                    type: 'POST',
+                    data: { id: id, status: status },
+                    success: function (response) {
+                        // Optionally, update the table or notify the user
+                        alert('Status updated to ' + status);
+                        location.reload();  // Reload the page to reflect changes
+                    },
+                    error: function () {
+                        alert('Error updating status');
+                    }
+                });
+            }
+        });
+    </script>
+    
+</body>
+
+</html>

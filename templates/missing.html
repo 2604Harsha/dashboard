@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <title>In House page For BA talks Pvt Ltd</title>
+    {% include 'header.html'%}
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+    <!-- Fonts and icons -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .btn {
+            background-color: #512888;
+            color: white;
+        }
+
+        .table th, .table td {
+            text-align: center;
+            padding: 8px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
+
+    <main class="main-content position-relative border-radius-lg">
+        <div class="container-fluid py-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-header pb-0 d-flex justify-content-between">
+                            <h6>
+                                {% if selected_user_details %}
+                                    Missing slots List of {{ selected_user_details[1]|capitalize }} and Emp.Id is {{ selected_user_details[0] }}
+                                {% else %}
+                                Missing slots List of {{ session['username']|capitalize }} and Emp.Id is {{ session['empid'] }}
+                                {% endif %}
+                            </h6>
+                            
+                            <div class="btn-container" style="display: flex; align-items: center; gap: 10px;">
+                                <a class="btn btn-secondary btn-sm" href="/workreportlist" 
+                                    {% if session['user_role'] != 'CEO' and session['user_role'] != 'HR' %}style="display:none;"{% endif %}>
+                                    Workreport List
+                            </a>
+                                <!-- Print Button -->
+                                <button class="btn btn-secondary btn-sm" onclick="generatePDF()" 
+                                    {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %} style="display:block;" {% else %} style="display:none;" {% endif %}>
+                                    Print
+                                </button>
+                            </div>
+                            
+                        </div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <form method="POST" action="{{ url_for('missing') }}" class="mb-3 px-3">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <select id="usernameFilter" name="usernameFilter" class="form-select"
+                                            onchange="filterByUsername()" {% if disable_filter %}disabled{% endif %}>
+                                            <option value="">Users</option>
+                                            {% for username in usernames %}
+                                            <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
+                                                {{ username }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    {% if session['user_role'] in ['CEO', 'HR'] %}
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <input type="date" id="fromDateFilter" name="fromDateFilter" class="form-control"
+                                            value="{{ selected_from_date }}" onchange="filterByFromDate()" {% if disable_filter %}disabled{% endif %}>
+                                    </div>
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <input type="date" id="toDateFilter" name="toDateFilter" class="form-control"
+                                            value="{{ selected_to_date }}" onchange="filterByToDate()" {% if disable_filter %}disabled{% endif %}>
+                                    </div>
+                                    {% else %}
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <input type="date" id="dateFilter" name="dateFilter" class="form-control"
+                                            value="{{ selected_to_date }}" onchange="filterByToDate()" {% if disable_filter %}disabled{% endif %}>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4 m-3">
+                        <div class="card-header pb-0"></div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                {% if no_data %}
+                                <h6 class="text-center">No Data Found</h6>
+                                {% else %}
+                                <table class="table align-items-center justify-content-center mb-0" id="workReportTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                USERNAME
+                                            </th>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                DATE
+                                            </th>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                Missing Count
+                                            </th>
+                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
+                                                Missing Slots
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="workreportBody">
+                                        {% if missing_slots_data %}
+                                            {% for data in missing_slots_data %}
+                                                <tr>
+                                                    <td>{{ data.username }}</td>
+                                                    <td>{{ data.date }}</td>
+                                                    <td>{{ data.missed_slots_count }}</td>
+                                                    <td>{{ data.missed_slots }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="4" class="text-center">No Missing Slots Data Found</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>                                
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="static/assets/js/core/popper.min.js"></script>
+    <script src="static/assets/js/core/bootstrap.min.js"></script>
+    <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
+    
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        function toggleUpdates() {
+            fetch('/toggle_updates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const button = document.getElementById('toggleButton');
+                if (data.allow_updates) {
+                    button.textContent = 'Disable Updates';
+                    alert('Updates enabled.');
+                } else {
+                    button.textContent = 'Enable Updates';
+                    alert('Updates disabled.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        // Detect Ctrl + P keypress and trigger generatePDF
+        const user_role = 'CEO'; // Replace with actual logic to get the user role
+
+document.addEventListener('keydown', function (event) {
+    if ((event.ctrlKey && event.key === 'p') && (user_role === 'CEO' || user_role === 'HR')) { 
+        // Check if Ctrl + P is pressed and user is either CEO or HR
+        event.preventDefault(); // Prevent the default print dialog
+        generatePDF(); // Call the generatePDF function
+    }
+    else{
+        return;
+    }
+});
+
+    </script>
+    <script>
+        const actualCount = {{ actual_count}}; // Pass actual_count from backend
+        const totalMissingCount = 0; // This will be updated dynamically as before
+    
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+    
+            // Adding Title
+            doc.setFontSize(16);
+            doc.text("Missing Report", 105, 20, { align: "center" });
+            doc.setFontSize(12);
+    
+            const table = document.getElementById("workReportTable");
+            const rows = table.getElementsByTagName("tr");
+    
+            const headers = ["USERNAME", "DATE", "MISSING COUNT", "MISSINGS SLOTS"];
+            const colWidths = [28, 30, 38, 90];
+            const padding = 4;
+            const lineHeight = 7;
+    
+            let x = 14;
+            let y = 30;
+            headers.forEach((header, index) => {
+                doc.rect(x, y - 4, colWidths[index], 10);
+                doc.text(header, x + colWidths[index] / 2, y + 2, { align: "center" });
+                x += colWidths[index];
+            });
+    
+            y += 10;
+            let username = "";
+            let startDate = "";
+            let endDate = "";
+            let totalMissingCount = 0;
+    
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                let maxHeight = 10;
+    
+                if (i === 1) {
+                    username = cells[0].textContent.trim();
+                    startDate = cells[1].textContent.trim();
+                }
+                endDate = cells[1].textContent.trim();
+    
+                totalMissingCount += parseInt(cells[2].textContent.trim());
+    
+                const cellHeights = [];
+                for (let j = 0; j < 4; j++) {
+                    const cellText = cells[j].textContent.trim();
+                    const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2);
+                    const cellHeight = textLines.length * lineHeight;
+                    cellHeights.push(cellHeight);
+                }
+                maxHeight = Math.max(...cellHeights, maxHeight);
+    
+                if (y + maxHeight > doc.internal.pageSize.height - 20) {
+                    doc.addPage();
+                    y = 20;
+                }
+    
+                x = 14;
+                for (let j = 0; j < 4; j++) {
+                    const cellText = cells[j].textContent.trim();
+                    const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2);
+    
+                    doc.rect(x, y - 4, colWidths[j], maxHeight);
+                    doc.text(textLines, x + padding, y, { baseline: "top" });
+                    x += colWidths[j];
+                }
+                y += maxHeight;
+            }
+    
+            y += 20;
+    
+            const summaryData = [
+                ["Actual Count", actualCount.toString()],
+                ["Missed Count", totalMissingCount.toString()],
+            ];
+            const summaryColWidths = [60, 60];
+            const summaryTableWidth = summaryColWidths.reduce((a, b) => a + b, 0);
+    
+            const pageWidth = doc.internal.pageSize.width;
+            let tableX = (pageWidth - summaryTableWidth) / 2;
+    
+            summaryData.forEach((row) => {
+                let x = tableX;
+                row.forEach((cell, index) => {
+                    doc.rect(x, y - 4, summaryColWidths[index], 10);
+                    doc.text(cell, x + summaryColWidths[index] / 2, y + 2, { align: "center" });
+                    x += summaryColWidths[index];
+                });
+                y += 10;
+            });
+    
+            const fileName = `${username}_missing_report(${startDate}_to_${endDate}).pdf`;
+            doc.save(fileName);
+        }
+    </script>    
+    <script>
+        function filterByUsername() {
+            document.querySelector("form").submit(); // Auto-submit when a user is selected
+        }
+
+        function filterByFromDate() {
+           
+            document.querySelector("form").submit();  // Do nothing for From Date selection
+        }
+
+        function filterByToDate() {
+            document.querySelector("form").submit(); // Auto-submit when To Date is selected
+        }
+        </script>
+</body>
+</html>
