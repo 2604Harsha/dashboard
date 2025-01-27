@@ -50,16 +50,19 @@
                 <div class="col-12">
                     <div class="card mb-4">
                         <div class="card-header pb-0 d-flex justify-content-between">
+                            <!--
                             <h6>
                                 {% if selected_user_details %}
-                                    WorkReport List of {{ selected_user_details[1]|capitalize }} and Emp.Id is {{ selected_user_details[0] }}
+                                    Worktype List of {{ selected_user_details[1]|capitalize }} and Emp.Id is {{ selected_user_details[0] }}
                                 {% else %}
-                                    WorkReport List of {{ session['username']|capitalize }} and Emp.Id is {{ session['empid'] }}
+                                    Worktype List of {{ session['username']|capitalize }} and Emp.Id is {{ session['empid'] }}
                                 {% endif %}
                             </h6>
+
                             
                             <div class="btn-container" style="display: flex; align-items: center; gap: 10px;">
-                                <a href="/workreport" class="btn btn-secondary btn-sm">Work-Report</a>
+                                <a href="/worktype" class="btn btn-secondary btn-sm">Work-Report</a>
+                                
                                 <button id="toggleButton" class="btn btn-secondary btn-sm" onclick="toggleUpdates()" 
                                     {% if session['user_role'] != 'CEO' %}style="display:none;"{% endif %}>
                                     {% if allow_updates %}
@@ -68,46 +71,39 @@
                                     Enable Updates
                                     {% endif %}
                                 </button>
-                                <a class="btn btn-secondary btn-sm" href="/missing" 
-                                    {% if session['user_role'] != 'CEO' and session['user_role'] != 'HR' %}style="display:none;"{% endif %}>
-                                    Missing Slots
-                            </a>
-                                <!-- Print Button -->
-                                <button class="btn btn-secondary btn-sm" onclick="generatePDF()" 
-                                    {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %} style="display:block;" {% else %} style="display:none;" {% endif %}>
-                                    Print
-                                </button>
-                            </div>
+                                
+                            </div>-->
                             
                         </div>
                         <div class="card-body px-0 pt-0 pb-2">
-                            <form method="POST" action="{{ url_for('workreportlist') }}" class="mb-3 px-3">
+                            <form method="POST" action="{{ url_for('home') }}" class="mb-3 px-3">  
                                 <div class="row g-2 align-items-center">
+                                    <!-- Work Type Dropdown -->
                                     <div class="col-12 col-md-6 col-lg-4">
-                                        <select id="usernameFilter" name="usernameFilter" class="form-select"
-                                            onchange="filterByUsername()" {% if disable_filter %}disabled{% endif %}>
-                                            <option value="">Users</option>
-                                            {% for username in usernames %}
-                                            <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
-                                                {{ username }}
-                                            </option>
-                                            {% endfor %}
+                                        <select id="workTypeFilter" name="workTypeFilter" class="form-select"
+                                            onchange="filterByWorkType()" {% if disable_filter %}disabled{% endif %}>
+                                            <option value="">Work Type</option>
+                                            <option value="work_from_office" {% if selected_work_type == 'work_from_office' %}selected{% endif %}>Work from Office</option>
+                                            <option value="work_from_home" {% if selected_work_type == 'work_from_home' %}selected{% endif %}>Work from Home</option>
+                                            <option value="leave" {% if selected_work_type == 'leave' %}selected{% endif %}>Leave</option>
                                         </select>
                                     </div>
-
+                                
                                     {% if session['user_role'] in ['CEO', 'HR'] %}
+                                    <!-- Date Filters for CEO and HR Roles -->
                                     <div class="col-12 col-md-6 col-lg-4">
-                                        <input type="date" id="fromDateFilter" name="fromDateFilter" class="form-control"
-                                            value="{{ selected_from_date }}" onchange="filterByFromDate()" {% if disable_filter %}disabled{% endif %}>
+                                        <input type="date" id="workFromDateFilter" name="workFromDateFilter" class="form-control"
+                                            value="{{ selected_work_from_date }}" onchange="filterByWorkFromDate()" {% if disable_filter %}disabled{% endif %}>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-4">
-                                        <input type="date" id="toDateFilter" name="toDateFilter" class="form-control"
-                                            value="{{ selected_to_date }}" onchange="filterByToDate()" {% if disable_filter %}disabled{% endif %}>
+                                        <input type="date" id="workToDateFilter" name="workToDateFilter" class="form-control"
+                                            value="{{ selected_work_to_date }}" onchange="filterByWorkToDate()" {% if disable_filter %}disabled{% endif %}>
                                     </div>
                                     {% else %}
+                                    <!-- Single Date Filter for other roles -->
                                     <div class="col-12 col-md-6 col-lg-4">
-                                        <input type="date" id="dateFilter" name="dateFilter" class="form-control"
-                                            value="{{ selected_to_date }}" onchange="filterByToDate()" {% if disable_filter %}disabled{% endif %}>
+                                        <input type="date" id="singleDateFilter" name="singleDateFilter" class="form-control"
+                                            value="{{ selected_work_to_date }}" onchange="filterByWorkToDate()" {% if disable_filter %}disabled{% endif %}>
                                     </div>
                                     {% endif %}
                                 </div>
@@ -126,7 +122,7 @@
                                 {% if no_data %}
                                 <h6 class="text-center">No Data Found</h6>
                                 {% else %}
-                                <table class="table align-items-center justify-content-center mb-0" id="workReportTable">
+                                <table class="table align-items-center justify-content-center mb-0" id="worktypeTable">
                                     <thead>
                                         <tr>
                                             <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
@@ -136,17 +132,15 @@
                                                 DATE
                                             </th>
                                             <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
-                                                TIMINGS
+                                                TYPE
                                             </th>
                                             <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
-                                                WORK DONE
+                                                EDIT
                                             </th>
-                                            <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
-                                                REPORTING TIME
-                                            </th>
+
                                         </tr>
                                     </thead>
-                                    <tbody id="workreportBody">
+                                    <tbody id="worktypeBody">
                                         {% for pro in project %}
                                         <tr>
                                             <td>{{ pro[-1] }}</td>
@@ -171,7 +165,7 @@
     <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
     
-    <!-- jsPDF Library -->
+    <!--  
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         function toggleUpdates() {
@@ -204,7 +198,7 @@ document.addEventListener('keydown', function (event) {
     else{
         return;
     }
-});
+}); 
 
     </script>
     <script>
@@ -214,14 +208,14 @@ document.addEventListener('keydown', function (event) {
 
         // Adding Title
         doc.setFontSize(16);
-        doc.text("Work Report", 105, 20, { align: "center" }); // Center-aligned title
+        doc.text("Work Type", 105, 20, { align: "center" }); // Center-aligned title
         doc.setFontSize(12);
 
-        const table = document.getElementById("workReportTable");
+        const table = document.getElementById("worktypeTable");
         const rows = table.getElementsByTagName("tr");
 
         // Adding Table Headers
-        const headers = ["USERNAME", "DATE", "TIMINGS", "WORK DONE"];
+        const headers = ["USERNAME", "DATE", "TYPE", "EDIT"];
         const colWidths = [28, 30, 38, 90]; // Fixed column widths
         const padding = 4; // Padding for text
         const lineHeight = 7; // Line height for wrapped text
@@ -285,12 +279,12 @@ document.addEventListener('keydown', function (event) {
         }
 
         // Generate the dynamic file name
-        const fileName = `${username}_work_report(${startDate}_to_${endDate}).pdf`;
+        const fileName = `${username}_work_type(${startDate}_to_${endDate}).pdf`;
 
         // Save the PDF
         doc.save(fileName);
     }
-    </script>
+    </script>-->
     <script>
         function filterByUsername() {
             document.querySelector("form").submit(); // Auto-submit when a user is selected

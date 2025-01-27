@@ -18,7 +18,7 @@ app.secret_key = 'your_secret_key'
 # MySQL configurations
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'chakri1234'
+app.config['MYSQL_PASSWORD'] = 'Tbhavani@6040'
 app.config['MYSQL_DB'] = 'emp'
 
 
@@ -220,8 +220,7 @@ def save_file(file):
         file_url =request.host_url + 'uploads/' + filename  # This should be accessible via your static folder
         return file_url
     else:
-        raise ValueError("Invalid file type")\
-        
+        raise ValueError("Invalid file type")
 @app.route('/chatbox')
 def chat():
     if 'username' in session:
@@ -281,7 +280,6 @@ def send_message():
     except Exception as e:
         print(f"Error: {str(e)}")  # Log any database-related errors
         return jsonify({'status': 'error', 'message': str(e)}), 500
-    
 @app.route('/get_messages', methods=['POST'])
 def get_messages():
     sender = request.form.get('sender')
@@ -316,89 +314,6 @@ def get_messages_from_db(sender, receiver):
     mysql.connection.commit()
 
     return messages
-
-# code start
-
-
-# @app.route('/chatbox')
-# def chat():
-#     if 'username' in session:
-#         username = session['username']
-#         user_role = session['user_role']
-#         empid = session['empid']
-        
-#         cursor = mysql.connection.cursor()
-#         cursor.execute("SELECT * FROM profile WHERE username != %s", (username,))
-#         profile = cursor.fetchall()
-#         cursor.close()
-        
-#         return render_template('chatbox.html', profile=profile, user_role=user_role)
-#     else:
-#         return redirect(url_for('login'))
-
-# @app.route('/send_message', methods=['POST'])
-# def send_message():
-#     sender = request.form.get('sender')
-#     receiver = request.form.get('receiver')
-#     message = request.form.get('message')
-
-#     print(f"Sender: {sender}, Receiver: {receiver}, Message: {message}")  # Debugging line
-
-#     try:
-#         cursor = mysql.connection.cursor()
-#         # Insert message in both directions
-#         cursor.execute(
-#             "INSERT INTO messages (sender, receiver, message, is_read) VALUES (%s, %s, %s, %s)",
-#             (sender, receiver, message, False)
-#         )
-#         cursor.execute(
-#             "INSERT INTO messages (sender, receiver, message, is_read) VALUES (%s, %s, %s, %s)",
-#             (receiver, sender, message, False)
-#         )
-#         mysql.connection.commit()
-#         return jsonify({'status': 'success'}), 200
-#     except Exception as e:
-#         print(f"Error: {str(e)}")  # Log any database-related errors
-#         return jsonify({'status': 'error', 'message': str(e)}), 500
-
-# @app.route('/get_messages', methods=['POST'])
-# def get_messages():
-#     sender = request.form.get('sender')
-#     receiver = request.form.get('receiver')
-
-#     # Fetch messages from the database between sender and receiver
-#     messages = get_messages_from_db(sender, receiver)
-
-#     return jsonify({'messages': messages})
-
-# # Function to get messages from the database
-# def get_messages_from_db(sender, receiver):
-#     # Create a cursor object using the MySQL connection
-#     cursor = mysql.connection.cursor()
-
-#     # Execute the query to fetch messages
-#     cursor.execute("""
-#     SELECT sender, message, is_read, created_at 
-#     FROM messages 
-#     WHERE (sender = %s AND receiver = %s) OR (sender = %s AND receiver = %s)
-#     ORDER BY created_at ASC
-#     """, (sender, receiver, receiver, sender))
-
-#     rows = cursor.fetchall()
-#     messages = [dict(zip([col[0] for col in cursor.description], row)) for row in rows]
-    
-#     # Mark messages as read (receiver should mark the message as read when retrieved)
-#     cursor.execute("""
-#         UPDATE messages 
-#         SET is_read = TRUE 
-#         WHERE receiver = %s AND sender = %s AND is_read = FALSE
-#     """, (sender, receiver))
-#     mysql.connection.commit()
-
-#     return messages
-
-
-# code end
 @app.route('/send_attachment', methods=['POST'])
 def send_attachment():
     file = request.files['file']
@@ -442,8 +357,6 @@ def uploaded_file(filename):
         )
     except FileNotFoundError:
         return "File not found", 404
-    
-    
 @app.route('/get_unread_counts', methods=['POST'])
 def get_unread_counts():
     current_user = session.get('username')  # Get the current logged-in user
@@ -3896,13 +3809,48 @@ def emp_agreement():
 
     return render_template("emp_agreement.html", user_role=user_role,user_designation =user_designation)
 
+@app.route('/worktype')
+def home():
+    # Example data for rendering
+    user_role = 'CEO'  # This could be dynamic based on the logged-in user
+    disable_filter = False  # Set to True to disable the filters
+    selected_work_type = ''  # Default selection for work type filter
+    selected_work_from_date = ''  # Default selection for from date filter
+    selected_work_to_date = ''  # Default selection for to date filter
 
+    # Render the HTML with these variables
+    return render_template('worktype.html', 
+                           session={'user_role': user_role},
+                           disable_filter=disable_filter,
+                           selected_work_type=selected_work_type,
+                           selected_work_from_date=selected_work_from_date,
+                           selected_work_to_date=selected_work_to_date)
 
+@app.route('/filter', methods=['POST'])
+def filter_data():
+    # Extract filter parameters from the request
+    work_type = request.form.get('workTypeFilter', '')
+    from_date = request.form.get('workFromDateFilter', '')
+    to_date = request.form.get('workToDateFilter', '')
 
+    # Debugging logs
+    print("Work Type:", work_type)
+    print("From Date:", from_date)
+    print("To Date:", to_date)
+
+    # Here, you can add logic to query the database or process the filters
+    filtered_data = {
+        "work_type": work_type,
+        "from_date": from_date,
+        "to_date": to_date,
+    }
+
+    # Return a JSON response for demonstration purposes
+    return jsonify(filtered_data)
 
 # if __name__ == '__main__':
 #     app.run(debug=True)
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8082, debug=True)
