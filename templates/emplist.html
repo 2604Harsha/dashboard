@@ -93,6 +93,11 @@
                             <form id="edit-form">
                                 <input type="hidden" id="edit-empid">
                                 <div class="mb-3">
+                                  <label for="edit-empid" class="form-label">Employee ID</label>
+                                  <input type="text" class="form-control" id="edit-empid" name="empid">
+                                </div>
+                                
+                              <div class="mb-3">
                                     <label for="edit-username" class="form-label">User Name</label>
                                     <input type="text" class="form-control" id="edit-username">
                                 </div>
@@ -115,12 +120,13 @@
                                       <option value="Domain Analyst">Domain Analyst</option>
                                       <option value="Domain Expert">Domain Expert</option>
                                       <option value="HR">HR</option>
-                                      <option value="Jr Designer">Jr. Designer</option>
-                                      <option value="Jr Developer">Jr. Developer</option>
-                                      <option value="Jr Frontend Developer">Jr. Frontend Developer</option>
-                                      <option value="Jr Software Engineer">Jr. Software Engineer</option>
-                                      <option value="Jr Tester">Jr. Tester</option>
-                                      <option value="Jr Testing Associate">Jr. Testing Associate</option>
+                                      <option value="Junior Developer">Junior Developer</option>
+                                      <option value="Junior Designer">Junior Designer</option>
+                                      <option value="Junior Designer">Junior Resource</option>
+                                      <option value="Junior Tester">Junior Tester</option>
+                                      <option value="Junior Frontend Developer">Junior Frontend Developer</option>
+                                      <option value="Junior Software Engineer">Junior Software Engineer</option>
+                                      <option value="Junior Testing Associate">Junior Testing Associate</option>
                                        <option value="Manager">Manager</option>
                                        <option value="Project Manager">Project Manager</option>
                                       <option value="Research Associate">Research Associate</option>
@@ -164,43 +170,45 @@
   <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
   <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
   <script>
-    function openEditModal(empid, username, email, phone, designation, account_number,status) {
-    document.getElementById('edit-empid').value = empid;
+    function openEditModal(empid, username, email, phone, designation, account_number, status) {
+    document.getElementById('edit-empid').value = empid; // Set Employee ID
     document.getElementById('edit-username').value = username;
     document.getElementById('edit-email').value = email;
     document.getElementById('edit-phone').value = phone;
     document.getElementById('edit-designation').value = designation;
     document.getElementById('edit-account-number').value = account_number;
     document.getElementById('edit-status').value = status;
+
     var editModal = new bootstrap.Modal(document.getElementById('editModal'));
-    editModal.show();
+    editModal.show(); // Show the modal
 }
 
 
-    function submitEdit() {
-        var empid = document.getElementById('edit-empid').value;
-        var username = document.getElementById('edit-username').value;
-        var email = document.getElementById('edit-email').value;
-        var phone = document.getElementById('edit-phone').value;
-        var designation = document.getElementById('edit-designation').value;
-        var account_number = document.getElementById('edit-account-number').value;
-        var status = document.getElementById('edit-status').value;
 
-        fetch('/update_user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                empid: empid,
-                username: username,
-                email: email,
-                phone: phone,
-                designation: designation,
-                account_number: account_number,
-                status: status
-            })
-        })
+function submitEdit() {
+    var empid = document.getElementById('edit-empid').value;
+    var username = document.getElementById('edit-username').value;
+    var email = document.getElementById('edit-email').value;
+    var phone = document.getElementById('edit-phone').value;
+    var designation = document.getElementById('edit-designation').value;
+    var account_number = document.getElementById('edit-account-number').value;
+    var status = document.getElementById('edit-status').value;
+
+    fetch('/update_user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            empid: empid, // Include empid in the payload
+            username: username,
+            email: email,
+            phone: phone,
+            designation: designation,
+            account_number: account_number,
+            status: status,
+        }),
+    })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -210,7 +218,8 @@
                 alert('Failed to update user: ' + data.message);
             }
         });
-    }
+}
+
 </script>
 <script>
     var win = navigator.platform.indexOf('Win') > -1;

@@ -2009,7 +2009,7 @@ def adduser():
             (empid, username, password, designation, joining_date))
             
             # Determine the correct prefix for counter updates
-            counter_name = 'latest_empid_BATRS' if designation.lower() == 'trainee' else 'latest_empid_BA'
+            counter_name = 'latest_empid_BATR' if designation.lower() == 'trainee' else 'latest_empid_BA'
 
             # Updating the counter based on the designation
             cursor.execute("UPDATE counters SET value = %s WHERE name = %s", (new_empid_value, counter_name))
