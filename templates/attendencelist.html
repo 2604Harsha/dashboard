@@ -57,14 +57,16 @@
                             <form method="POST" action="{{ url_for('attendencelist') }}" class="mb-3 px-3">
                                 <div class="row g-2 align-items-center">
                                     <div class="col-12 col-md-6 col-lg-4">
-                                        <select id="usernameFilter" name="usernameFilter" class="form-select" onchange="filterBytype()">
-                                            <option value="">All</option>
-                                            {% for username in types %}
-                                                <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
-                                                    {{ username }}
-                                                </option>
+                                        <select id="usernameFilter" name="usernameFilter" class="form-select"
+                                            onchange="filterByUsername()">
+                                            <option value="">All Users</option>
+                                            {% for username in usernames %}
+                                            <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
+                                                {{ username }}
+                                            </option>
                                             {% endfor %}
                                         </select>
+
                                     </div>
 
                                     {% if session['user_role'] in ['CEO', 'HR'] %}
@@ -265,12 +267,9 @@ document.addEventListener('keydown', function (event) {
     }
     </script>
     <script>
-        function filterBytype() {
-    const selectedType = document.getElementById('usernameFilter').value;
-    if (selectedType) {
-        document.querySelector("form").submit();
-    }
-}
+        function filterByUsername() {
+            document.querySelector("form").submit(); // Auto-submit when a user is selected
+        }
 
         function filterByFromDate() {
            
