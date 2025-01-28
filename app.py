@@ -82,7 +82,7 @@ def attendence():
                 mysql.connection.commit()
         else:
             cur.execute("INSERT INTO attendence (username, date, type,created_at, updated) VALUES (%s, %s, %s, %s, %s)", 
-                        (username, date, current_time2, option, True))
+                        (username, date,  option,current_time2, True))
             mysql.connection.commit()
 
         today_date = datetime.now().date()
@@ -139,37 +139,52 @@ def insert_attendance_records():
 @app.route('/attendencelist', methods=['GET', 'POST'])
 def attendencelist():
     user_role = session.get('user_role')
+    username = session.get('username')
+    
+    if not username or user_role in ['Employee', 'Trainee', 'HR']:
+        return '''
+            <script type="text/javascript">
+                alert("Access denied. You do not have permission to view this page.");
+                window.location.href = "/dashboard";
+            </script>
+        '''
 
     # Get today's date in the required format (YYYY-MM-DD)
     today_date = datetime.today().strftime('%Y-%m-%d')
 
+    # Create a cursor object to interact with the database
+    cur = mysql.connection.cursor()
+
+    # Fetch distinct usernames for filter options
+    cur.execute("SELECT DISTINCT username FROM profile")
+    usernames = [row[0] for row in cur.fetchall()]
+    cur.close()
+
+    # Attendance types
+    types = ['work from home', 'work from office', 'leave']
+
     if request.method == 'POST':
-        # Fetch data from form
-        type_filter = request.form.get('usernameFilter', '')
-        from_date_filter = request.form.get('fromDateFilter', today_date)  # Default to today if not provided
-        to_date_filter = request.form.get('toDateFilter', today_date)  # Default to today if not provided
-        print(type_filter)
-        
-        # Create a cursor object to interact with the database
+        # Fetch form inputs
+        selected_username = request.form.get('usernameFilter', '')
+        from_date_filter = request.form.get('fromDateFilter', today_date)
+        to_date_filter = request.form.get('toDateFilter', today_date)
+
         cur = mysql.connection.cursor()
-
-        # Get attendance types instead of usernames
-        types = ['work from home', 'work from office', 'leave']
-
-        # SQL query to filter attendance by type and date range
+        
+        # Modify query to show all users if no specific user is selected
         query = """
             SELECT a.id, a.username, a.type, a.date, a.created_at, 
                    COALESCE(SUM(w.work_time), 0) AS total_work_time
             FROM attendence a
             LEFT JOIN worklog w ON a.date = w.date AND a.username = w.username
-            WHERE a.type = %s AND a.date BETWEEN %s AND %s
+            WHERE (%s = '' OR a.username = %s) 
+              AND a.date BETWEEN %s AND %s
             GROUP BY a.id, a.username, a.type, a.date
         """
-        cur.execute(query, (type_filter, from_date_filter, to_date_filter))
-        
+        cur.execute(query, (selected_username, selected_username, from_date_filter, to_date_filter))
+
         # Fetch all matching records with work time included
         attendence_data = cur.fetchall()
-        print(attendence_data)
         cur.close()
 
         # Check if no data is found
@@ -178,22 +193,35 @@ def attendencelist():
         return render_template('attendencelist.html', 
                                attendence_data=attendence_data, 
                                no_data=no_data,
+                               usernames=usernames,
                                user_role=user_role,
+                               selected_username=selected_username,
                                selected_from_date=from_date_filter,
                                selected_to_date=to_date_filter,
-                               types=types,
-                               selected_type=type_filter)
+                               types=types)
 
-    # For the GET request, set the default dates to today
+    # Default case for GET request
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT a.id, a.username, a.type, a.date, a.created_at, 
+               COALESCE(SUM(w.work_time), 0) AS total_work_time
+        FROM attendence a
+        LEFT JOIN worklog w ON a.date = w.date AND a.username = w.username
+        WHERE a.date BETWEEN %s AND %s
+        GROUP BY a.id, a.username, a.type, a.date
+    """, (today_date, today_date))
+    attendence_data = cur.fetchall()
+    cur.close()
+
     return render_template('attendencelist.html', 
-                           user_role=user_role, 
+                           attendence_data=attendence_data, 
+                           no_data=not attendence_data,
+                           usernames=usernames,
+                           user_role=user_role,
+                           selected_username='',
                            selected_from_date=today_date,
                            selected_to_date=today_date,
-                           types=['work from home', 'work from office', 'leave'],
-                           selected_type='')
-
-
-
+                           types=types)
 
 
 import os
@@ -672,8 +700,10 @@ def get_review_details(review_id):
 
 @app.route('/empreviewlist', methods=['GET', 'POST'])
 def empreviewlist():
+    
+    username = session.get('username')
     # Get the form data if it's a POST request
-    selected_username = request.form.get('username')
+    selected_username = request.form.get('usernameFilter', username)
     selected_month = request.form.get('month')
     selected_review_number = request.form.get('review_number')
 
@@ -1908,15 +1938,21 @@ def update_leave_status():
 
 
 # profile update
-def generate_empid() -> str:
+def generate_empid(designation: str) -> str:
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT value FROM counters WHERE name = 'latest_empid'")
+    if designation.lower() == 'trainee':
+        empid_prefix = 'BATRS'
+    else:
+        empid_prefix = 'BA'
+    
+    cursor.execute("SELECT value FROM counters WHERE name = %s", (f'latest_empid_{empid_prefix}',))
     result = cursor.fetchone()
     latest_empid = result[0] if result else 0
     new_empid = latest_empid + 1
-    # Do not commit the change here; just return the new_empid for now
-    return f"BA{new_empid:03d}", new_empid
 
+    # Return formatted empid and new value
+    formatted_empid = f"{empid_prefix}{new_empid:02d}" if designation.lower() == 'trainee' else f"{empid_prefix}{new_empid:03d}"
+    return formatted_empid, new_empid
 
 #adduser
 @app.route('/adduser', methods=['GET', 'POST'])
@@ -1954,7 +1990,7 @@ def adduser():
         account_number = request.form['account_number']
         user_role = request.form['user_role']
 
-        empid, new_empid_value = generate_empid()
+        empid, new_empid_value = generate_empid(designation)
 
         cursor = mysql.connection.cursor()
         try:
@@ -1972,17 +2008,18 @@ def adduser():
             ''', 
             (empid, username, password, designation, joining_date))
             
-            # Updating the counter value only if the above queries succeed
-            cursor.execute("UPDATE counters SET value = %s WHERE name = 'latest_empid'", (new_empid_value,))
-            
+            # Determine the correct prefix for counter updates
+            counter_name = 'latest_empid_BATRS' if designation.lower() == 'trainee' else 'latest_empid_BA'
+
+            # Updating the counter based on the designation
+            cursor.execute("UPDATE counters SET value = %s WHERE name = %s", (new_empid_value, counter_name))
+
             mysql.connection.commit()
         except Exception as e:
-            # Rollback the transaction in case of an error
             mysql.connection.rollback()
             print(f"Error occurred: {e}")
             return f"Error occurred: {e}"
         finally:
-            # Close the cursor
             cursor.close()
 
         return redirect(url_for('adduser'))  # Redirect to the adduser page
@@ -3089,6 +3126,13 @@ def checklist():
     user_role = session.get('user_role')
     user_designation = session.get('designation')
     cursor = mysql.connection.cursor()
+    if not username or user_role in ['Employee', 'Trainee','HR']:
+        return '''
+            <script type="text/javascript">
+                alert("Access denied. You do not have permission to view this page.");
+                window.location.href = "/dashboard";  // Redirect to the desired page after alert
+            </script>
+        '''
 
     today_date = datetime.today().date()
 
@@ -3102,7 +3146,7 @@ def checklist():
     
     cursor.execute(query, (today_date,today_date,))
     worklog_data = cursor.fetchall()
-    # print(worklog_data)
+    print(worklog_data)
 
     no_data = not worklog_data
 
@@ -3157,9 +3201,9 @@ def checkin():
                 return jsonify({'message': 'Please check out before checking in again.'}), 400
 
             # If the user already checked in and checked out, prevent further check-ins
-            if checkin_time and checkout_time:
-                cursor.close()
-                return jsonify({'message': 'You have already checked in and checked out today.'}), 400
+            # if checkin_time and checkout_time:
+            #     cursor.close()
+            #     return jsonify({'message': 'You have already checked in and checked out today.'}), 400
 
         # If no previous record found, insert check-in record
         cursor.execute(

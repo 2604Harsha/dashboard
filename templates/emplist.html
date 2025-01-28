@@ -71,7 +71,7 @@
                         {% endif %}
                       </td>
                       <td class="justify-content-center">
-                        <a onclick="openEditModal('{{ user[1] }}', '{{ user[2] }}', '{{ user[4] }}', '{{ user[7] }}', '{{ user[9] }}')" style="background-color: #512888; color: white;" class="btn btn-primary btn-sm">Edit</a>
+                        <a onclick="openEditModal('{{ user[1] }}', '{{ user[2] }}', '{{ user[4] }}', '{{ user[7] }}', '{{ user[9] }}', '{{ user[19] }}','{{ user[22] }}')" style="background-color: #512888; color: white;" class="btn btn-primary btn-sm">Edit</a>
                       </td>
                     </tr>
                     {% else %}
@@ -107,7 +107,6 @@
                                 <div class="mb-3">
                                     <label for="edit-designation" class="form-label">Designation</label>
                                     <!-- <input type="text" class="form-control" id=""> -->
-                                     <!--emp names  -->
                                     <select class="form-control" name="designation" id="edit-designation" required>
                                       <option value="" disabled selected>Select Designation</option>
                                       <option value="Admin">Admin</option>
@@ -131,6 +130,10 @@
                                       <option value="Technical Operation Assistant">Technical Operation Assistant</option>
                                   </select>
                                 </div>
+                                <div class="mb-3">
+                                  <label for="edit-account-number" class="form-label">Account Number</label>
+                                  <input type="text" class="form-control" id="edit-account-number">
+                              </div>
                                 <div class="mb-3">
                                   <label for="edit-status" class="form-label">Status</label>
                                   <!-- <input type="text" class="form-control" id=""> -->
@@ -161,16 +164,18 @@
   <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
   <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
   <script>
-    function openEditModal(empid, username, email, phone, designation) {
-        document.getElementById('edit-empid').value = empid;
-        document.getElementById('edit-username').value = username;
-        document.getElementById('edit-email').value = email;
-        document.getElementById('edit-phone').value = phone;
-        document.getElementById('edit-designation').value = designation;
-        document.getElementById('edit-status').value = status;
-        var editModal = new bootstrap.Modal(document.getElementById('editModal'));
-        editModal.show();
-    }
+    function openEditModal(empid, username, email, phone, designation, account_number,status) {
+    document.getElementById('edit-empid').value = empid;
+    document.getElementById('edit-username').value = username;
+    document.getElementById('edit-email').value = email;
+    document.getElementById('edit-phone').value = phone;
+    document.getElementById('edit-designation').value = designation;
+    document.getElementById('edit-account-number').value = account_number;
+    document.getElementById('edit-status').value = status;
+    var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    editModal.show();
+}
+
 
     function submitEdit() {
         var empid = document.getElementById('edit-empid').value;
@@ -178,6 +183,7 @@
         var email = document.getElementById('edit-email').value;
         var phone = document.getElementById('edit-phone').value;
         var designation = document.getElementById('edit-designation').value;
+        var account_number = document.getElementById('edit-account-number').value;
         var status = document.getElementById('edit-status').value;
 
         fetch('/update_user', {
@@ -191,6 +197,7 @@
                 email: email,
                 phone: phone,
                 designation: designation,
+                account_number: account_number,
                 status: status
             })
         })
