@@ -436,6 +436,8 @@
                     </tr>
                 </table>
             </div>
+
+            <!-- code start -->
             <div class="earnings-deductions">
                 <div class="earnings">
                     <h6>EARNINGS</h6>
@@ -504,14 +506,17 @@
                     </table>
                     <div class="wDays">
                         <label>Number of Working Days: </label>
-                        <input class="" type="number" name="working_days" id="working-days" min="1" max="30"
-                            oninput="calculateNetPay()" placeholder="1-30" required>
+                        <input class="" type="number" name="working_days" id="working-days" min="0" max="31"
+                            oninput="calculateNetPay()" placeholder="0-31" required>
                         <label>Number of Non-Working Days: </label>
-                        <input class="" type="number" name="non_working_days" id="non-working-days" min="1" max="30"
-                            oninput="calculateNetPay()" placeholder="1-30" required>
+                        <input class="" type="number" name="non_working_days" id="non-working-days" min="0" max="31"
+                            oninput="calculateNetPay()" placeholder="0-31" required>
                     </div>
                 </div>
             </div>
+
+
+            <!-- code end -->
             <div class="total-net-payable">
                 <h6>TOTAL NET PAYABLE</h6>
                 <table>
@@ -566,42 +571,6 @@
         <button type="button" onclick="manualPay()" class="btn btn-primary">Manual Pay</button>
     </div>
     <script>
-        
-        document.getElementById("pay_period").addEventListener("change", function () {
-    updatePayPeriod(this.value);
-});
-
-function updatePayPeriod(selectedMonth) {
-    if (!selectedMonth) return;
-
-    // Extract year and month from input value (format: YYYY-MM)
-    let [year, month] = selectedMonth.split("-");
-    month = parseInt(month); // Convert to integer for calculation
-
-    // Calculate the next month and year
-    let nextMonth = month === 12 ? 1 : month + 1;
-    let nextYear = month === 12 ? parseInt(year) + 1 : parseInt(year);
-
-    // Set the pay date to the 10th of the next month
-    let payDate = new Date(nextYear, nextMonth - 1, 10);
-
-    // If the 10th is Saturday (6) or Sunday (0), adjust to next Monday
-    if (payDate.getDay() === 6) {
-        payDate.setDate(payDate.getDate() + 2);  // Move to Monday (Monday after Saturday)
-    } else if (payDate.getDay() === 0) {
-        payDate.setDate(payDate.getDate() + 1);  // Move to Monday (Monday after Sunday)
-    }
-
-    // Format the adjusted date to YYYY-MM-DD for the input field
-    let formattedDate = payDate.toISOString().split("T")[0];
-
-    // Set the calculated pay date in the input field
-    document.getElementById("pay_date").value = formattedDate;
-
-    // Display the selected month in the pay period display input
-    document.getElementById("pay_period_display").value = selectedMonth;
-}
-
         document.getElementById("generateIdBtn").addEventListener("click", function () {
             const payslipId = generateUniqueId();
             document.getElementById("payslipIdDisplay").innerText = "Payslip ID: " + payslipId;
@@ -715,6 +684,173 @@ function updatePayPeriod(selectedMonth) {
 
         }
     </script>
+
+<!-- validation script -->
+<!-- <script>
+    // Initialize all relevant fields to 0 if empty and enforce restrictions
+    document.querySelectorAll("#basic-pay, #hra, #medical-allowance, #conveyance-allowance, #other-allowances, #professional-tax, #provident-fund, #leave-deduction, #working-days, #non-working-days")
+        .forEach(input => {
+            // Set initial value to 0 if empty on page load
+            if (!input.value) {
+                input.value = 0;
+            }
+
+            // Add event listener for real-time validation
+            input.addEventListener("input", function () {
+                if (this.value === "" || this.value < 0) {
+                    this.value = 0; // Reset to 0 if empty or negative
+                }
+
+                // Limit working and non-working days to 0-31
+                if ((this.id === "working-days" || this.id === "non-working-days") && (this.value < 0 || this.value > 31)) {
+                    this.value = Math.max(0, Math.min(31, this.value)); // Clamp value between 0 and 31
+                }
+            });
+
+            // Ensure arrow keys initialize to 0
+            input.addEventListener("keydown", function (e) {
+                if (this.value === "" && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+                    this.value = 0; // Initialize to 0 on first keypress
+                }
+            });
+        });
+
+    // Add form validation on submit
+    document.querySelector("form").addEventListener("submit", function (e) {
+        const basicPay = parseFloat(document.getElementById("basic-pay").value) || 0;
+        const hra = parseFloat(document.getElementById("hra").value) || 0;
+        const medicalAllowance = parseFloat(document.getElementById("medical-allowance").value) || 0;
+        const conveyanceAllowance = parseFloat(document.getElementById("conveyance-allowance").value) || 0;
+        const otherAllowances = parseFloat(document.getElementById("other-allowances").value) || 0;
+
+        const professionalTax = parseFloat(document.getElementById("professional-tax").value) || 0;
+        const providentFund = parseFloat(document.getElementById("provident-fund").value) || 0;
+        const leaveDeductions = parseFloat(document.getElementById("leave-deduction").value) || 0;
+
+        const workingDays = parseInt(document.getElementById("working-days").value, 10) || 0;
+        const nonWorkingDays = parseInt(document.getElementById("non-working-days").value, 10) || 0;
+
+        let isValid = true;
+        let errorMessage = "";
+
+        // Validate earnings inputs (must be >= 0)
+        if (basicPay < 0 || hra < 0 || medicalAllowance < 0 || conveyanceAllowance < 0 || otherAllowances < 0) {
+            isValid = false;
+            errorMessage += "Earnings values must be 0 or greater.\n";
+        }
+
+        // Validate deductions inputs (must be >= 0)
+        if (professionalTax < 0 || providentFund < 0 || leaveDeductions < 0) {
+            isValid = false;
+            errorMessage += "Deductions values must be 0 or greater.\n";
+        }
+
+        // Validate working days and non-working days (must be between 0 and 31)
+        if (workingDays < 0 || workingDays > 31 || nonWorkingDays < 0 || nonWorkingDays > 31) {
+            isValid = false;
+            errorMessage += "Working days and non-working days must be between 0 and 31.\n";
+        }
+
+        // If validation fails, prevent form submission and show an alert
+        if (!isValid) {
+            e.preventDefault();
+            alert(errorMessage);
+        }
+    });
+</script>
+ -->
+
+
+ <script>
+    // Initialize all relevant fields to 0 if empty and enforce restrictions
+    document.querySelectorAll("#basic-pay, #hra, #medical-allowance, #conveyance-allowance, #other-allowances, #professional-tax, #provident-fund, #leave-deduction, #working-days, #non-working-days")
+        .forEach(input => {
+            // Set initial value to 0 if empty on page load
+            if (!input.value) {
+                input.value = 0;
+            }
+
+            // Add event listener for real-time validation
+            input.addEventListener("input", function () {
+                if (this.value === "" || this.value < 0) {
+                    this.value = 0; // Reset to 0 if empty or negative
+                }
+
+                // Limit working and non-working days to 0-31
+                if ((this.id === "working-days" || this.id === "non-working-days") && (this.value < 0 || this.value > 31)) {
+                    this.value = Math.max(0, Math.min(31, this.value)); // Clamp value between 0 and 31
+                }
+            });
+
+            // Ensure arrow keys initialize to 0
+            input.addEventListener("keydown", function (e) {
+                if (this.value === "" && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+                    this.value = 0; // Initialize to 0 on first keypress
+                }
+
+                // Limit working and non-working days to 0-31 for arrow key presses
+                if ((this.id === "working-days" || this.id === "non-working-days") && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+                    const currentValue = parseInt(this.value, 10) || 0;
+
+                    if (e.key === "ArrowUp") {
+                        // Allow going up to 31
+                        if (currentValue < 31) {
+                            this.value = currentValue + 1; // Increment by 1 if below 31
+                        }
+                    } else if (e.key === "ArrowDown") {
+                        // Decrement by 1 if above 0
+                        if (currentValue > 0) {
+                            this.value = currentValue - 1;
+                        }
+                    }
+                    e.preventDefault(); // Prevent default behavior of arrow keys
+                }
+            });
+        });
+
+    // Add form validation on submit
+    document.querySelector("form").addEventListener("submit", function (e) {
+        const basicPay = parseFloat(document.getElementById("basic-pay").value) || 0;
+        const hra = parseFloat(document.getElementById("hra").value) || 0;
+        const medicalAllowance = parseFloat(document.getElementById("medical-allowance").value) || 0;
+        const conveyanceAllowance = parseFloat(document.getElementById("conveyance-allowance").value) || 0;
+        const otherAllowances = parseFloat(document.getElementById("other-allowances").value) || 0;
+
+        const professionalTax = parseFloat(document.getElementById("professional-tax").value) || 0;
+        const providentFund = parseFloat(document.getElementById("provident-fund").value) || 0;
+        const leaveDeductions = parseFloat(document.getElementById("leave-deduction").value) || 0;
+
+        const workingDays = parseInt(document.getElementById("working-days").value, 10) || 0;
+        const nonWorkingDays = parseInt(document.getElementById("non-working-days").value, 10) || 0;
+
+        let isValid = true;
+        let errorMessage = "";
+
+        // Validate earnings inputs (must be >= 0)
+        if (basicPay < 0 || hra < 0 || medicalAllowance < 0 || conveyanceAllowance < 0 || otherAllowances < 0) {
+            isValid = false;
+            errorMessage += "Earnings values must be 0 or greater.\n";
+        }
+
+        // Validate deductions inputs (must be >= 0)
+        if (professionalTax < 0 || providentFund < 0 || leaveDeductions < 0) {
+            isValid = false;
+            errorMessage += "Deductions values must be 0 or greater.\n";
+        }
+
+        // Validate working days and non-working days (must be between 0 and 31)
+        if (workingDays < 0 || workingDays > 31 || nonWorkingDays < 0 || nonWorkingDays > 31) {
+            isValid = false;
+            errorMessage += "Working days and non-working days must be between 0 and 31.\n";
+        }
+
+        // If validation fails, prevent form submission and show an alert
+        if (!isValid) {
+            e.preventDefault();
+            alert(errorMessage);
+        }
+    });
+</script>
 
 
 </body>

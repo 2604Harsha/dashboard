@@ -42,8 +42,18 @@
             }
         }
     </style>
+     <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+        }
+    
+        /* .form-control:invalid {
+            border-color: red; 
+            }   */
+        
+    </style>
 </head>
-
 <body class="g-sidenav-show   bg-gray-100">
     <div class="min-height-300 bg-dark position-absolute w-100"></div>
 
@@ -64,48 +74,50 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="username" class="form-control-label fontsz">Username<span class="required">*</span></label>
                                         <input class="form-control" type="text" name="username" id="username"
-                                            oninput="validateUsername(this)" placeholder="Enter Username" required>
+                                            oninput="validateUsername()" placeholder="Enter Username" required>
+                                        <div id="usernameError" style="color: red; font-size: 0.875rem;"></div>
                                     </div>
 
                                     <!-- Password Field -->
                                     <div class="col-md-6 mb-3">
                                         <label for="password" class="form-control-label fontsz">Password<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="password"
-                                            placeholder="Enter Password" required>
+                                            <input class="form-control" type="text" name="password" id="password"
+                                                oninput="validatePassword()" placeholder="Enter Password" required>
+                                            <div id="passwordError" style="color: red; font-size: 0.875rem;"></div>
                                     </div>
 
                                     <!-- Email Field -->
                                     <div class="col-md-6 mb-3">
-                                        <label for="email_address" class="form-control-label fontsz">Email
-                                            address<span class="required">*</span></label>
-                                        <input class="form-control" type="email" name="email_address"
-                                            placeholder="Enter Email" required>
+                                        <label for="email_address" class="form-control-label fontsz">Email address<span class="required">*</span></label>
+                                        <input class="form-control" type="email" name="email_address" id="email_address"
+                                            oninput="validateEmail()" placeholder="Enter Email" required>
+                                        <div id="emailError" style="color: red; font-size: 0.875rem;"></div>
                                     </div>
 
                                     <!-- First Name Field -->
                                     <div class="col-md-6 mb-3">
 
                                         <label for="first_name" class="form-control-label fontsz">First name<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="first_name" id="first_name"
-                                            placeholder="First Name" pattern="[A-Za-z]+" required
-                                            oninput="this.value = this.value.replace(/[^A-Za-z]/g, '')">
+                                            <input class="form-control" type="text" name="first_name" id="first_name" placeholder="First Name" 
+                                                required oninput="validateFirstName()">
+                                            <div id="firstNameError" style="color: red; font-size: 0.875rem;"></div>
                                     </div>
                                     
 
                                     <!-- Last Name Field -->
                                     <div class="col-md-6 mb-3">
                                         <label for="last_name" class="form-control-label fontsz">Last name<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="last_name" id="last_name"
-                                            pattern="[A-Za-z]+" required placeholder="Last Name"
-                                            oninput="this.value = this.value.replace(/[^A-Za-z]/g, '')">
+                                        <input class="form-control" type="text" name="last_name" id="last_name" placeholder="Last Name" 
+                                            required oninput="validateLastName()">
+                                        <div id="lastNameError" style="color: red; font-size: 0.875rem;"></div>
                                     </div>
 
                                     <!-- Phone Number Field -->
                                     <div class="col-md-6 mb-3">
                                         <label for="phone_number" class="form-control-label fontsz">Phone Number<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="phone_number" id="phone_number"
-                                            placeholder="Phone Number" maxlength="10" required
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <input class="form-control" type="text" name="phone_number" id="phone_number" 
+                placeholder="Phone Number" maxlength="10" required oninput="validatePhoneNumber()">
+            <div id="phoneNumberError" style="color: red; font-size: 0.875rem;"></div>
                                     </div>
 
                                     <!-- Date of Birth Field -->
@@ -121,18 +133,27 @@
                                         <label for="designation" class="form-control-label fontsz">Designation<span class="required">*</span></label>
                                         <select class="form-control" name="designation" id="designation" required>
                                             <option value="" disabled selected>Select Designation</option>
-                                            <option value="Jr Developer">Jr. Developer</option>
-                                            <option value="Jr Designer">Jr. Designer</option>
-                                            <option value="Jr Tester">Jr. Tester</option>
                                             <option value="Admin">Admin</option>
-                                            <option value="Manager">Manager</option>
+                                            <option value="Associate Engineer">Associate Engineer</option>
                                             <option value="CEO">CEO</option>
-                                            <option value="Research Associate">Research Associate</option>
-                                            <option value="HR">HR</option>
+                                            <option value="Domain Analyst">Domain Analyst</option>
                                             <option value="Domain Expert">Domain Expert</option>
-                                            <option value="Project Manager">Project Manager</option>
+                                            <option value="HR">HR</option>
+                                            <option value="Junior Developer">Junior Developer</option>
+                                            <option value="Junior Designer">Junior Designer</option>
+                                            <option value="Junior Designer">Junior Resource</option>
+                                            <option value="Junior Tester">Junior Tester</option>
+                                            <option value="Junior Frontend Developer">Junior Frontend Developer</option>
+                                            <option value="Junior Software Engineer">Junior Software Engineer</option>
+                                            <option value="Junior Testing Associate">Junior Testing Associate</option>
+                                             <option value="Manager">Manager</option>
+                                             <option value="Project Manager">Project Manager</option>
+                                            <option value="Research Associate">Research Associate</option>
+                                            <option value="Research Developer">Research Developer</option>
                                             <option value="Trainer">Trainer</option>
                                             <option value="Trainee">Trainee</option>
+                                            <option value="Technical Operation Assistant">Technical Operation Assistant</option>
+      
                                         </select>
                                     </div>
 
@@ -170,49 +191,77 @@
 
                                     <div class="col-md-4 mb-3">
                                         <label for="city" class="form-control-label fontsz">City<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="city" required>
+                                        <input class="form-control" type="text" name="city" id="city" pattern="[A-Za-z\s]+" required
+                                            placeholder="Enter City" oninput="validateCity()">
+                                        <div id="cityError" style="color: red; font-size: 0.875rem;"></div> <!-- Error message will appear here -->
                                     </div>
-
+                                    
                                     <div class="col-md-4 mb-3">
                                         <label for="country" class="form-control-label fontsz">Country<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="country" required>
+                                        <input class="form-control" type="text" name="country" id="country" pattern="[A-Za-z\s]+" required
+                                            placeholder="Enter Country" oninput="validateCountry()">
+                                        <div id="countryError" style="color: red; font-size: 0.875rem;"></div> <!-- Error message will appear here -->
                                     </div>
 
                                     <div class="col-md-4 mb-3">
                                         <label for="postal_code" class="form-control-label fontsz">Postal Code<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="postal_code" required>
+                                        <input class="form-control" type="text" name="postal_code" id="postal_code" required 
+                                           placeholder="Enter Pincode" oninput="validatePostalCode()">
+                                        <div id="postalCodeError" style="color: red; font-size: 0.875rem;"></div>
                                     </div>
 
                                     <!-- Additional Fields for UAN, PAN, Bank Details -->
-                                    <div class="col-md-4 mb-3">
-                                        <label for="uan" class="form-control-label fontsz">UAN<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="uan" required>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="pf" class="form-control-label fontsz">PF Number<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="pf_num" required>
-                                    </div>
 
-                                    <div class="col-md-4 mb-3">
-                                        <label for="pan" class="form-control-label fontsz">PAN<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="pan" required>
-                                    </div>
+                                  <div class="col-md-4 mb-3">
+    <label for="uan" class="form-control-label fontsz">UAN<span class="required">*</span></label>
+    <input class="form-control" type="text" name="uan" id="uan" pattern="\d{12}" maxlength="12" required
+        placeholder="Enter UAN" oninput="validateUAN()">
+    <div id="uanError" style="color: red; font-size: 0.875rem;"></div> <!-- Error message -->
+</div>
 
-                                    <div class="col-md-4 mb-3">
-                                        <label for="bname" class="form-control-label fontsz">Bank Name<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="bname" required>
-                                    </div>
+<div class="col-md-4 mb-3">
+    <label for="pf" class="form-control-label fontsz">PF Number<span class="required">*</span></label>
+    <input class="form-control" type="text" name="pf_num" id="pf_num" pattern="[A-Za-z0-9]{22}" maxlength="22" required
+        placeholder="Enter PF Number" oninput="validatePF()">
+    <div id="pfError" style="color: red; font-size: 0.875rem;"></div> <!-- Error message -->
+</div>
 
-                                    <div class="col-md-4 mb-3">
+
+<div class="col-md-4 mb-3">
+    <label for="pan" class="form-control-label fontsz">PAN<span class="required">*</span></label>
+    <input class="form-control" type="text" name="pan" id="pan" pattern="[A-Za-z0-9]{10}" maxlength="10" required
+        placeholder="Enter PAN" oninput="validatePAN()">
+    <div id="panError" style="color: red; font-size: 0.875rem;"></div> <!-- Error message -->
+</div>
+
+
+<div class="col-md-4 mb-3">
+    <label for="bname" class="form-control-label fontsz">Bank Name<span class="required">*</span></label>
+    <input class="form-control" type="text" name="bname" id="bname" pattern="[A-Za-z\s]+" required
+        placeholder="Enter Bank Name" oninput="validateBankName()">
+    <div id="bnameError" style="color: red; font-size: 0.875rem;"></div> <!-- Error message -->
+</div>
+
+                                    <!-- <div class="col-md-4 mb-3">
                                         <label for="branch" class="form-control-label fontsz">Branch<span class="required">*</span></label>
                                         <input class="form-control" type="text" name="branch" required>
-                                    </div>
+                                    </div> -->
 
                                     <div class="col-md-4 mb-3">
-                                        <label for="account_number" class="form-control-label fontsz">Account
-                                            Number<span class="required">*</span></label>
-                                        <input class="form-control" type="text" name="account_number" required>
+                                        <label for="ifsc" class="form-control-label fontsz">IFSC<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="ifsc" id="ifsc" pattern="[A-Za-z0-9]{1,15}" maxlength="15" required
+                                            placeholder="Enter IFSC" oninput="validateIFSC()">
+                                        <div id="ifscError" style="color: red; font-size: 0.875rem;"></div> <!-- Error message -->
                                     </div>
+                                    
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="account_number" class="form-control-label fontsz">Account Number<span class="required">*</span></label>
+                                        <input class="form-control" type="text" name="account_number" id="account_number" pattern="\d{1,20}" maxlength="20" required
+                                            placeholder="Enter Account Number" oninput="validateAccountNumber()">
+                                        <div id="accountError" style="color: red; font-size: 0.875rem;"></div> <!-- Error message -->
+                                    </div>
+                                    
                                 </div>
 
                                 <!-- Submit Button -->
@@ -229,6 +278,7 @@
                 </div>
             </div>
         </div>
+
 
         <!-- NOT REALATED TO DASHBOARD -->
 
@@ -260,6 +310,299 @@
             input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
         }
     </script>
+
+    <!-- validation start -->
+    <script>
+        // Show password toggle
+        function togglePassword() {
+            const passwordField = document.getElementById("password");
+            const checkbox = document.getElementById("showPassword");
+            passwordField.type = checkbox.checked ? "text" : "password";
+        }
+    
+        // Dynamic validation for username
+        document.getElementById("username").addEventListener("input", function() {
+            const username = this.value;
+            const usernameError = document.getElementById("usernameError");
+            const regex = /^[A-Za-z]+$/;
+    
+            if (!username.match(regex)) {
+                usernameError.textContent = "Username should only contain letters (no spaces, numbers, or special characters).";
+                this.style.borderColor = "red"; // Optional: Highlight the border in red for invalid input
+            } else {
+                usernameError.textContent = "";
+                this.style.borderColor = ""; // Remove the border highlight
+            }
+        });
+    
+        // Dynamic validation for email address
+        document.getElementById("email_address").addEventListener("input", function() {
+            const email = this.value;
+            const emailError = document.getElementById("emailError");
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook)\.com$/;
+    
+            if (!email.match(emailRegex)) {
+                emailError.textContent = "Email must be from gmail, yahoo, or outlook domain.";
+                this.style.borderColor = "red";
+            } else {
+                emailError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+        // Dynamic validation for first name
+        document.getElementById("first_name").addEventListener("input", function() {
+            const firstName = this.value;
+            const firstNameError = document.getElementById("firstNameError");
+            const nameRegex = /^[A-Za-z\s]+$/;
+    
+            if (!firstName.match(nameRegex)) {
+                firstNameError.textContent = "First name should only contain letters.";
+                this.style.borderColor = "red";
+            } else {
+                firstNameError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+        // Dynamic validation for last name
+        document.getElementById("last_name").addEventListener("input", function() {
+            const lastName = this.value;
+            const lastNameError = document.getElementById("lastNameError");
+            const nameRegex = /^[A-Za-z\s]+$/;
+    
+            if (!lastName.match(nameRegex)) {
+                lastNameError.textContent = "Last name should only contain letters.";
+                this.style.borderColor = "red";
+            } else {
+                lastNameError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+        // Dynamic validation for password
+        document.getElementById("password").addEventListener("input", function() {
+            const password = this.value;
+            const passwordError = document.getElementById("passwordError");
+    
+            // Validate password (no spaces allowed)
+            if (/\s/.test(password)) {
+                passwordError.textContent = "Password should not contain spaces.";
+                this.style.borderColor = "red";
+            } else if (password.length < 8 || password.length > 16) {
+                passwordError.textContent = "Password must be between 8 and 16 characters.";
+                this.style.borderColor = "red";
+            } else {
+                passwordError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+        // Dynamic validation for phone number
+        document.getElementById("phone_number").addEventListener("input", function() {
+            const phoneNumber = this.value;
+            const phoneNumberError = document.getElementById("phoneNumberError");
+            const phoneRegex = /^[0-9]{10}$/;
+    
+            if (!phoneNumber.match(phoneRegex)) {
+                phoneNumberError.textContent = "Phone number should be 10 digits.";
+                this.style.borderColor = "red";
+            } else {
+                phoneNumberError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+        // Dynamic validation for postal code
+        function validatePostalCode() {
+        const postalCodeInput = document.getElementById("postal_code");
+        const errorDiv = document.getElementById("postalCodeError");
+
+        // Allow only numeric values
+        if (!/^\d*$/.test(postalCodeInput.value)) {
+            errorDiv.textContent = "Postal code must contain only numbers.";
+            postalCodeInput.value = postalCodeInput.value.replace(/\D/g, ""); // Remove non-numeric characters
+        } else {
+            errorDiv.textContent = ""; // Clear error message if valid
+        }
+    }
+    
+        // Dynamic validation for UAN
+        document.getElementById("uan").addEventListener("input", function() {
+            const uan = this.value;
+            const uanError = document.getElementById("uanError");
+            const uanRegex = /^[0-9]{12}$/;
+    
+            if (!uan.match(uanRegex)) {
+                uanError.textContent = "UAN should be exactly 12 digits.";
+                this.style.borderColor = "red";
+            } else {
+                uanError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+        // Dynamic validation for PF number
+        document.getElementById("pf_num").addEventListener("input", function() {
+            const pfNumber = this.value;
+            const pfNumError = document.getElementById("pfNumError");
+            const pfRegex = /^[A-Za-z0-9]{22}$/;
+    
+            if (pfNumber.length !== 22) {
+                pfNumError.textContent = "PF Number should be exactly 22 characters.";
+                this.style.borderColor = "red";
+            } else {
+                pfNumError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+        // Dynamic validation for PAN
+        document.getElementById("pan").addEventListener("input", function() {
+            const pan = this.value;
+            const panError = document.getElementById("panError");
+            const panRegex = /^[A-Za-z0-9]{10}$/;
+    
+            if (pan.length !== 10) {
+                panError.textContent = "PAN should be exactly 10 characters.";
+                this.style.borderColor = "red";
+            } else {
+                panError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+        // Dynamic validation for Account Number
+        document.getElementById("account_number").addEventListener("input", function() {
+            const accountNumber = this.value;
+            const accountNumberError = document.getElementById("accountNumberError");
+            const accountNumberRegex = /^[0-9]{1,20}$/;
+    
+            if (accountNumber.length > 20) {
+                accountNumberError.textContent = "Account Number should not exceed 20 digits.";
+                this.style.borderColor = "red";
+            } else {
+                accountNumberError.textContent = "";
+                this.style.borderColor = "";
+            }
+        });
+    
+    
+    // UAN Validation (12 digits)
+function validateUAN() {
+    const uan = document.getElementById("uan").value;
+    const uanError = document.getElementById("uanError");
+    const regex = /^\d{12}$/; // 12 digits
+
+    if (!uan.match(regex)) {
+        uanError.textContent = "UAN should be exactly 12 digits.";
+        document.getElementById("uan").style.borderColor = "red";
+    } else {
+        uanError.textContent = "";
+        document.getElementById("uan").style.borderColor = "";
+    }
+}
+
+// PF Number Validation (22 alphanumeric characters)
+function validatePF() {
+    const pf = document.getElementById("pf_num").value;
+    const pfError = document.getElementById("pfError");
+    const regex = /^[A-Za-z0-9]{22}$/; // 22 alphanumeric characters
+
+    if (!pf.match(regex)) {
+        pfError.textContent = "PF Number should be exactly 22 characters.";
+        document.getElementById("pf_num").style.borderColor = "red";
+    } else {
+        pfError.textContent = "";
+        document.getElementById("pf_num").style.borderColor = "";
+    }
+}
+
+// PAN Validation (10 alphanumeric characters)
+function validatePAN() {
+    const pan = document.getElementById("pan").value;
+    const panError = document.getElementById("panError");
+    const regex = /^[A-Za-z0-9]{10}$/; // 10 alphanumeric characters
+
+    if (!pan.match(regex)) {
+        panError.textContent = "PAN should be exactly 10 characters.";
+        document.getElementById("pan").style.borderColor = "red";
+    } else {
+        panError.textContent = "";
+        document.getElementById("pan").style.borderColor = "";
+    }
+}
+
+// Account Number Validation (Up to 20 digits)
+function validateAccountNumber() {
+    const accountNumber = document.getElementById("account_number").value;
+    const accountError = document.getElementById("accountError");
+    const regex = /^\d{1,20}$/; // Up to 20 digits
+
+    if (!accountNumber.match(regex)) {
+        accountError.textContent = "Account Number should be up to 20 digits.";
+        document.getElementById("account_number").style.borderColor = "red";
+    } else {
+        accountError.textContent = "";
+        document.getElementById("account_number").style.borderColor = "";
+    }
+}
+
+// Bank Name Validation (Only letters and spaces)
+function validateBankName() {
+    const bankName = document.getElementById("bname").value;
+    const bankNameError = document.getElementById("bnameError");
+    const regex = /^[A-Za-z\s]+$/; // Letters and spaces only
+
+    if (!bankName.match(regex)) {
+        bankNameError.textContent = "Bank Name should contain only letters and spaces.";
+        document.getElementById("bname").style.borderColor = "red";
+    } else {
+        bankNameError.textContent = "";
+        document.getElementById("bname").style.borderColor = "";
+    }
+}
+
+// IFSC Validation (Up to 15 alphanumeric characters)
+function validateIFSC() {
+    const ifsc = document.getElementById("ifsc").value;
+    const ifscError = document.getElementById("ifscError");
+    const regex = /^[A-Za-z0-9]{1,15}$/; // Up to 15 alphanumeric characters
+
+    if (!ifsc.match(regex)) {
+        ifscError.textContent = "IFSC should be up to 15 alphanumeric characters.";
+        document.getElementById("ifsc").style.borderColor = "red";
+    } else {
+        ifscError.textContent = "";
+        document.getElementById("ifsc").style.borderColor = "";
+    }
+}
+
+// Branch Validation (Only letters and spaces)
+function validateBranch() {
+    const branch = document.getElementById("branch").value;
+    const branchError = document.getElementById("branchError");
+    const regex = /^[A-Za-z\s]+$/; // Letters and spaces only
+
+    if (!branch.match(regex)) {
+        branchError.textContent = "Branch should contain only letters and spaces.";
+        document.getElementById("branch").style.borderColor = "red";
+    } else {
+        branchError.textContent = "";
+        document.getElementById("branch").style.borderColor = "";
+    }
+}
+
+// Attach real-time event listeners
+document.getElementById("uan").addEventListener("input", validateUAN);
+document.getElementById("pf_num").addEventListener("input", validatePF);
+document.getElementById("pan").addEventListener("input", validatePAN);
+document.getElementById("account_number").addEventListener("input", validateAccountNumber);
+document.getElementById("bname").addEventListener("input", validateBankName);
+document.getElementById("ifsc").addEventListener("input", validateIFSC);
+document.getElementById("branch").addEventListener("input", validateBranch);
+
+</script>
 </body>
 
 </html>
