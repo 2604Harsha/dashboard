@@ -1941,7 +1941,7 @@ def update_leave_status():
 def generate_empid(designation: str) -> str:
     cursor = mysql.connection.cursor()
     if designation.lower() == 'trainee':
-        empid_prefix = 'BATRS'
+        empid_prefix = 'BATR'
     else:
         empid_prefix = 'BA'
     
