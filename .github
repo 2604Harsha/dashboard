@@ -1,6 +1,1 @@
-# Full branch controlled by chakri6303
-* @chakri6303
 
-# Specific files accessible to tbhavani6040
-docs/* @tbhavani6040
-scripts/deploy.sh @tbhavani6040
