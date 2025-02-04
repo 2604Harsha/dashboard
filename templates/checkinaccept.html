@@ -114,34 +114,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Handle approve button click
-            $('.approve-btn').click(function () {
-                var worklogId = $(this).data('id');
-                updateStatus(worklogId, 'approved');
-            });
-    
-            // Handle reject button click
-            $('.reject-btn').click(function () {
-                var worklogId = $(this).data('id');
-                updateStatus(worklogId, 'rejected');
-            });
-    
-            function updateStatus(id, status) {
-                $.ajax({
-                    url: '/update_checkin_status',
-                    type: 'POST',
-                    data: { id: id, status: status },
-                    success: function (response) {
-                        // Optionally, update the table or notify the user
-                        alert('Status updated to ' + status);
-                        location.reload();  // Reload the page to reflect changes
-                    },
-                    error: function () {
-                        alert('Error updating status');
-                    }
-                });
-            }
+    // Handle approve button click
+        $('.approve-btn').click(function () {
+            var worklogId = $(this).data('id');
+            updateStatus(worklogId, 'Approved', 'green', $(this).closest('tr'));
         });
+
+        // Handle reject button click
+        $('.reject-btn').click(function () {
+            var worklogId = $(this).data('id');
+            updateStatus(worklogId, 'Rejected', 'red', $(this).closest('tr'));
+        });
+
+        function updateStatus(id, status, color, row) {
+            $.ajax({
+                url: '/update_checkin_status',
+                type: 'POST',
+                data: { id: id, status: status },
+                success: function () {
+                    // Replace buttons with colored text
+                    row.find('td:last').html('<span style="color:' + color + ';">' + status + '</span>');
+                },
+                error: function () {
+                    alert('Error updating status');
+                }
+            });
+        }
+    });
+
     </script>
     
 </body>

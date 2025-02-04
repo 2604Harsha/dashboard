@@ -52,7 +52,12 @@
                     <div class="card mb-4">
                         <div class="card-header pb-0 d-flex justify-content-between">
                             <div class="btn-container" style="display: flex; align-items: center; gap: 10px;">
-                                <button class="btn btn-secondary btn-sm" onclick="generatePDF()" style="margin-left: 1080px;"
+                                
+                                <a class="btn btn-secondary btn-sm" href="/redlist" style="margin-left: 950px;"
+                                {% if session['user_role'] != 'CEO' and session['user_role'] != 'HR' %}style="display:none;"{% endif %}>
+                                Red List
+                        </a>
+                                <button class="btn btn-secondary btn-sm" onclick="generatePDF()" style="margin-left: 10px;"
                                     {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %} style="display:block;" {% else %} style="display:none;" {% endif %}>
                                     Print
                                 </button>

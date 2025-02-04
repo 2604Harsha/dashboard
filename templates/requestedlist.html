@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <title>In House Page For BA Talks Pvt Ltd</title>
+  {% include 'header.html' %}
+  <!-- Fonts and icons -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="https://demos.creative-tim.com/argon-dashboard-pro/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+</head>
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
+    <main class="main-content position-relative border-radius-lg">
+      <div class="container-fluid py-4">
+        <div class="row">
+          <div class="col-12">
+            <div class="card mb-4">
+              <div class="card-header pb-0">
+                <h3>Requested List</h3>
+              </div>
+              <div class="card-body px-0 pt-0 pb-2">
+                <div class="table-responsive p-0">
+                  <table class="table align-items-center mb-0">
+                    <thead>
+                      <tr>
+                        <th class="text-secondary opacity-7"></th>
+                        <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">SL.No</th>
+                        <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7 ps-2">Project Name</th>
+                        <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Date</th>
+                        <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Requested By</th>
+                        <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Details</th>
+                        <th class="text-center text-uppercase text-secondary text-large font-weight-bolder opacity-7">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for sm in requests %}
+                      <tr>
+                        <td></td>
+                        <td class="justify-content-center">{{ loop.index }}</td>
+                        <td class="justify-content-center">{{ sm[1] }}</td>
+                        <td class="justify-content-center">{{ sm[2] }}</td>
+                        <td class="justify-content-center">{{ sm[8] }}</td>
+                        <td class="text-center">
+                          <!-- Details Button -->
+                          <button class="btn" style="background-color: #512888; color: white;" data-bs-toggle="modal" data-bs-target="#detailsModal" 
+                                    data-name="{{ sm[1] }}" data-date="{{ sm[3] }}" data-requestedby="{{ sm[4] }}" 
+                                    data-status="{{ sm[5] }}" data-additional="{{ sm[6] }}" data-priority="{{ sm[7] }}">
+                            View Details
+                            </button>
+
+                        </td>
+                        <td class="text-center">
+                            <!-- Show Approve/Reject Buttons only if status is Pending -->
+                            {% if sm[10] == 'Pending' %}
+                              {% if user_designation in ['HR', 'CEO'] %}
+                                <form action="{{ url_for('update_request_status') }}" method="POST">
+                                  <input type="hidden" name="request_id" value="{{ sm[0] }}">
+                                  <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                                  <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                                </form>
+                              {% else %}
+                                <!-- Display 'Pending' status text for users who are not HR or CEO -->
+                                <span class="text-warning">Pending</span>
+                              {% endif %}
+                            {% else %}
+                              <!-- Display status text with appropriate color -->
+                              {% if sm[10] == 'Approved' %}
+                                <span class="text-success">Approved by {{ sm[9] }}</span>
+                              {% elif sm[10] == 'Rejected' %}
+                                <span class="text-danger">Rejected by {{ sm[9] }}</span>
+                              {% else %}
+                                <span>{{ sm[10] }}</span>
+                              {% endif %}
+                            {% endif %}
+                          </td>                          
+                      </tr>
+                      {% else %}
+                      <tr>
+                        <td class="justify-content-center" colspan="8">No Requests.</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>  
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal for User Allocation -->
+      <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="detailsModalLabel">Request Details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Modal content to display data -->
+              <p><strong>Project Name:</strong> <span id="projectName"></span></p>
+              <p><strong>Change Description:</strong> <span id="requestDate"></span></p>
+              <p><strong>Requested changes:</strong> <span id="requestedBy"></span></p>
+              <p><strong>Reason For Change:</strong> <span id="requestStatus"></span></p>
+              <p><strong>Impact of Change:</strong> <span id="additionalInfo"></span></p>
+              <p><strong>Priority:</strong> <span id="priority"></span></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  <script src="../assets/js/core/popper.min.js"></script>
+  <script src="../assets/js/core/bootstrap.min.js"></script>
+  <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="../assets/js/argon-dashboard.min.js?v=2.1.0"></script>
+
+  <!-- JavaScript to populate modal with data -->
+  <script>
+    var detailsModal = document.getElementById('detailsModal')
+    detailsModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var projectName = button.getAttribute('data-name');
+    var requestDate = button.getAttribute('data-date');
+    var requestedBy = button.getAttribute('data-requestedby');
+    var requestStatus = button.getAttribute('data-status');
+    var additionalInfo = button.getAttribute('data-additional');
+    var priority = button.getAttribute('data-priority');
+
+    // Populate modal with the data attributes
+    document.getElementById('projectName').textContent = projectName;
+    document.getElementById('requestDate').textContent = requestDate;
+    document.getElementById('requestedBy').textContent = requestedBy;
+    document.getElementById('requestStatus').textContent = requestStatus;
+    document.getElementById('additionalInfo').textContent = additionalInfo;
+    document.getElementById('priority').textContent = priority;
+    });
+  </script>
+</body>
+</html>

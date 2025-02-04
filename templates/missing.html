@@ -184,8 +184,7 @@
             })
             .catch(error => console.error('Error:', error));
         }
-        // Detect Ctrl + P keypress and trigger generatePDF
-        const user_role = 'CEO'; // Replace with actual logic to get the user role
+        // Detect Ctrl + P keypress and trigger generatePDFic to get the user role
 
 document.addEventListener('keydown', function (event) {
     if ((event.ctrlKey && event.key === 'p') && (user_role === 'CEO' || user_role === 'HR')) { 

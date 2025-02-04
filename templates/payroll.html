@@ -367,11 +367,6 @@
                     </tr>
                 </table>
             </div>
-
-
-            <!-- code start -->
-
-
             <div class="earnings-deductions">
                 <div class="earnings">
                     <h6>EARNINGS</h6>
@@ -483,11 +478,6 @@
                     </tr>
                 </table>
             </div>
-
-
-
-
-            <!-- code end -->
             <div class="note">
                 <p style="padding: 0; margin-bottom:0px;font-size: 11px;">-- This is a system generated payslip, hence the signature is not required. --</p>
                 <p id="unique_number" style="font-size: 11px; margin-bottom: 0px;">Unique Payslip Number: {{payslip[19]}}</p>
@@ -528,7 +518,7 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 
-    <!-- <script>
+    <script>
         document.getElementById("generateIdBtn").addEventListener("click", function () {
             const payslipId = generateUniqueId();
             document.getElementById("payslipIdDisplay").innerText = "Payslip ID: " + payslipId;
@@ -750,225 +740,9 @@
         });
     </script>
 
- -->
 
 
- <script>
-    document.getElementById("generateIdBtn").addEventListener("click", function () {
-        const payslipId = generateUniqueId();
-        document.getElementById("payslipIdDisplay").innerText = "Payslip ID: " + payslipId;
-    });
 
-    function generateUniqueId() {
-        let id = '';
-        for (let i = 0; i < 10; i++) {
-            id += Math.floor(Math.random() * 10);  // Generate a random digit
-        }
-        return id;
-    }
-
-</script>
-
-<script>
-    $(document).ready(function() {
-        $('#selected_username').select2({
-            placeholder: "Select Username",
-            allowClear: true,
-            width: 'resolve' // to adjust the width automatically
-        });
-    });
-</script>
-
-<script>
-    // downloading the PDF
-    function downloadPayslipAsPDF() {
-        const element = document.getElementById('payslip');
-        html2pdf(element, {
-            margin: 5, // Reduced margin
-            filename: 'payslip.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 }, // Adjust scale as needed
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        });
-    }
-
-    function updatePayPeriod(selectedValue) {
-        const date = new Date(selectedValue); // Adding "-01" to make it a valid date
-
-        // Define options for month formatting
-        const options = { year: 'numeric', month: 'long' };
-
-        // Format the date as 'Month, Year' (e.g., "July, 2024")
-        const formattedDate = date.toLocaleDateString('en-US', options);
-        selectedValue = date.toLocaleDateString('en-US', options);
-
-        document.getElementById('pay_period_display').value = formattedDate;
-        console.log(formattedDate);
-    }
-
-    function updatePayslip() {
-        const payPeriod = document.getElementById('pay_period').value;
-        const selectedUsername = document.getElementById('selected_username').value;
-
-        if (!payPeriod || !selectedUsername) {
-            console.error('Both pay period and username must be selected.');
-            return; // Exit if either is not set
-        }
-
-        fetch(`/payroll?pay_period=${payPeriod}&selected_username=${selectedUsername}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text(); // Fetch as text to use Jinja-rendered HTML
-            })
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                // Extract user information
-                const user = {
-                    username: doc.getElementById('emp-name').innerText,
-                    empid: doc.getElementById('emp-id').innerText,
-                    joining_date: doc.getElementById('emp-join').innerHTML,
-                    designation: doc.getElementById('emp-des').innerHTML,
-                    uan: doc.getElementById('uan').innerText,
-                    pf_num: doc.getElementById('pf_num').innerText,
-                    pan: doc.getElementById('pan').innerText,
-                    bank_name: doc.getElementById('bank-name').innerText,
-                    branch: doc.getElementById('branch').innerText,
-                    account_number: doc.getElementById('account-no').innerText,
-                };
-
-                // Extract payslip information
-                const payslip = {
-                    pay_date: doc.getElementById('pay_date').innerText.replace('', ''),
-                    basic_pay: doc.getElementById('basic-pay').innerText.replace('₹ ', ''),
-                    hra: doc.getElementById('hra').innerText.replace('₹ ', ''),
-                    medical_allowance: doc.getElementById('medical-allowance').innerText.replace('₹ ', ''),
-                    conveyance_allowance: doc.getElementById('conveyance-allowance').innerText.replace('₹ ', ''),
-                    other_allowances: doc.getElementById('other-allowances').innerText.replace('₹ ', ''),
-                    grossEarnings: doc.getElementById('gross-earnings').innerText.replace('₹ ', ''),
-                    totalEarnings: doc.getElementById('total-earnings').innerText.replace('₹ ', ''),
-                    professional_tax: doc.getElementById('professional-tax').innerText.replace('₹ ', ''),
-                    provident_fund: doc.getElementById('provident-fund').innerText.replace('₹ ', ''),
-                    leave_deduction: doc.getElementById('leave-deduction').innerText.replace('₹ ', ''),
-                    netDeductions: doc.getElementById('net-deductions').innerText.replace('₹ ', ''),
-                    totalDeductions: doc.getElementById('total-deductions').innerText.replace('₹ ', ''),
-                    netPayable: doc.getElementById('net-payable').innerText.replace('₹ ', ''),
-                    netPay: doc.getElementById('net-pay').innerText.replace('₹ ', ''),
-                    payment_mode: doc.getElementById('payment_mode').innerText.replace('', ''),
-                    working_days: doc.getElementById('working_days').innerText.replace('', ''),
-                    non_working_days: doc.getElementById('non_working_days').innerText.replace('', ''),
-                    unique_number: doc.getElementById('unique_number').innerText.replace('', ''), // Ensure this ID matches
-                };
-
-                updatePayslipUI({ user, payslip });
-            })
-            .catch(error => {
-                console.error('Error fetching payslip data:', error);
-                resetPayslipUI(); // Reset UI on error
-            });
-    }
-    function updatePayslipUI(data) {
-        if (data && data.payslip) {
-            document.getElementById('emp-name').innerText = data.user.username || 'N/A';
-            document.getElementById('emp-id').innerText = data.user.empid || 'N/A';
-            document.getElementById('emp-join').innerHTML = data.user.joining_date || 'N/A';
-            document.getElementById('emp-des').innerHTML = data.user.designation || 'N/A';
-            document.getElementById('pay_date').innerText = ` ${data.payslip.pay_date || 0}`;
-            document.getElementById('uan').innerText = data.user.uan || 'N/A';
-            document.getElementById('pf_num').innerText = data.user.pf_num || 'N/A';
-            document.getElementById('pan').innerText = data.user.pan || 'N/A';
-            document.getElementById('bank-name').innerText = data.user.bank_name || 'N/A';
-            document.getElementById('branch').innerText = data.user.branch || 'N/A';
-            document.getElementById('account-no').innerText = data.user.account_number || 'N/A';
-            document.getElementById('payment_mode').innerText = ` ${data.payslip.payment_mode || 'N/A'}`;
-            document.getElementById('basic-pay').innerText = ` ${data.payslip.basic_pay || 0}`;
-            document.getElementById('hra').innerText = ` ${data.payslip.hra || 0}`;
-            document.getElementById('medical-allowance').innerText = ` ${data.payslip.medical_allowance || 0}`;
-            document.getElementById('conveyance-allowance').innerText = ` ${data.payslip.conveyance_allowance || 0}`;
-            document.getElementById('other-allowances').innerText = ` ${data.payslip.other_allowances || 0}`;
-            document.getElementById('gross-earnings').innerText = ` ${data.payslip.grossEarnings || 0}`;
-            document.getElementById('total-earnings').innerText = `₹ ${data.payslip.totalEarnings || 0}`;
-            document.getElementById('professional-tax').innerText = ` ${data.payslip.professional_tax || 0}`;
-            document.getElementById('provident-fund').innerText = ` ${data.payslip.provident_fund || 0}`;
-            document.getElementById('leave-deduction').innerText = `${data.payslip.leave_deduction}`;
-            document.getElementById('net-deductions').innerText = ` ${data.payslip.netDeductions || 0}`;
-            document.getElementById('total-deductions').innerText = `₹ ${data.payslip.totalDeductions || 0}`;
-            document.getElementById('net-payable').innerText = ` ${data.payslip.netPay || 0}`;
-            document.getElementById('net-pay').innerText = `₹ ${data.payslip.netPayable || 0}`;
-            document.getElementById('working_days').innerText = `${data.payslip.working_days || `N/A`}`;
-            document.getElementById('non_working_days').innerText = `${data.payslip.non_working_days || `N/A`}`;
-            // Update unique number display
-            document.getElementById("unique_number").innerText = `${data.payslip.unique_number || 'N/A'}`;
-
-            console.log(`Unique ID: ${data.payslip.unique_number}`);
-        } else {
-            resetPayslipUI();
-        }
-    }
-    // Function to generate the unique number based on the pay period
-    function generateUniqueNumber(payPeriod) {
-        const timestamp = Date.now();  // Get the current timestamp in milliseconds
-        const formattedDate = new Date(payPeriod + '-01');  // Parse the pay period (e.g., '2024-07')
-        const monthYear = formattedDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-
-        // Combine the formatted month/year with the timestamp to create a unique number
-        return `${monthYear.replace(' ', '_')}_${timestamp}`;
-    }
-</script>
-
-<script>
-    // Function to convert number to words
-    function numberToWords(num) {
-        const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
-        const teens = ["Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
-        const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-        const thousands = ["", "Thousand", "Million", "Billion"];
-
-        if (num === 0) return "Zero";
-
-        let words = "";
-
-        function toWords(n, index) {
-            if (n === 0) return "";
-            let str = "";
-            if (n < 10) str = ones[n];
-            else if (n < 20) str = teens[n - 10];
-            else if (n < 100) str = tens[Math.floor(n / 10)] + " " + ones[n % 10];
-            else str = ones[Math.floor(n / 100)] + " Hundred " + toWords(n % 100, 0);
-            return str + " " + thousands[index] + " ";
-        }
-
-        let i = 0;
-        while (num > 0) {
-            words = toWords(num % 1000, i) + words;
-            num = Math.floor(num / 1000);
-            i++;
-        }
-
-        return words.trim();
-    }
-
-    // Fetch the amounts and set words on page load
-    document.addEventListener("DOMContentLoaded", function () {
-        // Get amount values
-        const totalEarnings = parseInt(document.getElementById("total-earnings").textContent) || 0;
-        const totalDeductions = parseInt(document.getElementById("total-deductions").textContent) || 0;
-        const netPay = parseInt(document.getElementById("net-pay").textContent) || 0;
-
-        // Convert amounts to words
-        const totalEarningsWords = numberToWords(totalEarnings);
-        const totalDeductionsWords = numberToWords(totalDeductions);
-        const netPayWords = numberToWords(netPay);
-
-        // Insert the words beside the amount values
-        document.getElementById("total-earnings-words").textContent = totalEarningsWords;
-        document.getElementById("total-deductions-words").textContent = totalDeductionsWords;
-        document.getElementById("net-pay-words").textContent = netPayWords;
-    });
-</script>
 
 
 

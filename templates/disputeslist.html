@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <title>In House Page For BA Talks Pvt Ltd</title>
+    {% include 'header.html' %}
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    <style>
+        body { overflow-x: hidden; }
+        .btn { background-color: #512888; color: white; }
+        .table th, .table td { text-align: center; padding: 8px; }
+        .table { margin-bottom: 0; }
+    </style>
+</head>
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-dark position-absolute w-100"></div>
+    <main class="main-content position-relative border-radius-lg">
+        <div class="container-fluid py-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4 m-3">
+                        <div class="card-header pb-0"></div>
+                        <div class="card-body px-0 pt-0 pb-2">
+                            <div class="table-responsive p-0">
+                                {% if no_data %}
+                                <h6 class="text-center">No Data Found</h6>
+                                {% else %}
+                                <table class="table align-items-center justify-content-center mb-0" id="workReportTable">
+                                    <thead>
+                                        <tr>
+                                            <th>DISPUTE ID</th>
+                                            <th>USERNAME</th>
+                                            <th>DATE</th>
+                                            <th>DISPUTE</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dispute in disputes_data %}
+                                        <tr>
+                                            <td>{{ dispute[0] }}</td>
+                                            <td>{{ dispute[5] }}</td>
+                                            <td>{{ dispute[7] }}</td>
+                                            <td>{{ dispute[4] }}</td>
+                                            <td>
+                                                {% if dispute[6] == 'pending' %}
+                                                    <button class="btn btn-primary open-modal-btn" 
+                                                            data-id="{{ dispute[0] }}" 
+                                                            data-email="{{ dispute[2] }}" 
+                                                            data-name="{{ dispute[1] }}">
+                                                        Review
+                                                    </button>
+                                                    <button class="btn btn-primary resolved-btn" 
+                                                            data-id="{{ dispute[0] }}" 
+                                                            data-email="{{ dispute[2] }}" 
+                                                            data-name="{{ dispute[1] }}">
+                                                        Resolved
+                                                    </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal for Review -->
+    <div class="modal fade" id="disputeModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Review Dispute</h5>
+                </div>
+                <div class="modal-body">
+                    <textarea id="disputeMessage" class="form-control" placeholder="Enter response..." rows="4"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="approveDispute">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            let selectedDisputeId, selectedEmail, selectedName;
+
+            // Open modal when "Review" button is clicked
+            $('.open-modal-btn').click(function () {
+                selectedDisputeId = $(this).data('id');
+                selectedEmail = $(this).data('email');
+                selectedName = $(this).data('name');
+                $('#disputeMessage').val('');
+                $('#disputeModal').modal('show');
+            });
+
+            function sendDisputeDecision(status) {
+                let message = $('#disputeMessage').val();
+                $.ajax({
+                    url: '/update_dispute_status',
+                    type: 'POST',
+                    data: { 
+                        id: selectedDisputeId, 
+                        status: status, 
+                        message: message, 
+                        email: selectedEmail, 
+                        name: selectedName 
+                    },
+                    success: function () {
+                        $('#disputeModal').modal('hide');
+                        location.reload();
+                    },
+                    error: function () {
+                        alert('Error updating status');
+                    }
+                });
+            }
+
+            // Send Review Response
+            $('#approveDispute').click(function () {
+                sendDisputeDecision('Reviewed');
+            });
+
+            // Mark Dispute as Resolved
+            $('.resolved-btn').click(function () {
+                let disputeId = $(this).data('id');
+                let email = $(this).data('email');
+                let name = $(this).data('name');
+
+                $.ajax({
+                    url: '/update_dispute_status_resolved',
+                    type: 'POST',
+                    data: {
+                        id: disputeId,
+                        status: 'Resolved',
+                        message: 'Your dispute has been resolved.',
+                        email: email,
+                        name: name
+                    },
+                    success: function (response) {
+                        alert(response.message);
+                        location.reload();
+                    },
+                    error: function () {
+                        alert('Error resolving dispute.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

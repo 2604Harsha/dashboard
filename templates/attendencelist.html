@@ -50,7 +50,11 @@
                 <div class="col-12">
                     <div class="card mb-4">
                         <div class="card-header pb-0 d-flex justify-content-between">
-                            
+                           <!-- Print Button -->
+                           <button class="btn btn-secondary btn-sm" onclick="generatePDF()" 
+                           {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %} style="display:block;" {% else %} style="display:none;" {% endif %}>
+                           Print
+                       </button> 
                             
                         </div>
                         <div class="card-body px-0 pt-0 pb-2">
@@ -58,15 +62,14 @@
                                 <div class="row g-2 align-items-center">
                                     <div class="col-12 col-md-6 col-lg-4">
                                         <select id="usernameFilter" name="usernameFilter" class="form-select"
-                                            onchange="filterByUsername()">
-                                            <option value="">All Users</option>
+                                            onchange="filterByUsername()" {% if disable_filter %}disabled{% endif %}>
+                                            <option value="">Users</option>
                                             {% for username in usernames %}
                                             <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
                                                 {{ username }}
                                             </option>
                                             {% endfor %}
                                         </select>
-
                                     </div>
 
                                     {% if session['user_role'] in ['CEO', 'HR'] %}
@@ -99,7 +102,7 @@
                                 {% if no_data %}
                                 <h6 class="text-center">No Data Found</h6>
                                 {% else %}
-                                <table class="table align-items-center justify-content-center mb-0" id="workReportTable">
+                                <table class="table align-items-center justify-content-center mb-0" id="attendenceTable">
                                     <thead>
                                         <tr>
                                             <th class="text-uppercase text-secondary text-large font-weight-bolder opacity-7">
@@ -119,7 +122,7 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody id="workreportBody">
+                                    <tbody id="attendenceBody">
                                         
                                         {% for a in attendence_data %}
                                         <tr>
@@ -184,92 +187,99 @@ document.addEventListener('keydown', function (event) {
     </script>
     <script>
         function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Adding Title
+            doc.setFontSize(16);
+            doc.text("Work Report", 105, 20, { align: "center" });
 
-        // Adding Title
-        doc.setFontSize(16);
-        doc.text("Work Report", 105, 20, { align: "center" }); // Center-aligned title
-        doc.setFontSize(12);
-
-        const table = document.getElementById("workReportTable");
-        const rows = table.getElementsByTagName("tr");
-
-        // Adding Table Headers
-        const headers = ["USERNAME", "DATE", "TIMINGS", "WORK DONE"];
-        const colWidths = [28, 30, 38, 90]; // Fixed column widths
-        const padding = 4; // Padding for text
-        const lineHeight = 7; // Line height for wrapped text
-
-        // Add headers with borders and center alignment
-        let x = 14;
-        let y = 30;
-        headers.forEach((header, index) => {
-            doc.rect(x, y - 4, colWidths[index], 10); // Draw header cell
-            doc.text(header, x + colWidths[index] / 2, y + 2, { align: "center" }); // Center header text
-            x += colWidths[index];
-        });
-
-        // Adding Table Content
-        y += 10;
-        let username = "";
-        let startDate = "";
-        let endDate = "";
-        for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName("td");
-            let maxHeight = 10; // Minimum row height
-
-            // Capture username, start date, and end date
-            if (i === 1) {
-                username = cells[0].textContent.trim(); // First row's username
-                startDate = cells[1].textContent.trim(); // First row's date
-            }
-            endDate = cells[1].textContent.trim(); // Update end date to the last row's date
-
-            // Calculate row height based on content
-            const cellHeights = [];
-            for (let j = 0; j < 4; j++) {
-                const cellText = cells[j].textContent.trim();
-                const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2); // Wrap text
-                const cellHeight = textLines.length * lineHeight; // Height for the cell
-                cellHeights.push(cellHeight);
-            }
-            maxHeight = Math.max(...cellHeights, maxHeight); // Set row height based on the tallest cell
-
-            // Check if row overflows the page
-            if (y + maxHeight > doc.internal.pageSize.height - 20) {
-                doc.addPage(); // Add new page if the content exceeds the current page
-                y = 20; // Reset vertical position for new page
+            const table = document.getElementById("attendenceTable");
+            if (!table) {
+                alert("No attendance data available to generate PDF.");
+                return;
             }
 
-            // Draw cells with adjusted height
-            x = 14;
-            for (let j = 0; j < 4; j++) {
-                const cellText = cells[j].textContent.trim();
-                const textLines = doc.splitTextToSize(cellText, colWidths[j] - padding * 2); // Wrap text
-
-                // Draw cell border
-                doc.rect(x, y - 4, colWidths[j], maxHeight);
-
-                // Add text with line wrapping, slightly shifted down for padding
-                doc.text(textLines, x + padding, y, { baseline: "top" });
-                x += colWidths[j];
+            const rows = table.getElementsByTagName("tr");
+            if (rows.length < 2) { // If no data rows present
+                alert("No attendance records found.");
+                return;
             }
 
-            y += maxHeight; // Move to the next row
+            // Define Table Headers
+            const headers = ["USERNAME", "DATE", "TYPE", "REPORTING TIME", "WORK TIME"];
+            const colWidths = [40, 30, 30, 50, 40]; // Adjust column widths
+
+            let x = 14, y = 30;
+            
+            // Draw table headers
+            doc.setFontSize(12);
+            headers.forEach((header, index) => {
+                doc.rect(x, y - 4, colWidths[index], 10); 
+                doc.text(header, x + colWidths[index] / 2, y + 2, { align: "center" });
+                x += colWidths[index];
+            });
+
+            y += 10;
+            let username = "";
+            let startDate = "";
+            let endDate = "";
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                let rowData = [];
+                
+                for (let j = 0; j < 5; j++) {
+                    rowData.push(cells[j]?.textContent.trim() || "");
+                }
+
+                // Capture username & date range
+                if (i === 1) {
+                    username = rowData[0];
+                    startDate = rowData[1];
+                }
+                endDate = rowData[1];
+
+                x = 14;
+                let maxHeight = 10; 
+
+                for (let j = 0; j < rowData.length; j++) {
+                    const textLines = doc.splitTextToSize(rowData[j], colWidths[j] - 4);
+                    const cellHeight = textLines.length * 7;
+                    maxHeight = Math.max(cellHeight, maxHeight);
+
+                    if (y + maxHeight > doc.internal.pageSize.height - 20) {
+                        doc.addPage();
+                        y = 20;
+                    }
+
+                    doc.rect(x, y - 4, colWidths[j], maxHeight);
+                    doc.text(textLines, x + 2, y);
+                    x += colWidths[j];
+                }
+
+                y += maxHeight;
+            }
+
+            // Handle empty filename cases
+            const safeUsername = username || "Report";
+            const safeStartDate = startDate || "Unknown";
+            const safeEndDate = endDate || "Unknown";
+            const fileName = `${safeUsername}_Attendance(${safeStartDate}_to_${safeEndDate}).pdf`;
+
+            doc.save(fileName);
         }
 
-        // Generate the dynamic file name
-        const fileName = `${username}_work_report(${startDate}_to_${endDate}).pdf`;
 
-        // Save the PDF
-        doc.save(fileName);
-    }
+
     </script>
     <script>
-        function filterByUsername() {
-            document.querySelector("form").submit(); // Auto-submit when a user is selected
-        }
+        function filterBytype() {
+    const selectedType = document.getElementById('usernameFilter').value;
+    if (selectedType) {
+        document.querySelector("form").submit();
+    }
+}
 
         function filterByFromDate() {
            
@@ -280,5 +290,25 @@ document.addEventListener('keydown', function (event) {
             document.querySelector("form").submit(); // Auto-submit when To Date is selected
         }
         </script>
+        <script>
+
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("usernameFilter").addEventListener("change", function() {
+                    document.querySelector("form").submit();
+                });
+
+                document.getElementById("fromDateFilter").addEventListener("change", function() {
+                    document.querySelector("form").submit();
+                });
+
+                document.getElementById("toDateFilter").addEventListener("change", function() {
+                    document.querySelector("form").submit();
+                });
+            });
+
+        </script>
+
+
+
 </body>
-</html>
+</html>''

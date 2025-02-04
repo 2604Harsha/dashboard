@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>In House page For BA talks Pvt Ltd
+    </title>
+    {% include 'header.html' %}
+    
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+        .card {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group textarea {
+            font-size: 14px;
+            padding: 5px;
+            width: 100%;
+        }
+        .btn {
+            background-color: #512888;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: white;
+            color: #512888;
+            border: 1px solid #512888;
+        }
+        .required {
+            color: red;
+            font-weight: bold;
+            margin-left: 3px;
+        }
+    </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+    <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Change Request</h3>
+                        
+                        <form method="POST" action="{{ url_for('requestform') }}">
+
+                            <div class="form-group">
+                                <label for="project-name">Project Name <span class="required">*</span></label>
+                                <input type="text" id="project-name" name="project-name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="request-date">Date of Request <span class="required">*</span></label>
+                                <input type="date" id="request-date" name="request-date" class="form-control" value="{{ today_date }}" readonly>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="change-description">Change Description <span class="required">*</span></label>
+                                <textarea id="change-description" name="change-description" class="form-control" placeholder="Enter change description" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="requested-changes">Requested Change(s) <span class="required">*</span></label>
+                                <textarea id="requested-changes" name="requested-changes" class="form-control" placeholder="Enter requested changes" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reason-for-change">Reason for Change <span class="required">*</span></label>
+                                <textarea id="reason-for-change" name="reason-for-change" class="form-control" placeholder="Enter reason for change" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="impact-of-change">Impact of Change <span class="required">*</span></label>
+                                <textarea id="impact-of-change" name="impact-of-change" class="form-control" placeholder="Enter impact of change" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="priority">Priority <span class="required">*</span></label>
+                                <select id="priority" name="priority" class="form-control" required>
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
