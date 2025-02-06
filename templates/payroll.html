@@ -769,19 +769,15 @@
             const totalEarnings = parseInt(document.getElementById("total-earnings").textContent) || 0;
             const totalDeductions = parseInt(document.getElementById("total-deductions").textContent) || 0;
             const netPay = parseInt(document.getElementById("net-pay").textContent) || 0;
-
             // Convert amounts to words
             const totalEarningsWords = numberToWords(totalEarnings);
             const totalDeductionsWords = numberToWords(totalDeductions);
             const netPayWords = numberToWords(netPay);
-
             // Insert the words beside the amount values
             document.getElementById("total-earnings-words").textContent = totalEarningsWords;
             document.getElementById("total-deductions-words").textContent = totalDeductionsWords;
             document.getElementById("net-pay-words").textContent = netPayWords;
         });
     </script>
-
 </body>
-
 </html>
