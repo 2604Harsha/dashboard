@@ -1,4 +1,4 @@
-import MySQLdb#eroor
+import MySQLdb
 from flask import Flask, render_template, request, redirect, url_for, session, flash, json, jsonify, send_file
 from flask_mysqldb import MySQL
 from datetime import datetime,timedelta,time
@@ -700,14 +700,14 @@ def sitemap():
     
     if request.method == 'POST':
         # Extract form data
-        sitemap=request.form.get('sitemap-id')
+        sitemap_id = request.form.get('sitemap-id')  # Retrieve from form data
         project = request.form.get('project')
         module = request.form.get('module')
         module_list = request.form.get('module-list')  # Convert list to a string
         page_name = request.form.get('page-name')
         page_url = request.form.get('page-url')
         page_description = request.form.get('page-description')
-
+        print(sitemap_id)
         # Ensure sitemap_id is not None
         if not sitemap_id:
             return "Error: sitemap_id is missing or invalid."
@@ -721,7 +721,7 @@ def sitemap():
         VALUES (%s, %s, %s, %s, %s, %s, %s, 'incomplete')
         """
 
-        cur.execute(insert_query, (sitemap, project, module, module_list, page_name, page_url, page_description))
+        cur.execute(insert_query, (sitemap_id, project, module, module_list, page_name, page_url, page_description))
         mysql.connection.commit()  # Commit the transaction
 
         notification_message = f"New Ticket is raised with Sitemap_Id: {sitemap_id}"
@@ -3395,7 +3395,6 @@ def update_user():
         "workallocation", "worklog"
     ]
 
-
     try:
         cur = mysql.connection.cursor()
 
@@ -3420,6 +3419,13 @@ def update_user():
         for table in tables:
             query = f"UPDATE {table} SET username = %s WHERE username = %s"
             cur.execute(query, (username, old_username))
+
+        # Update allocated_to in the tickets table
+        cur.execute("UPDATE tickets SET allocated_to = %s WHERE allocated_to = %s", (username, old_username))
+
+        # Update sender and receiver in the messages table
+        cur.execute("UPDATE messages SET sender = %s WHERE sender = %s", (username, old_username))
+        cur.execute("UPDATE messages SET receiver = %s WHERE receiver = %s", (username, old_username))
 
         mysql.connection.commit()
         cur.close()
