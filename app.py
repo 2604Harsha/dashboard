@@ -1,4 +1,4 @@
-import MySQLdb
+import MySQLdb#eroor
 from flask import Flask, render_template, request, redirect, url_for, session, flash, json, jsonify, send_file
 from flask_mysqldb import MySQL
 from datetime import datetime,timedelta,time
@@ -3394,6 +3394,7 @@ def update_user():
         "payslip", "profile", "redflags", "requests", "scheduler", "users", 
         "workallocation", "worklog"
     ]
+
 
     try:
         cur = mysql.connection.cursor()
