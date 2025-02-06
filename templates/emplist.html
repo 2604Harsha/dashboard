@@ -90,22 +90,39 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="edit-form">
-                                <input type="hidden" id="edit-empid">
-                                
-                                
-                              <div class="mb-3">
-                                    <label for="edit-username" class="form-label">User Name</label>
-                                    <input type="text" class="form-control" id="edit-username" readonly>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="edit-email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="edit-email">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="edit-phone" class="form-label">Phone No</label>
-                                    <input type="text" class="form-control" id="edit-phone">
-                                </div>
+                          <form id="edit-form">
+                            <input type="hidden" id="edit-empid">
+                            <!-- <div class="mb-3">
+                                <label for="edit-username" class="form-label">User Name</label>
+                                <input type="text" class="form-control" id="edit-username">
+                            </div> -->
+
+
+                            <div class="mb-3">
+                              <label for="edit-username" class="form-label">User Name</label>
+                              <input type="text" class="form-control" id="edit-username">
+                          </div>
+                          
+                            <!-- <div class="mb-3">
+                                <label for="edit-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="edit-email">
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit-phone" class="form-label">Phone No</label>
+                                <input type="text" class="form-control" id="edit-phone">
+                            </div> -->
+
+                            <div class="mb-3">
+                              <label for="edit-email" class="form-label">Email</label>
+                              <input type="email" class="form-control" id="edit-email" oninput="validateEmail()">
+                              <div id="email-error" style="color: red; display: none;">Enter a valid email</div>
+                          </div>
+                          
+                          <div class="mb-3">
+                              <label for="edit-phone" class="form-label">Phone No</label>
+                              <input type="text" class="form-control" id="edit-phone" oninput="validatePhone()">
+                              <div id="phone-error" style="color: red; display: none;">Only numbers allowed (10 digits)</div>
+                          </div>
                                 <div class="mb-3">
                                     <label for="edit-designation" class="form-label">Designation</label>
                                     <!-- <input type="text" class="form-control" id=""> -->

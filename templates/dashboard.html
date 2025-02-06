@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="apple-touch-icon" sizes="76x76" href="/static/assets//img/apple-icon.png">
   <link rel="icon" type="image/png" href="/static/assets//img/favicon.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
   <title>
     In House page For BA talks Pvt Ltd
   </title>
@@ -21,6 +23,83 @@
   <!-- CSS Files -->
   <link id="pagestyle" href="/static/assets//css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
   <style>
+
+    
+/* start */
+
+
+#floatingButton {
+            
+            transition: transform 0.3s ease;
+        }
+
+        #floatingButton:hover {
+            background: #6a39aa;
+        }
+
+.dispute-btn {
+  position: relative;
+}
+
+.button-group {
+  position: fixed;
+ 
+  bottom: 4px;
+  right: 140px; /* Place it to the left of the "+" button */
+  display: none; /* Initially hidden */
+  gap: 10px; /* Space between buttons */
+}
+
+/* start 1 */
+#buttonA, #buttonB {
+  padding: 10px 15px;
+  background-color: #512888;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Hover effect when buttons are visible (open state) */
+.button-group.open #buttonA:hover, 
+.button-group.open #buttonB:hover {
+  background-color: #28a745; /* Green color when open */
+  transform: scale(1.1);
+}
+
+/* Hover effect when buttons are hidden (closed state) */
+.button-group.closed #buttonA:hover, 
+.button-group.closed #buttonB:hover {
+  background-color: #dc3545; /* Red color when closed */
+  transform: scale(0.9);
+}
+
+/* Hover effect for the "+" button */
+
+/* end 1 */
+
+#floatingButton {
+  position: fixed;
+  bottom: 4px;
+  right: 80px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #512888;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+
+    /* end */
     .card1 {
       height: 120px;
     }
@@ -126,15 +205,10 @@
 .bg-gradient-yellow {
     background: linear-gradient(135deg, #ffeb3b, #ff9800);
 }
-
-
   </style>
 </head>
-
 <body class="g-sidenav-show   bg-gray-100">
   <div class="min-height-300 bg-dark position-absolute w-100"></div>
-
-
   <div class="container-fluid py-4">
     {% if user_role == 'Admin' or user_role == 'Manager' or user_role == 'CEO' or user_role == 'HR' or user_designation == 'HR' %}
     <!-- Admin and Manager specific items -->
@@ -157,7 +231,67 @@
         <div class="toggle-btn" onclick="toggleFloatingMenu()">
             <i class="fa fa-angle-up"></i>
         </div>
+        <!-- a and b start -->
+
+        <div class="dispute-btn">
+            <!-- Buttons A and B -->
+            <div id="buttonGroup" class="button-group">
+              <button id="buttonA" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#disputeModal">
+                <i class="bi bi-envelope-plus-fill fs-5"></i>
+              </button>
+              
+              <button id="buttonB" class="btn btn-secondary">
+                <i class="bi bi-list fs-5"></i>
+              </button>
+            </div>
+            
+            <button id="floatingButton" onclick="toggleButton()" class="btn btn-primary">
+                <i class="fa fa-angle-left" id="buttonIcon"></i>
+            </button>
+
+            
+          </div>
+          <!-- a and b end -->
     </div>
+
+    <!-- end -->
+  <!-- Modal Form -->
+  <div class="modal fade" id="disputeModal" tabindex="-1" aria-labelledby="disputeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="disputeModalLabel">Submit a Dispute</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="submit-form">
+            <div class="mb-3">
+              <input id="ticketId" name="ticket_id" type="text" class="form-control" placeholder="Ticket ID" readonly required>
+            </div>
+            <div class="mb-3">
+              <input id="name" name="full_name" type="text" class="form-control" placeholder="Full Name" required>
+            </div>
+            <div class="mb-3">
+              <input id="email" name="email" type="email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="mb-3">
+              <input id="number" name="phone" type="tel" class="form-control" placeholder="Phone Number" required>
+            </div>
+            <div class="mb-3">
+              <textarea id="data" name="dispute_details" class="form-control" placeholder="Describe your dispute" rows="4" required></textarea>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-lg btn-primary w-100 mt-4 mb-0">Submit Dispute</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- expandable buttons end -->
+
+
     <div class="row">
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <a href="/workreportlist">
@@ -346,9 +480,9 @@
             <i class="fa fa-sign-out-alt"></i>
         </a>
     </div>
-    <button id="floatingButton" class="btn btn-primary" style="border-radius: 50%; width: 60px; height: 60px; font-size: 24px; background-color: #007bff; color: white; display: flex; align-items: center; justify-content: center;">
+    <!-- <button id="floatingButton" class="btn btn-primary" style="border-radius: 50%; width: 60px; height: 60px; font-size: 24px; background-color: #007bff; color: white; display: flex; align-items: center; justify-content: center;">
         +
-    </button>
+    </button> -->
     <div class="toggle-btn" onclick="toggleFloatingMenu()">
         <i class="fa fa-angle-up"></i>
     </div>
@@ -377,6 +511,48 @@
             </div>
         </a>
     </div>
+
+    <!-- dispute start employee -->
+    <button id="floatingButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#disputeModal">
+        <i class="bi bi-chat-square-dots"></i>
+      </button>
+      
+      <!-- Modal Form -->
+      <div class="modal fade" id="disputeModal" tabindex="-1" aria-labelledby="disputeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="disputeModalLabel">Submit a Dispute</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="submit-form">
+                <div class="mb-3">
+                  <input id="ticketId" name="ticket_id" type="text" class="form-control" placeholder="Ticket ID" readonly required>
+                </div>
+                <div class="mb-3">
+                  <input id="name" name="full_name" type="text" class="form-control" placeholder="Full Name" required>
+                </div>
+                <div class="mb-3">
+                  <input id="email" name="email" type="email" class="form-control" placeholder="Email" required>
+                </div>
+                <div class="mb-3">
+                  <input id="number" name="phone" type="tel" class="form-control" placeholder="Phone Number" required>
+                </div>
+                <div class="mb-3">
+                  <textarea id="data" name="dispute_details" class="form-control" placeholder="Describe your dispute" rows="4" required></textarea>
+                </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-lg btn-primary w-100 mt-4 mb-0">Submit Dispute</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      
+    <!-- dispute end employee -->
     
     <!-- Project Report -->
     <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
@@ -550,43 +726,8 @@
   
 
   {% endif %}
-  
-  <button id="floatingButton" class="btn btn-primary" style="position: fixed; bottom: 20px; right: 80px; border-radius: 50%; width: 60px; height: 60px; font-size: 24px;">
-    +
-  </button>
-  <div class="modal fade" id="disputeModal" tabindex="-1" aria-labelledby="disputeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="disputeModalLabel">Submit a Dispute</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form id="submit-form">
-                <div class="mb-3">
-                    <input id="ticketId" name="ticket_id" type="text" class="form-control" placeholder="Ticket ID" readonly required>
-                </div>
-                <div class="mb-3">
-                    <input id="name" name="full_name" type="text" class="form-control" placeholder="Full Name" required>
-                </div>
-                <div class="mb-3">
-                    <input id="email" name="email" type="email" class="form-control" placeholder="Email" required>
-                </div>
-                <div class="mb-3">
-                    <input id="number" name="phone" type="tel" class="form-control" placeholder="Phone Number" required>
-                </div>
-                <div class="mb-3">
-                    <textarea id="data" name="dispute_details" class="form-control" placeholder="Describe your dispute" rows="4" required></textarea>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-lg btn-primary w-100 mt-4 mb-0">Submit Dispute</button>
-                </div>
-            </form>            
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
+
+  <!-- dispute code end -->
   <!--   Core JS Files   -->
   <script src="/static/assets//js/core/popper.min.js"></script>
   <script src="/static/assets//js/core/bootstrap.min.js"></script>
@@ -692,6 +833,7 @@
             });
     }
 </script>
+
 <script>
     function toggleFloatingMenu() {
         const menu = document.getElementById('floatingMenu');
@@ -724,22 +866,38 @@
             });
     }
 </script>
-  <script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-      var options = {
-        damping: '0.5'
-      }
-      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+
+
+  <!-- Github buttons -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="/static/assets//js/argon-dashboard.min.js?v=2.1.0"></script>
+
+<!-- floating button start -->
+<script>
+    function toggleButton() {
+        let buttonGroup = document.getElementById("buttonGroup");
+        let icon = document.getElementById("buttonIcon");
+
+        if (buttonGroup.style.display === "none" || buttonGroup.style.display === "") {
+            buttonGroup.style.display = "flex";
+            buttonGroup.style.opacity = "0";
+            setTimeout(() => {
+                buttonGroup.style.opacity = "1";
+                buttonGroup.style.transform = "translateX(-10px)";
+            }, 10);
+            icon.classList.replace("fa-angle-left", "fa-angle-right");
+        } else {
+            buttonGroup.style.opacity = "0";
+            buttonGroup.style.transform = "translateX(0)";
+            setTimeout(() => {
+                buttonGroup.style.display = "none";
+            }, 300);
+            icon.classList.replace("fa-angle-right", "fa-angle-left");
+        }
     }
-  </script>
-  <script>
-    document.getElementById('floatingButton').addEventListener('click', function () {
-      var disputeModal = new bootstrap.Modal(document.getElementById('disputeModal'));
-      disputeModal.show();
-    });
-  </script>
-  <script>
+</script>
+<script>
     document.addEventListener("DOMContentLoaded", function () {
     function submitEdit(event) {
         event.preventDefault(); // Prevent form submission via URL
@@ -785,22 +943,14 @@
         const ticketId = ticketPrefix + paddedNumber;
         document.getElementById('ticketId').value = ticketId;
     }
-
-    document.getElementById('floatingButton').addEventListener('click', function () {
-        var disputeModal = new bootstrap.Modal(document.getElementById('disputeModal'));
         generateTicketId();
-        disputeModal.show();
-    });
 
     document.getElementById('submit-form').addEventListener('submit', submitEdit);
 });
 
   </script>
 
-  <!-- Github buttons -->
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
-  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="/static/assets//js/argon-dashboard.min.js?v=2.1.0"></script>
+ 
 </body>
 
 </html>

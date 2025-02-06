@@ -222,7 +222,7 @@
             position: absolute;
             right: 20px;
             top: 10%;
-            width: 18%;
+            width: 27%;
             max-width: 400px;
             padding: 20px;
             border: 1px solid #ccc; 
@@ -488,12 +488,54 @@
         <div class="lname">
             <p id="lname">Employee Name</p>
             <span>
-                <select name="selected_username" id="selected_username" class="searchable-select" required onchange="updatePayslip();" style="border:none">
-                    <option value="">Select Username</option>
-                    {% for username in usernames %}
-                    <option value="{{ username }}" {% if user and user[0]==username %}selected{% endif %}>{{ username }}</option>
-                    {% endfor %}
-                </select>
+                <!-- Select Dropdown with Increased Size -->
+<div class="dropdown-container" style="position: relative;">
+    <select name="selected_username" id="selected_username" class="searchable-select" required onchange="updatePayslip();" style="border:none">
+      <option value="">Select Username</option>
+      {% for username in usernames %}
+        <option value="{{ username[0] }}" {% if user and user[0]==username %}selected{% endif %}>{{ username[1] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  
+  <!-- Updated CSS -->
+  <style>
+    .searchable-select {
+      width: 100%; /* Adjust width as needed */
+      padding: 12px; /* Increased padding for larger box */
+      font-size: 16px; /* Increased font size */
+      box-sizing: border-box; /* Prevents padding from affecting width */
+      appearance: none; /* Hides default dropdown arrow */
+      -webkit-appearance: none; /* Safari */
+      -moz-appearance: none; /* Firefox */
+      border: 1px solid #ccc; /* Border for styling */
+      border-radius: 4px; /* Rounded corners */
+      background-color: #fff; /* Background color for the select box */
+    }
+  
+    .dropdown-container {
+      position: relative;
+      z-index: 10; /* Ensure the select box is above other elements */
+    }
+  
+    /* Optional: Custom arrow */
+    .searchable-select::after {
+      content: '\f107'; /* Unicode for a downwards arrow */
+      font-family: 'FontAwesome'; /* Ensure FontAwesome is included */
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none; /* Allows clicking through the arrow */
+    }
+  
+    /* Optional: Style the options (dropdown items) */
+    .searchable-select option {
+      padding-left: 10px; /* Add padding to options */
+    }
+  </style>
+  
+
             </span>
         </div>
     </div>
@@ -739,13 +781,6 @@
             document.getElementById("net-pay-words").textContent = netPayWords;
         });
     </script>
-
-
-
-
-
-
-
 
 </body>
 

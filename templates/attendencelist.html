@@ -55,6 +55,10 @@
                            {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %} style="display:block;" {% else %} style="display:none;" {% endif %}>
                            Print
                        </button> 
+                       <button class="btn btn-primary btn-sm" id="insertAttendanceBtn" 
+                            {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %} style="display:block;" {% else %} style="display:none;" {% endif %}>
+                            Insert Attendance
+                        </button>
                             
                         </div>
                         <div class="card-body px-0 pt-0 pb-2">
@@ -185,6 +189,23 @@ document.addEventListener('keydown', function (event) {
 });
 
     </script>
+    <script>
+        document.getElementById("insertAttendanceBtn").addEventListener("click", function() {
+            fetch('/insert_attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message || "Attendance updated successfully");
+                location.reload();  // Refresh page after update
+            })
+            .catch(error => console.error('Error:', error));
+        });
+        </script>
+        
     <script>
         function generatePDF() {
             const { jsPDF } = window.jspdf;

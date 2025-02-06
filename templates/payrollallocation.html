@@ -551,22 +551,26 @@
         <h6>Employee Information</h6>
         <input type="text" class="form-control" id="searchInput" placeholder="Search for employees..."
             onkeydown="filterEmployees()">
-        <select id="employeeSelect" onchange="fillEmployeeDetails(this.value)" class="form-select mt-2">
-            <option value="">Select an Employee</option>
-            {% for user in users %}
-            <option value='{
-                "empid": "{{ user[0] }}",
-                "username": "{{ user[1] }}",
-                "uan": "{{ user[2] }}",
-                "pan": "{{ user[3] }}",
-                "bname": "{{ user[4] }}",
-                "branch": "{{ user[5] }}",
-                "account_number": "{{ user[6] }}"
-            }'>{{ user[1] }} (ID: {{ user[0] }})</option>
-            {% endfor %}
-        </select>
+            <select id="employeeSelect" onchange="fillEmployeeDetails(this.value)" class="form-select mt-2">
+                <option value="">Select an Employee</option>
+                {% for user in users %}
+                <option value='{{ {
+                    "empid": user[0],
+                    "username": user[7],
+                    "uan": user[2],
+                    "pan": user[3],
+                    "bname": user[4],
+                    "branch": user[5],
+                    "account_number": user[6]
+                } | tojson | safe }}' data-userid="{{ user[1] }}">
+                    {{ user[7] }} (ID: {{ user[0] }})
+                </option>
+                {% endfor %}
+            </select>
+            
     </div>
     <div class="payment-options">
+        <button type="button" onclick="prefillfor25kEarnings()" class="btn btn-primary">Pay for 35k</button>
         <button type="button" onclick="prefillEarnings()" class="btn btn-primary">Pay for 15k</button>
         <button type="button" onclick="manualPay()" class="btn btn-primary">Manual Pay</button>
     </div>
@@ -591,6 +595,31 @@
     </script>
     
     <script>
+        function prefillfor25kwiEarnings() {
+            document.getElementById("basic-pay").value = 20000;
+            document.getElementById("hra").value = 5000;
+            document.getElementById("medical-allowance").value = 1000;
+            document.getElementById("conveyance-allowance").value = 2000;
+            document.getElementById("other-allowances").value = 2000;
+
+            document.getElementById("professional-tax").value = 0;
+            document.getElementById("provident-fund").value = 0;
+            document.getElementById("leave-deduction").value = '';
+            calculateNetPay(); // Update net pay
+        }
+        function prefillfor25kEarnings() {
+            document.getElementById("basic-pay").value = 25000;
+            document.getElementById("hra").value = 2500;
+            document.getElementById("medical-allowance").value = 500;
+            document.getElementById("conveyance-allowance").value = 1000;
+            document.getElementById("other-allowances").value = 1000;
+
+            document.getElementById("professional-tax").value = 0;
+            document.getElementById("provident-fund").value = 0;
+            document.getElementById("leave-deduction").value = '';
+
+            calculateNetPay(); // Update net pay
+        }
         // Prefill earnings-deductions fields for "Pay for 15k" option
         function prefillEarnings() {
             document.getElementById("basic-pay").value = 10000;
@@ -623,23 +652,28 @@
 
     <script>
         function fillEmployeeDetails(selectedValue) {
-            if (selectedValue) {
-                const employeeDetails = JSON.parse(selectedValue);
-                
-                // Populate the fields
-                document.getElementById('emp-id').innerText = employeeDetails.empid;
-                document.getElementById('emp-name').innerText = employeeDetails.username;
-                document.getElementById('emp-id-hidden').value = employeeDetails.empid;
-                document.getElementById('emp-name-hidden').value = employeeDetails.username;
-        
-                // Fill UAN, PAN, Bank details
-                document.getElementById('uan').innerText = employeeDetails.uan;
-                document.getElementById('pan').innerText = employeeDetails.pan;
-                document.getElementById('bank-name').innerText = employeeDetails.bname;
-                document.getElementById('branch').innerText = employeeDetails.branch;
-                document.getElementById('account-no').innerText = employeeDetails.account_number;
-            }
-        }
+    if (selectedValue) {
+        const employeeDetails = JSON.parse(selectedValue);
+
+        // Populate the fields
+        document.getElementById('emp-id').innerText = employeeDetails.empid;
+        document.getElementById('emp-name').innerText = employeeDetails.username;
+        document.getElementById('emp-id-hidden').value = employeeDetails.empid;
+        document.getElementById('emp-name-hidden').value = employeeDetails.username;
+
+        // Fill UAN, PAN, Bank details
+        document.getElementById('uan').innerText = employeeDetails.uan;
+        document.getElementById('pan').innerText = employeeDetails.pan;
+        document.getElementById('bank-name').innerText = employeeDetails.bname;
+        document.getElementById('branch').innerText = employeeDetails.branch;
+        document.getElementById('account-no').innerText = employeeDetails.account_number;
+
+        // Get the actual user ID from the data attribute
+        const selectedOption = document.getElementById("employeeSelect").selectedOptions[0];
+        document.getElementById('user-id-hidden').value = selectedOption.getAttribute("data-userid");
+    }
+}
+
         
 
         function filterEmployees() {

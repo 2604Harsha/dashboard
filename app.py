@@ -55,17 +55,18 @@ def submit_dispute():
         email = data.get('email')
         phone = data.get('phone')
         data_dis = data.get('data_dis')
-        status="pending"
+        status = "pending"
+        created_at = datetime.now()  # Get the current timestamp
 
-        if not all([ticket_id, name, email, phone, data_dis, username,status]):
+        if not all([ticket_id, name, email, phone, data_dis, username, status]):
             return jsonify({"success": False, "message": "Missing required fields"}), 400
 
         # Insert into the database
         cur = mysql.connection.cursor()
         cur.execute('''
-            INSERT INTO disputes (ticket_id, full_name, email, phone, dispute_details, username, status) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        ''', (ticket_id, name, email, phone, data_dis, username, status))
+            INSERT INTO disputes (ticket_id, full_name, email, phone, dispute_details, username, status, created_at) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (ticket_id, name, email, phone, data_dis, username, status, created_at))
         
         mysql.connection.commit()
         cur.close()
@@ -214,45 +215,57 @@ def attendence():
     return render_template('attendence.html', user_role=user_role)
 
 
+@app.route('/insert_attendance', methods=['POST'])
 def insert_attendance_records():
     """Function to insert attendance records for all active users."""
     with app.app_context():  # Push the application context manually
         active_users = get_active_users()
         cursor = mysql.connection.cursor()
-        current_date = datetime.now().strftime('%Y-%m-%d')  # Format date as YYYY-MM-DD
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Current timestamp
 
+        # Get tomorrow's date dynamically
+        current_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')  
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Current timestamp
+        
         try:
-            # Check if today is a holiday
-            cursor.execute("""
-                SELECT COUNT(*) FROM holidays WHERE holiday_date = %s
-            """, (current_date,))
+            # Check if tomorrow is a holiday
+            cursor.execute("SELECT COUNT(*) FROM holidays WHERE holiday_date = %s", (current_date,))
             is_holiday = cursor.fetchone()[0] > 0
 
-            # If today is a holiday, skip the red flag process and close the cursor
             if is_holiday:
                 cursor.close()
-                return
+                return jsonify({"message": "Tomorrow is a holiday. Attendance not recorded."}), 200
+            
+            # Check if attendance for tomorrow is already recorded
+            cursor.execute("SELECT COUNT(*) FROM attendence WHERE date = %s", (current_date,))
+            already_exists = cursor.fetchone()[0] > 0
+
+            if already_exists:
+                cursor.close()
+                return jsonify({"message": "Attendance for tomorrow has already been recorded."}), 200
 
             # Insert attendance record for each active user
             for user in active_users:
                 username = user[0]  # Assuming `username` is the first field in the tuple
-                # Insert attendance record for each user
                 cursor.execute(
                     "INSERT INTO attendence (username, date, type, created_at, updated) "
                     "VALUES (%s, %s, %s, %s, %s)",
                     (username, current_date, 'leave', current_time, False)
                 )
+
             mysql.connection.commit()  # Commit changes after all inserts
+            return jsonify({"message": "Attendance records inserted successfully for tomorrow."}), 200
+
         except Exception as e:
             mysql.connection.rollback()  # Roll back changes in case of an error
-            print(f"Error: {e}")
+            return jsonify({"error": str(e)}), 500
         finally:
             cursor.close()
+
 
 @app.route('/disputeslist')
 def disputeslist():
     username = session.get('username')
+    user_role=session.get('user_role')
     user_designation = session.get('designation')
     if not username or user_designation not in ['CEO', 'HR']:
             return '''
@@ -270,10 +283,10 @@ def disputeslist():
         # Check if data exists
         no_data = len(disputes_data) == 0
 
-        return render_template('disputeslist.html', disputes_data=disputes_data, no_data=no_data)
+        return render_template('disputeslist.html', disputes_data=disputes_data, no_data=no_data, user_designation=user_designation,user_role=user_role)
 
     except Exception as e:
-        return render_template('disputeslist.html', disputes_data=[], no_data=True, error=str(e))
+        return render_template('disputeslist.html', disputes_data=[], no_data=True, error=str(e), user_designation=user_designation,user_role=user_role)
 
 @app.route('/update_dispute_status_resolved', methods=['POST'])
 def update_dispute_status_resolved():
@@ -477,7 +490,13 @@ import os
 from werkzeug.utils import secure_filename
 from flask import Flask, send_from_directory, abort
 UPLOAD_FOLDER = 'uploads/'  # Modify this path based on your project structure
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'txt', 'zip'}
+ALLOWED_EXTENSIONS = {
+    'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'txt', 'zip', 'xls', 'xlsx', 'csv', 'ppt', 'pptx',  
+    'py', 'java', 'cpp', 'c', 'cs', 'rb', 'php', 'html', 'css', 'js', 'ts', 'json', 'xml', 'yaml', 'yml',  
+    'sql', 'sh', 'bat', 'cmd', 'swift', 'kt', 'kts', 'dart', 'go', 'r', 'pl', 'lua', 'scala', 'rs', 'm', 'h',  
+    'vue', 'jsx', 'tsx', 'md', 'ini', 'cfg', 'toml', 'lock', 'env', 'ipynb'
+}
+
 
 # Ensure the upload folder exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -1166,9 +1185,10 @@ def update_ticket_description():
         ceo_users = cur.fetchall()
 
         for ceo in ceo_users:
+            type="raise ticket"
             cur.execute(
-                'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
-                (ceo[0], notification_message)  # Fix: Access the username from ceo tuple
+                'INSERT INTO notifications (username, notification, type) VALUES (%s, %s, %s)',
+                (ceo[0], notification_message, type)
             )
         mysql.connection.commit()
 
@@ -1396,84 +1416,90 @@ def redlist():
 
 
 
-def posting_redflags_in_times():
-    # Push the application context to make sure the app is accessible in the background task
-    with app.app_context():
-        cursor = mysql.connection.cursor()
+@app.route("/post_redflags", methods=["POST"])
+def post_redflags():
+    try:
+        with app.app_context():
+            cursor = mysql.connection.cursor()
 
-        # Define the available time slots
-        time_slots = [
-            "9am to 10am", "10am to 11am", "11am to 12pm",
-            "12pm to 1pm", "1pm to 2pm",
-            "2pm to 3pm", "3pm to 4pm", "4pm to 4:30pm",
-            "4:30pm to 5pm", "5pm to 6pm"
-        ]
+            # Define the available time slots
+            time_slots = [
+                "9am to 10am", "10am to 11am", "11am to 12pm",
+                "12pm to 1pm", "1pm to 2pm", "2pm to 3pm", "3pm to 4pm",
+                "4pm to 4:30pm", "4:30pm to 5pm", "5pm to 6pm"
+            ]
 
-        # Get the current date
-        current_date = datetime.now().date()
+            current_time = datetime.now().time()
+            current_date = datetime.now().date()
 
-        # Check if today is a holiday
-        cursor.execute("""
-            SELECT COUNT(*) FROM holidays WHERE holiday_date = %s
-        """, (current_date,))
-        is_holiday = cursor.fetchone()[0] > 0
+            # Restrict execution before 6:15 PM
+            cutoff_time = datetime.strptime("10:15", "%H:%M").time()
+            if current_time < cutoff_time:
+                return jsonify({"message": "Red flags can only be posted after 6:15 PM."}), 200
 
-        # If today is a holiday, skip the red flag process
-        if is_holiday:
-            cursor.close()
-            return
-
-        # Get all employees from the profile table
-        cursor.execute("SELECT empid, username FROM profile WHERE user_status = '1' ")
-        all_employees = cursor.fetchall()  # Returns a list of tuples (empid, username, status)
-
-        # Get all work reports for today
-        cursor.execute("""
-            SELECT wr.empid, wr.time
-            FROM workreport wr
-            WHERE wr.date = %s
-        """, (current_date,))
-        work_reports = cursor.fetchall()
-
-        # Organize work reports into a dictionary by empid
-        work_reports_dict = {}
-        for empid, time_slot in work_reports:
-            if empid not in work_reports_dict:
-                work_reports_dict[empid] = set()
-            if time_slot:
-                work_reports_dict[empid].add(time_slot)
-
-        # Process each employee
-        for empid, username in all_employees:
-            # Skip employees with status 0
-            if username.lower() == "bharath@ceo":
-                continue
-
-            reported_slots = work_reports_dict.get(empid, set())
-
-            # Check if the employee is on approved leave
+            # Ensure data is entered only once per day
             cursor.execute("""
-                SELECT COUNT(*) FROM empleave
-                WHERE username = %s AND status = 'Approved'
-                AND start_date <= %s AND end_date >= %s
-            """, (username, current_date, current_date))
-            is_on_leave = cursor.fetchone()[0] > 0
+                SELECT COUNT(*) FROM redflags WHERE date = %s
+            """, (current_date,))
+            if cursor.fetchone()[0] > 0:
+                cursor.close()
+                return jsonify({"message": "Red flags have already been posted today."}), 200
 
-            if not is_on_leave:
+            # Check if today is a holiday
+            cursor.execute("SELECT COUNT(*) FROM holidays WHERE holiday_date = %s", (current_date,))
+            if cursor.fetchone()[0] > 0:
+                cursor.close()
+                return jsonify({"message": "Today is a holiday. No red flags posted."}), 200
+
+            # Get all active employees
+            cursor.execute("SELECT empid, username FROM profile WHERE user_status = '1'")
+            all_employees = cursor.fetchall()
+
+            # Get all work reports for today
+            cursor.execute("SELECT wr.empid, wr.time FROM workreport wr WHERE wr.date = %s", (current_date,))
+            work_reports = cursor.fetchall()
+
+            # Organize work reports into a dictionary by empid
+            work_reports_dict = {}
+            for empid, time_slot in work_reports:
+                if empid not in work_reports_dict:
+                    work_reports_dict[empid] = set()
+                if time_slot:
+                    work_reports_dict[empid].add(time_slot)
+
+            for empid, username in all_employees:
+                if username.lower() == "bharath@ceo":
+                    continue
+
+                reported_slots = work_reports_dict.get(empid, set())
+
+                # Check if the employee is on approved leave
+                cursor.execute("""
+                    SELECT COUNT(*) FROM empleave
+                    WHERE username = %s AND status = 'Approved'
+                    AND start_date <= %s AND end_date >= %s
+                """, (username, current_date, current_date))
+                if cursor.fetchone()[0] > 0:
+                    continue
+
                 # Identify missing slots
                 missing_slots = [slot for slot in time_slots if slot not in reported_slots]
-                current_month_year = datetime.datetime.now().strftime("%B %Y")
-
                 if missing_slots:
                     missing_slots_str = ", ".join(missing_slots)
+                    current_month_year = datetime.now().strftime("%B %Y")
                     cursor.execute("""
-                        INSERT INTO redflags (username, redflag, created_at)
-                        VALUES (%s, %s, %s)
-                    """, (username, f"You haven't reported for the following time slots today '{current_date}': {missing_slots_str}", current_month_year))
+                        INSERT INTO redflags (username, redflag, created_at, date)
+                        VALUES (%s, %s, %s, %s)
+                    """, (username, f"You haven't reported for the following time slots today '{current_date}': {missing_slots_str}", current_month_year, current_date))
 
-        # Commit the changes and close the cursor
-        mysql.connection.commit()
-        cursor.close()
+            mysql.connection.commit()
+            cursor.close()
+            return jsonify({"message": "Red flags posted successfully!"}), 200
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 @app.route('/complaint', methods=['GET', 'POST'])
 def complaint():
@@ -1687,19 +1713,16 @@ def scheduler():
             cur = mysql.connection.cursor()
             notify = f"They have raised a meeting on {current_date} at {meet_time}"
             for user in selected_usernames2:
-                cur.execute("""
-                    INSERT INTO notifications (username, notification, timestamp) 
-                    VALUES (%s, %s, NOW())
-                """, (user, notify))
+                type="meetings"
+                cur.execute(
+                    'INSERT INTO notifications (username, notification, type) VALUES (%s, %s, %s)',
+                    (user, notify, type)
+                )
 
             mysql.connection.commit()
             cur.close()
 
             return redirect(url_for('scheduler'))
-        # projects_employees = {
-        #     "happy": ["user1@example.com", "user2@example.com"],
-        #     "kjnhbg": ["user3@example.com", "user4@example.com"],
-        # }
         cur = mysql.connection.cursor()
         cur.execute(""" 
             SELECT project_title, email_address 
@@ -1763,10 +1786,11 @@ def send_reminder_notifications():
             notify = f"Reminder: You have a meeting '{meet_title}' on {date} at {time_slots}."
             print(notify)  # Replace with actual notification logic (e.g., email or SMS API)
 
-            cur.execute("""
-                INSERT INTO notifications (username, notification, timestamp) 
-                VALUES (%s, %s, NOW())
-            """, (username, notify))
+            type="meetings"
+            cur.execute(
+                'INSERT INTO notifications (username, notification, type) VALUES (%s, %s, %s)',
+                (username, notify, type)
+            )
         
         mysql.connection.commit()
         cur.close()
@@ -2254,9 +2278,10 @@ def leavemanager():
                 """, (status, reject_reason, start_date, leave_type, leave_username))
 
                 notification_message = f"Your leave request starting {start_date} has been rejected. Reason: {reject_reason}"
+                type="leave request"
                 cur.execute(
-                    'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
-                    (leave_username, notification_message)
+                    'INSERT INTO notifications (username, notification, type) VALUES (%s, %s, %s)',
+                    (leave_username, notification_message, type)
                 )
             elif status == 'Approved':
                 # Update leave status and send notification for approval
@@ -2267,9 +2292,10 @@ def leavemanager():
                 """, (status, start_date, leave_type, leave_username))
 
                 notification_message = f"Your leave request starting {start_date} has been approved by {username}."
+                type="leave request"
                 cur.execute(
-                    'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
-                    (leave_username, notification_message)
+                    'INSERT INTO notifications (username, notification, type) VALUES (%s, %s, %s)',
+                    (leave_username, notification_message, type)
                 )
 
             mysql.connection.commit()
@@ -2569,9 +2595,10 @@ def leavemanagement():
 
                 for ceo in ceo_users:
                     ceo_username = ceo[0]
+                    type="leave dispotion"
                     cursor.execute(
-                        'INSERT INTO notifications (username, notification) VALUES (%s, %s)',
-                        (ceo_username, notification_message)
+                        'INSERT INTO notifications (username, notification, type) VALUES (%s, %s,%s)',
+                        (ceo_username, notification_message, type)
                     )
 
                 # Check for red flags (approved leaves only)
@@ -2602,9 +2629,9 @@ def leavemanagement():
                     last_approved_date_str = last_approved_date.strftime('%d/%m/%Y')
                     today_date_str = datetime.today().strftime('%d/%m/%Y')
                     cursor.execute("""
-                        INSERT INTO redflags (username, redflag, created_at)
+                        INSERT INTO redflags (username, redflag, created_at,date)
                         VALUES (%s, %s, %s)
-                    """, (username, f"You've already taken {approved_leave_count} {leave_type} leave(s). Last approved leave on {last_approved_date_str}. Requesting on {today_date_str}.", current_month_year))
+                    """, (username, f"You've already taken {approved_leave_count} {leave_type} leave(s). Last approved leave on {last_approved_date_str}. Requesting on {today_date_str}.", current_month_year,today_date_str))
 
                 mysql.connection.commit()  # Commit all changes
 
@@ -3183,8 +3210,8 @@ def payroll():
     
     try:
         # Fetch all usernames for display
-        cur.execute("SELECT username FROM profile")
-        usernames = [user[0] for user in cur.fetchall()]
+        cur.execute("SELECT username,CONCAT(first_name, ' ', last_name) FROM profile")
+        usernames = cur.fetchall()
 
         selected_username = request.args.get('selected_username')
         pay_period = request.args.get('pay_period')
@@ -3200,7 +3227,7 @@ def payroll():
             user = cur.fetchone()
 
             # Fetch the payslip for the selected pay period
-            cur.execute("SELECT * FROM payslip WHERE username=%s AND pay_period=%s", (selected_username, pay_period_with_day))
+            cur.execute("SELECT * FROM payslip WHERE employee_id=%s AND pay_period=%s", (user[1], pay_period_with_day))
             payslip = cur.fetchone()
 
             # Convert pay_period (e.g., "2024-07") to "MONTH YYYY" format
@@ -3226,20 +3253,19 @@ def payrollallocation():
     empid = session.get('empid')
     user_role = session.get('user_role')
     user_designation = session.get('designation')
+
     if not username or user_role in ['Employee', 'Trainee']:
         return '''
             <script type="text/javascript">
                 alert("Access denied. You do not have permission to view this page.");
-                window.location.href = "/dashboard";  // Redirect to the desired page after alert
+                window.location.href = "/dashboard";
             </script>
         '''
 
     cur = mysql.connection.cursor()
-    cur.execute("SELECT empid, username, uan, pan, bname, branch, account_number FROM profile")
-    data = cur.fetchall()  # Fetches all relevant fields
+    cur.execute("SELECT empid, username, uan, pan, bname, branch, account_number, CONCAT(first_name, ' ', last_name) FROM profile")
+    data = cur.fetchall()
     cur.close()
-    
-    #empid = session.get('empid')
 
     cur = mysql.connection.cursor()
     cur.execute("SELECT empid, username FROM profile WHERE empid = %s", (empid,))
@@ -3259,30 +3285,67 @@ def payrollallocation():
         pt = request.form.get('pt')
         pf = request.form.get('pf')
         ld = request.form.get('ld')
-        payment_mode = request.form.get('payment_mode')  # Capture payment_mode
+        payment_mode = request.form.get('payment_mode')
         working_days = request.form.get('working_days')
         non_working_days = request.form.get('non_working_days')
-        unqID = request.form.get('unqID')
-        
+        unqID = request.form.get('unqID', 'DEFAULT_UNQID')  # Provide a default if empty
 
-        pay_period = datetime.strptime(pay_period_input + '-01', '%Y-%m-%d').date()
+        # Ensure correct pay period format
+        pay_period = str(datetime.strptime(pay_period_input + '-01', '%Y-%m-%d').date())
 
+        # Get username from profile
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT username FROM profile WHERE CONCAT(first_name, ' ', last_name) = %s", (username,))
+        user_data = cur.fetchone()
+        cur.close()
+
+        if not user_data:
+            return '''
+                <script type="text/javascript">
+                    alert("Invalid Employee Name. Please check again.");
+                    window.location.href = "/payrollallocation";
+                </script>
+            '''
+
+        employee_username = user_data[0]
+
+        # Check if payroll already exists for the same period
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM payslip WHERE employee_id = %s AND pay_period = %s", (employee_id, pay_period))
+        existing_allocation = cur.fetchone()
+        cur.close()
+
+        if existing_allocation:
+            return '''
+                <script type="text/javascript">
+                    alert("Payroll for this employee has already been allocated for the selected period.");
+                    window.location.href = "/payrollallocation";
+                </script>
+            '''
+
+        # Calculate Gross Earnings, Total Deductions, and Net Pay
         ge = float(bp) + float(hra) + float(ma) + float(ca) + float(oa)
         td = float(pt) + float(pf) + float(ld)
         net_payable = ge - td
 
+        # Insert into database
         cur = mysql.connection.cursor()
         cur.execute(
-            "INSERT INTO payslip (employee_id, username, pay_period, pay_date, bp, hra, ma, ca, oa, ge, pt, pf,ld, td, net_payable, payment_mode, working_days, non_working_days,unqID) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s)",
-            (employee_id, username, pay_period, pay_date, bp, hra, ma, ca, oa, ge, pt, pf,ld, td, net_payable, payment_mode, working_days, non_working_days, unqID)
+            """INSERT INTO payslip 
+               (employee_id, username, pay_period, pay_date, bp, hra, ma, ca, oa, ge, pt, pf, ld, td, net_payable, 
+               payment_mode, working_days, non_working_days, unqID) 
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (employee_id, employee_username, pay_period, pay_date, str(bp), str(hra), str(ma), str(ca), str(oa),
+             str(ge), str(pt), str(pf), str(ld), str(td), str(net_payable), payment_mode, working_days,
+             non_working_days, unqID)
         )
         mysql.connection.commit()
         cur.close()
 
+        flash("Payroll successfully allocated!", "success")
         return redirect(url_for('payrollallocation'))
 
-    return render_template('payrollallocation.html', users=data, user=user, user_role=user_role,user_designation = user_designation)
-
+    return render_template('payrollallocation.html', users=data, user=user, user_role=user_role, user_designation=user_designation)
 
 
 
@@ -3314,7 +3377,6 @@ def emplist():
 
 @app.route('/update_user', methods=['POST'])
 def update_user():
-
     if 'username' not in session or session['user_role'] in ['Employee', 'Trainee']:
         return jsonify(success=False, message="Access denied")
 
@@ -3327,19 +3389,44 @@ def update_user():
     account_number = data.get('account_number')
     status = data.get('status')
 
+    tables = [
+        "attendence", "disputes", "empleave", "empreview", "notifications", 
+        "payslip", "profile", "redflags", "requests", "scheduler", "users", 
+        "workallocation", "worklog"
+    ]
+
     try:
         cur = mysql.connection.cursor()
+
+        # Fetch the old username
+        cur.execute("SELECT username FROM profile WHERE empid = %s", (empid,))
+        old_username = cur.fetchone()
+        
+        if not old_username:
+            return jsonify(success=False, message="User not found")
+
+        old_username = old_username[0]  # Extract actual value from tuple
+
+        # Update profile table (main update query)
         query = """
             UPDATE profile
             SET username=%s, email_address=%s, phone_number=%s, designation=%s, user_status=%s, account_number=%s
             WHERE empid=%s
         """
         cur.execute(query, (username, email, phone, designation, status, account_number, empid))
+
+        # Update username in all related tables using old username
+        for table in tables:
+            query = f"UPDATE {table} SET username = %s WHERE username = %s"
+            cur.execute(query, (username, old_username))
+
         mysql.connection.commit()
         cur.close()
         return jsonify(success=True)
+
     except Exception as e:
         return jsonify(success=False, message=str(e))
+
 
 @app.route('/update-user', methods=['POST'])
 def update_users():
@@ -3809,7 +3896,6 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(manual_toggle_updates, 'cron', hour=9, minute=0)  # 9:00 AM
 scheduler.add_job(manual_toggle_updates, 'cron', hour=18, minute=15)  # 6:15 PM
 scheduler.add_job(auto_reject_pending_leaves, 'cron', hour=12, minute=37)
-scheduler.add_job(posting_redflags_in_times, 'cron', hour=18, minute=51)
 scheduler.add_job(add_weekend_holidays,'cron', hour=0, minute=0)
 scheduler.add_job(insert_attendance_records, 'cron', hour=10, minute=5)
 scheduler.add_job(func=send_reminder_notifications, trigger="interval", minutes=30)

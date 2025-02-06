@@ -21,182 +21,433 @@
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
 
-    <style>
+    
+    
+     <style>
+        
         body {
             overflow-x: hidden;
         }
+    
+       
 
-        .btn {
-            background-color: #512888;
-            color: white;
+        .btn.btn1 {
+            font-size: 13px; /* Increased font size for better visibility */
+            height: 34px; /* Slightly increased height for better proportions */
+            width: 100px; /* Allow button width to adjust dynamically */
+            min-width: 100px; /* Ensures minimum button width */
+            padding: 8px 16px; /* Better spacing inside the button */
+            display: flex;
+            align-items: center; /* Centers text vertically */
+            justify-content: center; /* Centers text horizontally */
+            border: none;
+            border-radius: 8px; /* Slightly rounded corners */
+            background-color: #512888; /* Button color */
+            color: white; /* Text color */
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for a better look */
+            margin-left: 10px;
         }
 
+        .btn.btn4 {
+            font-size: 13px; /* Increased font size for better visibility */
+            height: 34px; /* Slightly increased height for better proportions */
+            width: 100px; /* Allow button width to adjust dynamically */
+            min-width: 100px; /* Ensures minimum button width */
+            padding: 8px 16px; /* Better spacing inside the button */
+            display: flex;
+            align-items: center; /* Centers text vertically */
+            justify-content: center; /* Centers text horizontally */
+            border: none;
+            border-radius: 8px; /* Slightly rounded corners */
+            background-color: #512888; /* Button color */
+            color: white; /* Text color */
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for a better look */
+        }
+
+        .btn.btn5 {
+            font-size: 13px; /* Increased font size for better visibility */
+            height: 34px; /* Slightly increased height for better proportions */
+            width: 100px; /* Allow button width to adjust dynamically */
+            min-width: 100px; /* Ensures minimum button width */
+            padding: 8px 16px; /* Better spacing inside the button */
+            display: flex;
+            align-items: center; /* Centers text vertically */
+            justify-content: center; /* Centers text horizontally */
+            border: none;
+            border-radius: 8px; /* Slightly rounded corners */
+            background-color: #512888; /* Button color */
+            color: white; /* Text color */
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            margin-left: 10px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for a better look */
+        }
+
+        .btn.btn1:hover {
+            background-color: #3e1f66; /* Slightly darker shade on hover */
+        }
+
+        .btn3 {
+            width:auto;        
+            display: flex;
+            justify-content: center; /* Centers buttons horizontally */
+            align-items: center; /* Aligns buttons vertically */
+            gap: 10px; /* Space between buttons */
+            flex-wrap: nowrap; /* Prevents wrapping to the next line */
+            white-space: nowrap; /* Prevents text from breaking */
+        }
+    
+  
         .table th, .table td {
             text-align: center;
             padding: 8px;
         }
-
+    
         .table {
             margin-bottom: 0;
         }
+    
+        /* Media queries for responsiveness */
+        @media (max-width: 768px) {
+            .card {
+                margin: 10px;
+                padding: 15px;
+            }
+    
+            .table {
+                font-size: 12px;
+            }
+    
+            .table th, .table td {
+                padding: 6px;
+                font-size: 11px;
+            }
+    
+            .btn-container {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+    
+            .btn {
+                width: 90%;
+                margin: 5px auto;
+            }
+    
+            /* Adjusting Print button for mobile */
+            .btn-print {
+                display: block;
+                margin: 10px 0;
+                font-size: 14px; /* Decrease font size */
+                padding: 8px 16px; /* Decrease padding */
+                width: auto; /* Normal width */
+            }
+    
+            /* Select Users dropdown adjustment for mobile */
+            .form-select {
+                font-size: 16px; /* Larger font size */
+                padding: 12px;   /* More padding */
+                width: 100%;     /* Full width */
+                height: 50px;    /* Match height with print button */
+                appearance: none; /* Remove default styling */
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"%3E%3Cpath fill-rule="evenodd" clip-rule="evenodd" d="M5.293 7.293a1 1 0 0 1 1.414 0L10 10.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414z"%3E%3C/path%3E%3C/svg%3E');
+                background-position: right 10px center; /* Position the arrow */
+                background-repeat: no-repeat;
+                background-size: 12px;
+            }
+        }
+    
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .card {
+                margin: 20px auto;
+                padding: 20px;
+            }
+    
+            .table {
+                font-size: 14px;
+            }
+    
+            .btn-container {
+                justify-content: flex-start;
+            }
+    
+            .btn {
+                width: auto;
+                margin: 5px;
+            }
+    
+            .btn-print {
+                display: inline-block;
+                margin-left: auto;
+                margin-top: 10px;
+                margin-right: 10px;
+            }
+        }
+    
+        @media (min-width: 1201px) {
+            .card {
+                width: 100%;
+                margin: 0 auto;
+                padding: 20px;
+            }
+    
+            .table {
+                font-size: 16px;
+            }
+    
+            .table th, .table td {
+                padding: 10px;
+            }
+    
+            .btn-container {
+                display: flex;
+                justify-content: space-between; /* Space out dropdown and button */
+                align-items: center;
+                margin-top: 10px;
+            }
+    
+            .btn-print {
+                display: inline-block;
+                margin-top: 0;
+                margin-right: 0;
+                padding: 12px 20px; /* Match the dropdown padding */
+                height: 50px; /* Match height with the dropdown */
+                font-size: 16px; /* Font size */
+            }
+    
+            /* Increased width and padding for "Select Users" dropdown */
+            .select-user {
+                max-width: 600px; /* Increased width */
+                width: 100%;
+            }
+    
+            .form-select {
+                font-size: 18px; /* Increased font size */
+                padding: 12px;   /* Increased padding */
+                height: 50px;    /* Set height to match button height */
+                -webkit-appearance: none; /* Remove default dropdown styling */
+                -moz-appearance: none;
+                appearance: none;
+                background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"%3E%3Cpath fill-rule="evenodd" clip-rule="evenodd" d="M5.293 7.293a1 1 0 0 1 1.414 0L10 10.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414z"%3E%3C/path%3E%3C/svg%3E');
+                background-position: right 10px center; /* Position the arrow */
+                background-repeat: no-repeat;
+                background-size: 12px;
+            }
+    
+            /* Ensures the height of the select and print button are consistent */
+            .card-header {
+                display: flex;
+                justify-content: space-between; /* Align select and print button to opposite sides */
+                align-items: center;
+                width: 100%;
+            }
+    
+            .form-select, .btn-print {
+                height: 50px; /* Match height */
+            }
+        }
     </style>
-</head>
-
-<body class="g-sidenav-show bg-gray-200">
-    <div class="min-height-300 bg-dark position-absolute w-100"></div>
-
-    <main class="main-content position-relative border-radius-lg">
-        <div class="container-fluid py-4">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-header pb-0 d-flex justify-content-between">
-                            <div class="btn-container" style="display: flex; align-items: center; gap: 10px;">
-                                
-                                <a class="btn btn-secondary btn-sm" href="/redlist" style="margin-left: 950px;"
-                                {% if session['user_role'] != 'CEO' and session['user_role'] != 'HR' %}style="display:none;"{% endif %}>
-                                Red List
-                        </a>
-                                <button class="btn btn-secondary btn-sm" onclick="generatePDF()" style="margin-left: 10px;"
-                                    {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %} style="display:block;" {% else %} style="display:none;" {% endif %}>
-                                    Print
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body px-0 pt-0 pb-2">
-                            <form class="mb-3 px-3" method="POST">
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-12 col-md-6 col-lg-4">
-                                        <select id="usernameFilter" name="usernameFilter" class="form-select"
-                                            {% if session['user_role'] != 'CEO' and session['user_role'] != 'HR' %} disabled {% endif %}
-                                            onchange="filterByUsername()">
-                                            <option value="">Users</option>
-                                            {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %}
-                                                {% for username in usernames %}
-                                                    <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
-                                                        {{ username }}
-                                                    </option>
-                                                {% endfor %}
-                                            {% else %}
-                                                <option value="{{ session['username'] }}" selected>{{ session['username'] }}</option>
-                                            {% endif %}
-                                        </select>
-                                    </div>
+    
+    </head>
+    <body class="g-sidenav-show bg-gray-200">
+        <div class="min-height-300 bg-dark position-absolute w-100"></div>
+    
+        <main class="main-content position-relative border-radius-lg">
+            <div class="container-fluid py-4">
+                <div class="row">
+                    <!-- First Card: Select User Dropdown and Print Button -->
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header pb-0 d-flex justify-content-between">
+                                <!-- Select User Dropdown -->
+                                 
+                                <div class="select-user">
+                                    <form class="mb-3 px-3 " method="POST">
+                                        <div class="row g-2 align-items-center"  >
+                                            <div class="col-12 col-md-6 col-lg-4" >
+                                                <select id="usernameFilter" name="usernameFilter" style="width: 190px; height: 33px; border-radius: 5px;"
+                                                    {% if session['designation'] != 'CEO' and session['designation'] != 'HR' %} disabled {% endif %}
+                                                    onchange="filterByUsername()">
+                                                    <option value="">Select Users</option> <!-- Default text -->
+                                                    {% if session['user_role'] == 'CEO' or session['user_role'] == 'HR' %}
+                                                        {% for username in usernames %}
+                                                            <option value="{{ username }}" {% if selected_username == username %}selected{% endif %}>
+                                                                {{ username }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <option value="{{ session['username'] }}" selected>{{ session['username'] }}</option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    
                                 </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card mb-4 m-3">
-                        <div class="card-header pb-0">
-                            <h6>Red Flags for {{ selected_username }}</h6>
-                        </div>
-                        <div class="card-body px-0 pt-0 pb-2">
-                            <div class="table-responsive p-0">
-                                {% if red_flags %}
-                                <table class="table align-items-center justify-content-center mb-0" id="redFlagTable">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-uppercase text-secondary font-weight-bolder opacity-7">S.No.</th>
-                                            <th class="text-uppercase text-secondary font-weight-bolder opacity-7">Red-flags</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for flag in red_flags %}
-                                        <tr>
-                                            <td>{{ loop.index }}</td>
-                                            <td>{{ flag[1] }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                                {% else %}
-                                <h6 class="text-center">No Data Found</h6>
+    
+                               <!-- Red List Button -->
+                                <div class="btn3">
+                                    {% if session['designation'] == 'CEO' or session['designation'] == 'HR' %}
+                                    <button class="btn btn4 btn-secondary btn-sm" onclick="postRedFlags()">Post</button>
+                                {% endif %}                      
+
+                                {% if session['designation'] == 'CEO' or session['designation'] == 'HR' %}
+                                <button class="btn btn5 btn-secondary btn-sm" onclick="window.location.href='/redlist'">Red List</button>
+                            {% endif %}
+
+    
+                                <!-- Print Button -->
+
+                            {% if session['designation'] == 'CEO' or session['designation'] == 'HR' %}
+                                    <button class="btn btn1 btn-secondary btn-sm btn-print" onclick="generatePDF()">Print</button>
                                 {% endif %}
+
+                            </div>
+
+
+
+
                             </div>
                         </div>
                     </div>
+    
+                    <!-- Second Card: Red Flags Data -->
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <div class="card-header pb-0">
+                                <h6>Red Flags for {{ selected_username }}</h6>
+                            </div>
+                            <div class="card-body px-0 pt-0 pb-2">
+                                <div class="table-responsive p-0">
+                                    {% if red_flags %}
+                                    <table class="table align-items-center justify-content-center mb-0" id="redFlagTable">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-uppercase text-secondary font-weight-bolder opacity-7">S.No.</th>
+                                                <th class="text-uppercase text-secondary font-weight-bolder opacity-7">Red-flags</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for flag in red_flags %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td>{{ flag[1] }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% else %}
+                                    <h6 class="text-center">No Data Found</h6>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
                 </div>
             </div>
-        </div>
-    </main>
+        </main>
+    
+        <script src="static/assets/js/core/popper.min.js"></script>
+        <script src="static/assets/js/core/bootstrap.min.js"></script>
+        <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+        <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
+    
+        <!-- jsPDF Library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    
+        <script>
+            async function generatePDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+    
+                // Title
+                doc.setFontSize(16);
+                doc.text(`Red Flags for {{ selected_username }}`, 105, 20, { align: "center" });
+    
+                // Extract table data
+                const table = document.getElementById("redFlagTable");
+                const headers = [];
+                const data = [];
+    
+                // Get headers
+                const headerCells = table.querySelectorAll("thead tr th");
+                headerCells.forEach((cell) => {
+                    headers.push(cell.textContent.trim());
+                });
+    
+                // Get rows
+                const rows = table.querySelectorAll("tbody tr");
+                rows.forEach((row) => {
+                    const rowData = [];
+                    const cells = row.querySelectorAll("td");
+                    cells.forEach((cell) => {
+                        rowData.push(cell.textContent.trim());
+                    });
+                    data.push(rowData);
+                });
+    
+                // Add table using autotable
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 30,
+                    styles: {
+                        cellPadding: 5,
+                        fontSize: 10,
+                        halign: 'left',
+                        valign: 'middle',
+                        textColor: [0, 0, 0],
+                    },
+                    headStyles: {
+                        textColor: [0, 0, 0],
+                        fontSize: 10,
+                        fontStyle: 'bold',
+                        halign: 'center',
+                        fillColor: null,
+                        lineWidth: 0.1,
+                    },
+                    theme: 'grid',
+                });
+    
+                // Save the PDF
+                doc.save(`Red_Flags_{{ selected_username }}.pdf`);
+            }
+    
+            function filterByUsername() {
+                document.querySelector("form").submit();
+            }
+        </script>
 
-    <script src="static/assets/js/core/popper.min.js"></script>
-    <script src="static/assets/js/core/bootstrap.min.js"></script>
-    <script src="static/assets/js/plugins/perfect-scrollbar.min.js"></script>
-    <script src="static/assets/js/plugins/smooth-scrollbar.min.js"></script>
-
-    <!-- jsPDF Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
 <script>
-    async function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Title
-        doc.setFontSize(16);
-        doc.text(`Red Flags for {{ selected_username }}`, 105, 20, { align: "center" });
-
-        // Extract table data
-        const table = document.getElementById("redFlagTable");
-        const headers = [];
-        const data = [];
-
-        // Get headers
-        const headerCells = table.querySelectorAll("thead tr th");
-        headerCells.forEach((cell) => {
-            headers.push(cell.textContent.trim());
-        });
-
-        // Get rows
-        const rows = table.querySelectorAll("tbody tr");
-        rows.forEach((row) => {
-            const rowData = [];
-            const cells = row.querySelectorAll("td");
-            cells.forEach((cell) => {
-                rowData.push(cell.textContent.trim());
-            });
-            data.push(rowData);
-        });
-
-        // Add table using autotable
-        doc.autoTable({
-            head: [headers],
-            body: data,
-            startY: 30,
-            styles: {
-                cellPadding: 5,
-                fontSize: 10,
-                halign: 'left', // Align content to the left
-                valign: 'middle',
-                textColor: [0, 0, 0], // Black text
+    function postRedFlags() {
+        $.ajax({
+            url: "/post_redflags",
+            type: "POST",
+            success: function(response) {
+                alert(response.message);  // Display success message
             },
-            headStyles: {
-                textColor: [0, 0, 0], // Black text for headers
-                fontSize: 10,         // Same font size as data
-                fontStyle: 'bold',    // Bold headers
-                halign: 'center',     // Center-align headers
-                fillColor: null,      // No background color
-                lineWidth: 0.1,       // Header borders
-            },
-            theme: 'grid', // Adds borders for both header and data cells
+            error: function(xhr, status, error) {
+                alert("Error: " + xhr.responseText);
+            }
         });
-
-        // Save the PDF
-        doc.save(`Red_Flags_{{ selected_username }}.pdf`);
-    }
-
-    function filterByUsername() {
-        document.querySelector("form").submit();
     }
 </script>
 
-</body>
+    </body>
+    
 </html>
